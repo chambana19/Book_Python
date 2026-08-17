@@ -1,0 +1,1327 @@
+% =====================
+% Chapter 15: Data Analysis with Pandas (ARC500)
+% =====================
+% Requires: \h, \hh, \hhh, \code macros; 4 spaces per indent
+
+\h{Data Analysis with Pandas}
+
+Imagine you're analyzing a 200-room building project. You have spreadsheets with room dimensions, another with material specifications, energy consumption data from sensors, and cost estimates from contractors. How do you combine these datasets, find patterns, and generate insights? This is where Pandas excels---it's like having a powerful spreadsheet program inside Python that can automatically clean, combine, and analyze your data.
+
+\emph{Pandas} is Python's premier data analysis library, designed to make working with structured data fast and intuitive. While NumPy gave you powerful arrays for numerical computation, Pandas provides labeled, flexible data structures that can handle the messy, real-world data architects encounter daily.
+
+\hh{Architectural and structural applications}
+
+Before diving into code, let's understand where Pandas transforms architectural and structural workflows:
+
+\begin{itemize}
+\item \textbf{Space programming:} Analyze room schedules, compare design vs. requirements, track area distributions by department
+\item \textbf{Material takeoffs:} Combine quantities from different sources, group by supplier, calculate costs with regional factors
+\item \textbf{Environmental data:} Process sensor readings, identify comfort violations, correlate energy use with occupancy
+\item \textbf{Project tracking:} Merge timeline data with cost information, identify delays, forecast completion
+\item \textbf{Code compliance:} Check if spaces meet requirements, generate compliance reports, flag violations
+\item \textbf{Facility management:} Track maintenance records, analyze equipment performance, predict replacement schedules
+\end{itemize}
+
+\begin{tcolorbox}[title=Focus of this chapter:,colframe=orange,colback=white,arc=2mm]
+This chapter teaches you to think about data analysis systematically:
+\begin{itemize}
+\item \textbf{Data structures:} Understand Series (columns) and DataFrames (tables)
+\item \textbf{Data ingestion:} Load data from CSV, Excel, JSON, and other formats
+\item \textbf{Data inspection:} Quickly understand your dataset's structure and content
+\item \textbf{Data cleaning:} Handle missing values, duplicates, and formatting issues
+\item \textbf{Data transformation:} Filter, sort, group, and reshape data
+\item \textbf{Data analysis:} Calculate statistics, find patterns, answer questions
+\item \textbf{Data export:} Save cleaned data and results for reports or further use
+\end{itemize}
+\end{tcolorbox}
+
+% ====================================================================
+% PART I – GETTING STARTED WITH PANDAS
+% ====================================================================
+
+\hh{Installation and import}
+
+Before using Pandas, you need to install it once on your computer, then import it in any script where you want to use it. The architecture and data science communities universally use 'pd' as the abbreviation.
+
+\code{c15_setup}{python}{
+    # STEP 1: Install Pandas (do this ONCE in your terminal/command prompt)
+    # Mac: open Terminal
+    # Windows: open Command Prompt or PowerShell
+    # Type: pip install pandas
+    # Press Enter and wait for installation
+    
+    # STEP 2: In your Python script, import Pandas
+    import pandas as pd  # 'pd' is the universal convention
+    
+    # Check it worked
+    print("Pandas version:", pd.__version__)
+    
+    # Also import NumPy (Pandas is built on NumPy)
+    import numpy as np
+
+}{Setting up Pandas on your computer}
+
+\hh{Understanding Pandas data structures}
+
+Pandas has two main data structures. Think of them as smart, labeled versions of Python lists and NumPy arrays:
+
+\begin{itemize}
+\item \textbf{Series:} A one-dimensional array with labels (like a single column in Excel)
+\item \textbf{DataFrame:} A two-dimensional table with labeled rows and columns (like an Excel sheet)
+\end{itemize}
+
+% ====================================================================
+% PART II – SERIES: YOUR FIRST PANDAS STRUCTURE
+% ====================================================================
+
+\hh{Series: One-dimensional labeled data}
+
+A Series is like a single column from a spreadsheet, but each value has a label (called an index). This makes your data self-documenting---instead of remembering "position 2 is the café," the café is actually labeled "Cafe."
+
+\code{c15_series_intro}{python}{
+    import pandas as pd
+    
+    # Method 1: Create Series from a list (automatic integer index)
+    areas_basic = pd.Series([28.0, 32.5, 18.0, 45.2])
+    print("Basic Series (auto-indexed):")
+    print(areas_basic)
+    print()
+    
+    # Method 2: Create Series with custom labels
+    areas = pd.Series([28.0, 32.5, 18.0, 45.2],
+                      index=["Lobby", "Studio", "Cafe", "Gallery"])
+    print("Labeled Series:")
+    print(areas)
+    print()
+    
+    # Understanding Series structure
+    print("Values only:", areas.values)  # NumPy array inside
+    print("Index only:", areas.index)    # The labels
+    print("Data type:", areas.dtype)     # float64
+    
+}{Series combines data with meaningful labels}
+
+\textbf{Key concepts:}
+\begin{itemize}
+\item The \textbf{index} provides labels that travel with your data
+\item \textbf{values} are stored as NumPy arrays (fast computation)
+\item Series can hold any data type: numbers, text, dates, booleans
+\end{itemize}
+
+\hhh{Accessing Series data: By label and position}
+
+Unlike regular lists, Series let you access data both by position (like lists) and by label (more intuitive):
+
+\code{c15_series_access}{python}{
+    import pandas as pd
+    
+    areas = pd.Series([28.0, 32.5, 18.0, 45.2],
+                      index=["Lobby", "Studio", "Cafe", "Gallery"])
+    
+    # Access by label (preferred - clear and self-documenting)
+    print("Studio area:", areas["Studio"], "m²")
+    print("Multiple rooms:", areas[["Lobby", "Gallery"]])
+    print()
+    
+    # Access by position (when needed)
+    print("First room (position 0):", areas.iloc[0])
+    print("Last room (position -1):", areas.iloc[-1])
+    print("Middle two rooms:", areas.iloc[1:3].values)
+    print()
+    
+}{Multiple ways to select data from Series}
+
+\textbf{Key selection methods:}
+\begin{itemize}
+\item \c{series["label"]} - Select by label (clearest)
+\item \c{series.iloc[position]} - Select by integer position
+\item \c{series[condition]} - Filter with boolean conditions
+\item Use labels when possible---they make code self-documenting
+\end{itemize}
+
+\hhh{Series operations: Vectorized calculations}
+
+Like NumPy arrays, Series support vectorized operations---apply calculations to all values at once:
+
+\code{c15_series_operations}{python}{
+    import pandas as pd
+    
+    areas_m2 = pd.Series([28.0, 32.5, 18.0, 45.2],
+                         index=["Lobby", "Studio", "Cafe", "Gallery"])
+    
+    # Convert all areas to square feet (1 m2 = 10.764 ft2)
+    areas_ft2 = areas_m2 * 10.764
+    print("Areas in square feet:")
+    print(areas_ft2.round(1))
+    print()
+    
+    # Calculate cost (500 EUR per m2)
+    cost_per_m2 = 500
+    costs = areas_m2 * cost_per_m2
+    print("Construction costs (EUR):")
+    print(costs)
+    print()
+    
+    # Statistical operations
+    print("Statistics:")
+    print(f"Total area: {areas_m2.sum():.1f} m2")
+    print(f"Average room: {areas_m2.mean():.1f} m2")
+    print(f"Largest room: {areas_m2.max():.1f} m2")
+    print(f"Smallest room: {areas_m2.min():.1f} m2")
+
+}{Series support arithmetic and statistical operations}
+% ====================================================================
+% PART III – DATAFRAMES: WORKING WITH TABLES
+% ====================================================================
+
+\hh{DataFrames: Two-dimensional labeled data}
+
+A DataFrame is Pandas' primary data structure---think of it as a smart spreadsheet where both rows and columns have labels, and different columns can have different data types.
+
+\code{c15_df_create_detailed}{python}{
+    import pandas as pd
+    
+    # Method 1: Create from dictionary (most common)
+    data_dict = {
+        "Room": ["Lobby", "Studio", "Cafe", "Gallery"],
+        "Floor": [0, 1, 0, 2],
+        "Width_m": [4.0, 6.0, 3.5, 5.0],
+        "Length_m": [7.0, 5.0, 6.0, 8.0],
+        "Height_m": [4.5, 3.0, 3.0, 4.0]
+    }
+    df = pd.DataFrame(data_dict)
+    print("DataFrame from dictionary:")
+    print(df)
+    print()
+    
+    # Method 2: Create from lists of lists
+    data_lists = [
+        ["Lobby", 0, 4.0, 7.0, 4.5],
+        ["Studio", 1, 6.0, 5.0, 3.0],
+        ["Cafe", 0, 3.5, 6.0, 3.0],
+        ["Gallery", 2, 5.0, 8.0, 4.0]
+    ]
+    df2 = pd.DataFrame(data_lists,
+                       columns=["Room", "Floor", "Width_m", "Length_m", "Height_m"])
+    print("DataFrame from lists:")
+    print(df2)
+    print()
+    
+    # Understanding DataFrame structure
+    print("Shape (rows, cols):", df.shape)
+    print("Column names:", df.columns.tolist())
+    print("Index:", df.index.tolist())
+    print("Data types:")
+    print(df.dtypes)
+
+}{Creating DataFrames from different sources}
+
+\textbf{Key DataFrame concepts:}
+\begin{itemize}
+\item \textbf{Columns} can have different types (text, integers, floats)
+\item \textbf{Index} provides row labels (default is 0, 1, 2...)
+\item \textbf{Shape} tells you dimensions: (rows, columns)
+\item Think of DataFrames as collections of Series sharing the same index
+\end{itemize}
+
+\hhh{Adding and modifying columns}
+
+DataFrames are dynamic---you can add calculated columns, modify existing ones, or create categories:
+
+\code{c15_df_columns_detailed}{python}{
+    import pandas as pd
+    
+    df = pd.DataFrame({
+        "Room": ["Lobby", "Studio", "Cafe", "Gallery"],
+        "Width_m": [4.0, 6.0, 3.5, 5.0],
+        "Length_m": [7.0, 5.0, 6.0, 8.0],
+        "Height_m": [4.5, 3.0, 3.0, 4.0]
+    })
+    
+    # Add calculated columns
+    df["Area_m2"] = df["Width_m"] * df["Length_m"]
+    df["Volume_m3"] = df["Area_m2"] * df["Height_m"]
+    
+    # Add categorical column based on area
+    df["Size_Category"] = df["Area_m2"].apply(
+        lambda x: "Large" if x > 30 else "Small"
+    )
+    
+    # Add text combination
+    df["Description"] = df["Room"] + " (" + df["Area_m2"].astype(str) + " m²)"
+    
+    print("DataFrame with new columns:")
+    print(df)
+    print()
+    
+    # Modify existing column
+    df["Height_m"] = df["Height_m"] + 0.3  # Add 30cm for floor thickness
+    print("After modifying height:")
+    print(df[["Room", "Height_m"]])
+    print()
+    
+    # Rename columns for clarity
+    df = df.rename(columns={
+        "Length_m": "Depth_m",
+        "Size_Category": "Size"
+    })
+    print("After renaming:")
+    print(df.columns.tolist())
+}{Dynamic column operations in DataFrames}
+
+\textbf{Column operation patterns:}
+\begin{itemize}
+\item \textbf{Arithmetic:} \c{df["new"] = df["col1"] * df["col2"]}
+\item \textbf{Apply function:} \c{df["new"] = df["col"].apply(function)}
+\item \textbf{Conditional:} Use \c{np.where} or \c{apply} with lambda
+\item \textbf{Text operations:} Combine with \c{+} or use \c{.str} methods
+\end{itemize}
+
+% ====================================================================
+% PART IV – DATA INPUT/OUTPUT
+% ====================================================================
+
+\hh{Loading and saving data}
+
+Real architectural data comes from many sources: BIM exports, sensor logs, spreadsheets, databases. Pandas can read them all.
+
+\hhh{Working with CSV files}
+
+CSV (Comma-Separated Values) is the most common format for data exchange in architecture.
+
+\code{c15_csv_complete}{python}{
+    import pandas as pd
+    
+    # Create sample CSV file for testing
+    sample_data = """Room,Floor,Width_m,Length_m,Occupancy
+Lobby,0,4.0,7.0,50
+Studio,1,6.0,5.0,20
+Cafe,0,3.5,6.0,30
+Gallery,2,5.0,8.0,40
+Conference,1,8.0,10.0,60"""
+    
+    with open("building_rooms.csv", "w") as f:
+        f.write(sample_data)
+    
+    # Read CSV with various options
+    df = pd.read_csv("building_rooms.csv")
+    print("Basic CSV read:")
+    print(df)
+    print()
+    
+    # Read with specific options
+    df2 = pd.read_csv("building_rooms.csv",
+                      index_col="Room",      # Use Room as index
+                      usecols=["Room", "Floor", "Occupancy"])  # Select columns
+    print("CSV with options:")
+    print(df2)
+    print()
+    
+    # Save DataFrame to CSV
+    df["Area_m2"] = df["Width_m"] * df["Length_m"]
+    df.to_csv("rooms_with_area.csv", index=False)
+    print("Saved enhanced data to 'rooms_with_area.csv'")
+    
+    # Save with specific formatting
+    df.to_csv("rooms_formatted.csv",
+              index=False,
+              float_format="%.1f",  # One decimal place
+              columns=["Room", "Floor", "Area_m2"])  # Select columns
+}{Reading and writing CSV files with options}
+
+\hhh{Working with Excel files}
+
+Excel is ubiquitous in architectural practice. Pandas can read and write Excel files with multiple sheets.
+
+\code{c15_excel_detailed}{python}{
+    import pandas as pd
+    
+    # First install: pip install openpyxl
+    
+    # Create sample DataFrames
+    rooms_df = pd.DataFrame({
+        "Room": ["Lobby", "Studio", "Cafe"],
+        "Area_m2": [28.0, 30.0, 21.0]
+    })
+    
+    costs_df = pd.DataFrame({
+        "Item": ["Flooring", "Lighting", "HVAC"],
+        "Cost_per_m2": [120, 85, 150]
+    })
+    
+    # Write multiple sheets to Excel
+    with pd.ExcelWriter("building_data.xlsx") as writer:
+        rooms_df.to_excel(writer, sheet_name="Rooms", index=False)
+        costs_df.to_excel(writer, sheet_name="Costs", index=False)
+    
+    print("Created Excel file with multiple sheets")
+    
+    # Read from Excel
+    df_rooms = pd.read_excel("building_data.xlsx", sheet_name="Rooms")
+    df_costs = pd.read_excel("building_data.xlsx", sheet_name="Costs")
+    
+    print("\nRooms sheet:")
+    print(df_rooms)
+    print("\nCosts sheet:")
+    print(df_costs)
+    
+    # Read all sheets at once
+    all_sheets = pd.read_excel("building_data.xlsx", sheet_name=None)
+    print("\nAvailable sheets:", list(all_sheets.keys()))
+
+}{Excel files with multiple sheets}
+
+% ====================================================================
+% PART V – DATA INSPECTION AND EXPLORATION
+% ====================================================================
+
+\hh{Inspecting your data}
+
+Before any analysis, you need to understand your data's structure, content, and quality. Pandas provides powerful inspection tools.
+
+\code{c15_inspect_detailed}{python}{
+    import pandas as pd
+    import numpy as np
+    
+    # Create a realistic dataset
+    df = pd.DataFrame({
+        "RoomID": ["R001", "R002", "R003", "R004", "R005"],
+        "Name": ["Lobby", "Studio", None, "Gallery", "Storage"],
+        "Floor": [0, 1, 1, 2, -1],
+        "Area_m2": [28.0, 30.0, 25.5, 40.0, 12.0],
+        "Height_m": [4.5, 3.0, 3.0, None, 2.5],
+        "Renovated": [True, True, False, True, False]
+    })
+    
+    print("=== DATA OVERVIEW ===")
+    print("First 3 rows:")
+    print(df.head(3))
+    print("\nLast 2 rows:")
+    print(df.tail(2))
+    print()
+    
+    print("=== STRUCTURE ===")
+    print("Shape:", df.shape)
+    print("Columns:", df.columns.tolist())
+    print("Index:", df.index.tolist())
+    print()
+    
+    print("=== DATA TYPES ===")
+    print(df.dtypes)
+    print()
+    
+    print("=== MISSING DATA ===")
+    print("Missing values per column:")
+    print(df.isnull().sum())
+    print()
+    
+    print("=== STATISTICAL SUMMARY ===")
+    print(df.describe())  # Numeric columns
+    print()
+    print(df.describe(include=['object']))  # Text columns
+    print()
+    
+    print("=== INFO METHOD (COMPREHENSIVE) ===")
+    df.info()
+    
+}{Comprehensive data inspection methods}
+
+\textbf{Inspection checklist:}
+\begin{itemize}
+\item \c{head()/tail()} - Preview data structure
+\item \c{shape} - Understand size
+\item \c{dtypes} - Check data types are correct
+\item \c{isnull().sum()} - Find missing data
+\item \c{describe()} - Statistical overview
+\item \c{info()} - Comprehensive summary
+\end{itemize}
+
+% ====================================================================
+% PART VI – DATA SELECTION AND FILTERING
+% ====================================================================
+
+\hh{Selecting and filtering data}
+
+Accessing specific parts of your DataFrame is fundamental to analysis. Pandas provides multiple methods depending on your needs.
+
+\code{c15_selection_comprehensive}{python}{
+    import pandas as pd
+    
+    df = pd.DataFrame({
+        "Room": ["Lobby", "Studio", "Cafe", "Gallery", "Office"],
+        "Floor": [0, 1, 0, 2, 1],
+        "Area_m2": [28.0, 30.0, 21.0, 40.0, 25.0],
+        "Public": [True, False, True, True, False]
+    })
+    
+    print("=== COLUMN SELECTION ===")
+    # Single column (returns Series)
+    print("Single column as Series:")
+    print(df["Room"])
+    print()
+    
+    # Multiple columns (returns DataFrame)
+    print("Multiple columns as DataFrame:")
+    print(df[["Room", "Area_m2"]])
+    print()
+    
+    print("=== ROW SELECTION ===")
+    # By position (iloc)
+    print("First row (iloc[0]):")
+    print(df.iloc[0])
+    print()
+    
+    print("Rows 1-3 (iloc[1:3]):")
+    print(df.iloc[1:3])
+    print()
+    
+    # By label (loc) - using index
+    print("Row with index 2 (loc[2]):")
+    print(df.loc[2])
+    print()
+    
+    print("=== CONDITIONAL FILTERING ===")
+    # Single condition
+    large_rooms = df[df["Area_m2"] > 25]
+    print("Rooms larger than 25 m²:")
+    print(large_rooms)
+    print()
+    
+    # Multiple conditions (use & for AND, | for OR)
+    public_ground = df[(df["Public"] == True) & (df["Floor"] == 0)]
+    print("Public rooms on ground floor:")
+    print(public_ground)
+    print()
+    
+    # Using isin() for multiple values
+    selected_floors = df[df["Floor"].isin([0, 2])]
+    print("Rooms on floors 0 or 2:")
+    print(selected_floors)
+    print()
+    
+    # String operations
+    rooms_with_o = df[df["Room"].str.contains("o")]
+    print("Rooms containing 'o':")
+    print(rooms_with_o)
+    
+}{Comprehensive selection and filtering techniques}
+
+\textbf{Selection patterns:}
+\begin{itemize}
+\item \textbf{Columns:} \c{df["col"]} or \c{df[["col1", "col2"]]}
+\item \textbf{Rows by position:} \c{df.iloc[0]} or \c{df.iloc[1:3]}
+\item \textbf{Rows by label:} \c{df.loc[label]} or \c{df.loc[label1:label2]}
+\item \textbf{Boolean filtering:} \c{df[condition]}
+\item \textbf{Multiple conditions:} Use \c{\&} (and), \c{|} (or), \c{\~} (not)
+\end{itemize}
+
+% ====================================================================
+% PART VII – DATA CLEANING
+% ====================================================================
+
+\hh{Cleaning messy data}
+
+Real-world architectural data is rarely perfect. It contains missing values, duplicates, inconsistent formats, and errors. Pandas provides powerful tools to clean your data.
+
+\hhh{Handling missing data}
+
+\code{c15_missing_comprehensive}{python}{
+    import pandas as pd
+    import numpy as np
+    
+    # Create dataset with missing values
+    df = pd.DataFrame({
+        "Room": ["Lobby", "Studio", "Cafe", "Gallery", "Office", "Storage"],
+        "Floor": [0, 1, 0, np.nan, 1, -1],
+        "Area_m2": [28.0, np.nan, 21.0, 40.0, 25.0, np.nan],
+        "Height_m": [4.5, 3.0, np.nan, 4.0, 3.0, 2.5]
+    })
+    
+    print("Original data with missing values:")
+    print(df)
+    print()
+    
+    # Detect missing values
+    print("Missing value indicators:")
+    print(df.isnull())
+    print()
+    
+    print("Missing count by column:")
+    print(df.isnull().sum())
+    print()
+    
+    print("Percentage missing:")
+    print((df.isnull().sum() / len(df) * 100).round(1))
+    print()
+    
+    # Strategy 1: Drop rows with any missing values
+    df_dropped = df.dropna()
+    print("After dropping rows with ANY missing:")
+    print(df_dropped)
+    print()
+    
+    # Strategy 2: Drop rows where specific columns are missing
+    df_dropped_specific = df.dropna(subset=["Area_m2"])
+    print("After dropping rows missing Area_m2:")
+    print(df_dropped_specific)
+    print()
+    
+    # Strategy 3: Fill missing with a value
+    df_filled = df.copy()
+    df_filled["Floor"] = df_filled["Floor"].fillna(0)  # Assume ground floor
+    df_filled["Height_m"] = df_filled["Height_m"].fillna(3.0)  # Standard height
+    print("After filling with defaults:")
+    print(df_filled)
+    print()
+    
+    # Strategy 4: Fill with statistics
+    df_smart = df.copy()
+    df_smart["Area_m2"] = df_smart["Area_m2"].fillna(df_smart["Area_m2"].mean())
+    df_smart["Height_m"] = df_smart["Height_m"].fillna(df_smart["Height_m"].median())
+    print("After filling with mean/median:")
+    print(df_smart)
+    
+}{Strategies for handling missing data}
+
+\hhh{Removing duplicates and fixing data types}
+
+\code{c15_duplicates_types}{python}{
+    import pandas as pd
+    
+    # Create dataset with duplicates and wrong types
+    df = pd.DataFrame({
+        "RoomID": ["R001", "R002", "R001", "R003", "R002"],
+        "Room": ["Lobby", "Studio", "Lobby", "Cafe", "Studio"],
+        "Floor": ["0", "1", "0", "Ground", "1"],  # Mixed formats
+        "Area": ["28.5", "30.0", "28.5", "21.0", "30.0"]  # Strings not numbers
+    })
+    
+    print("Original data (with issues):")
+    print(df)
+    print("Data types:", df.dtypes.tolist())
+    print()
+    
+    # Find duplicates
+    print("Duplicate rows:")
+    print(df[df.duplicated()])
+    print()
+    
+    print("Duplicate RoomIDs:")
+    print(df[df.duplicated(subset=["RoomID"], keep=False)])
+    print()
+    
+    # Remove duplicates
+    df_unique = df.drop_duplicates()
+    print("After removing exact duplicates:")
+    print(df_unique)
+    print()
+    
+    # Keep first occurrence of each RoomID
+    df_first = df.drop_duplicates(subset=["RoomID"], keep="first")
+    print("Keeping first occurrence of each RoomID:")
+    print(df_first)
+    print()
+    
+    # Fix data types
+    df_clean = df_first.copy()
+    
+    # Convert Area to numeric
+    df_clean["Area"] = pd.to_numeric(df_clean["Area"])
+    
+    # Fix Floor column (handle "Ground" as 0)
+    df_clean["Floor"] = df_clean["Floor"].replace("Ground", "0")
+    df_clean["Floor"] = pd.to_numeric(df_clean["Floor"])
+    
+    print("After fixing data types:")
+    print(df_clean)
+    print("New data types:", df_clean.dtypes.tolist())
+    
+}{Handling duplicates and correcting data types}
+
+% ====================================================================
+% PART VIII – DATA TRANSFORMATION AND ANALYSIS
+% ====================================================================
+
+\hh{Transforming data}
+
+Data transformation is about reshaping, combining, and aggregating your data to answer questions.
+
+\hhh{Sorting data}
+
+\code{c15_sorting}{python}{
+    import pandas as pd
+    
+    df = pd.DataFrame({
+        "Room": ["Lobby", "Studio", "Cafe", "Gallery", "Office"],
+        "Floor": [0, 1, 0, 2, 1],
+        "Area_m2": [28.0, 30.0, 21.0, 40.0, 25.0]
+    })
+    
+    # Sort by single column
+    df_by_area = df.sort_values("Area_m2")
+    print("Sorted by area (ascending):")
+    print(df_by_area)
+    print()
+    
+    # Sort descending
+    df_by_area_desc = df.sort_values("Area_m2", ascending=False)
+    print("Sorted by area (descending):")
+    print(df_by_area_desc)
+    print()
+    
+    # Sort by multiple columns
+    df_multi = df.sort_values(["Floor", "Area_m2"], 
+                              ascending=[True, False])
+    print("Sorted by floor (asc), then area (desc):")
+    print(df_multi)
+    
+}{Sorting data by single or multiple columns}
+
+\hhh{Grouping and aggregation}
+
+Grouping is one of Pandas' most powerful features---it lets you split data into groups and calculate statistics for each group.
+
+\code{c15_groupby_detailed}{python}{
+    import pandas as pd
+    
+    # Building room inventory
+    df = pd.DataFrame({
+        "Room": ["Lobby", "Office1", "Cafe", "Office2", "Studio1", 
+                 "Gallery", "Office3", "Studio2", "Storage"],
+        "Type": ["Public", "Office", "Public", "Office", "Studio",
+                 "Public", "Office", "Studio", "Service"],
+        "Floor": [0, 0, 0, 1, 1, 2, 2, 2, -1],
+        "Area_m2": [45.0, 25.0, 30.0, 28.0, 35.0, 
+                    60.0, 24.0, 38.0, 15.0],
+        "Height_m": [4.5, 3.0, 3.5, 3.0, 3.0, 
+                     5.0, 3.0, 3.0, 2.5]
+    })
+    
+    print("Original data:")
+    print(df)
+    print()
+    
+    # Group by Type and calculate statistics
+    grouped_type = df.groupby("Type")["Area_m2"].agg(["mean", "sum", "count"])
+    print("Statistics by room type:")
+    print(grouped_type)
+    print()
+    
+    # Group by Floor
+    grouped_floor = df.groupby("Floor")[["Area_m2", "Height_m"]].mean()
+    print("Average dimensions by floor:")
+    print(grouped_floor.round(1))
+    print()
+    
+    # Multiple aggregations
+    agg_dict = {
+        "Area_m2": ["sum", "mean", "max"],
+        "Height_m": "mean",
+        "Room": "count"  # Count rooms
+    }
+    grouped_custom = df.groupby("Type").agg(agg_dict)
+    print("Multiple aggregations by type:")
+    print(grouped_custom)
+    print()
+    
+    # Group by multiple columns
+    grouped_multi = df.groupby(["Floor", "Type"])["Area_m2"].sum()
+    print("Total area by floor and type:")
+    print(grouped_multi)
+    
+}{Powerful grouping and aggregation operations}
+
+\textbf{Common aggregation functions:}
+\begin{itemize}
+\item \c{sum()} - Total
+\item \c{mean()} - Average
+\item \c{median()} - Middle value
+\item \c{count()} - Number of items
+\item \c{std()} - Standard deviation
+\item \c{min()/max()} - Extreme values
+\item \c{first()/last()} - First/last item
+\end{itemize}
+
+% ====================================================================
+% PART IX – ADVANCED OPERATIONS
+% ====================================================================
+
+\hh{Advanced data operations}
+
+\hhh{Merging and joining DataFrames}
+
+In architectural projects, data often comes from multiple sources that need to be combined.
+
+\code{c15_merge_join}{python}{
+    import pandas as pd
+    
+    # Room dimensions from architectural plans
+    rooms = pd.DataFrame({
+        "RoomID": ["R001", "R002", "R003", "R004"],
+        "Name": ["Lobby", "Studio", "Cafe", "Gallery"],
+        "Area_m2": [45.0, 35.0, 30.0, 60.0]
+    })
+    
+    # Cost data from contractor
+    costs = pd.DataFrame({
+        "RoomID": ["R001", "R002", "R003", "R005"],
+        "Flooring_per_m2": [120, 95, 110, 105],
+        "Lighting_per_m2": [85, 70, 90, 75]
+    })
+    
+    # Material specifications
+    materials = pd.DataFrame({
+        "Name": ["Lobby", "Studio", "Cafe"],
+        "Floor_Type": ["Marble", "Wood", "Tile"],
+        "Ceiling": ["Gypsum", "Exposed", "Gypsum"]
+    })
+    
+    print("Rooms DataFrame:")
+    print(rooms)
+    print("\nCosts DataFrame:")
+    print(costs)
+    print("\nMaterials DataFrame:")
+    print(materials)
+    print()
+    
+    # Inner join (only matching RoomIDs)
+    merged_inner = pd.merge(rooms, costs, on="RoomID", how="inner")
+    print("Inner join (rooms with costs):")
+    print(merged_inner)
+    print()
+    
+    # Left join (keep all rooms)
+    merged_left = pd.merge(rooms, costs, on="RoomID", how="left")
+    print("Left join (all rooms, costs where available):")
+    print(merged_left)
+    print()
+    
+    # Join on different column names
+    merged_materials = pd.merge(rooms, materials, 
+                                left_on="Name", right_on="Name", how="left")
+    print("Merged with materials:")
+    print(merged_materials)
+    print()
+    
+    # Calculate total costs
+    result = merged_inner.copy()
+    result["Flooring_Total"] = result["Area_m2"] * result["Flooring_per_m2"]
+    result["Lighting_Total"] = result["Area_m2"] * result["Lighting_per_m2"]
+    result["Total_Cost"] = result["Flooring_Total"] + result["Lighting_Total"]
+    
+    print("Final cost calculation:")
+    print(result[["Name", "Area_m2", "Total_Cost"]])
+    
+}{Combining data from multiple sources}
+
+\hhh{Pivot tables and cross-tabulation}
+
+Pivot tables reorganize data to reveal patterns, similar to Excel pivot tables.
+
+\code{c15_pivot_crosstab}{python}{
+    import pandas as pd
+    
+    # Building occupancy data
+    df = pd.DataFrame({
+        "Floor": [0, 0, 1, 1, 1, 2, 2, 0],
+        "Type": ["Office", "Public", "Office", "Studio", "Public",
+                 "Office", "Studio", "Studio"],
+        "Area_m2": [25, 45, 30, 35, 20, 28, 40, 32],
+        "Occupancy": [10, 50, 12, 8, 15, 11, 9, 7]
+    })
+    
+    print("Original data:")
+    print(df)
+    print()
+    
+    # Pivot table: average area by floor and type
+    pivot_area = pd.pivot_table(df, 
+                                values="Area_m2",
+                                index="Floor",
+                                columns="Type",
+                                aggfunc="mean")
+    print("Average area by floor and type:")
+    print(pivot_area)
+    print()
+    
+    # Pivot table with multiple aggregations
+    pivot_multi = pd.pivot_table(df,
+                                 values="Area_m2",
+                                 index="Floor",
+                                 columns="Type",
+                                 aggfunc=["sum", "count"],
+                                 fill_value=0)
+    print("Sum and count of areas:")
+    print(pivot_multi)
+    print()
+    
+    # Cross-tabulation (frequency table)
+    crosstab = pd.crosstab(df["Floor"], df["Type"])
+    print("Count of room types per floor:")
+    print(crosstab)
+    print()
+    
+    # Cross-tab with margins (totals)
+    crosstab_margins = pd.crosstab(df["Floor"], df["Type"], margins=True)
+    print("With row and column totals:")
+    print(crosstab_margins)
+
+}{Creating pivot tables and cross-tabulations}
+
+% ====================================================================
+% PART X – COMPLETE DATA ANALYSIS WORKFLOW
+% ====================================================================
+
+\hh{Complete analysis workflow: Building space analysis}
+
+Let's combine everything into a complete analysis workflow for a building project.
+
+\code{c15_complete_workflow}{python}{
+    import pandas as pd
+    import numpy as np
+    
+    # Step 1: Load and combine data from multiple sources
+    print("=" * 50)
+    print("STEP 1: DATA LOADING AND COMBINATION")
+    print("=" * 50)
+    
+    # Room schedule from architect
+    rooms = pd.DataFrame({
+        "RoomID": ["R" + str(i).zfill(3) for i in range(1, 16)],
+        "Name": ["Lobby", "Cafe", "Office1", "Office2", "Meeting1",
+                "Studio1", "Studio2", "Gallery", "Office3", "Meeting2",
+                "Storage1", "Server", "Office4", "Lounge", "Storage2"],
+        "Type": ["Public", "Public", "Office", "Office", "Meeting",
+                "Studio", "Studio", "Public", "Office", "Meeting",
+                "Service", "Service", "Office", "Public", "Service"],
+        "Floor": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, -1, -1, 2, 2, 2],
+        "Width_m": [8, 6, 5, 5, 4, 7, 7, 10, 5, 6, 3, 3, 5, 8, 4],
+        "Length_m": [10, 8, 6, 7, 5, 8, 9, 12, 6, 8, 4, 4, 7, 10, 5]
+    })
+    
+    # Occupancy requirements
+    occupancy = pd.DataFrame({
+        "Type": ["Public", "Office", "Meeting", "Studio", "Service"],
+        "People_per_m2": [0.5, 0.1, 0.3, 0.15, 0.05],
+         "Min_Height_m": [4.0, 3.0, 3.0, 3.5, 2.5]
+    })
+    
+    print("Rooms loaded:", len(rooms))
+    print("Room types:", rooms["Type"].unique())
+    print()
+    
+    # Step 2: Data cleaning and preparation
+    print("=" * 50)
+    print("STEP 2: DATA CLEANING AND PREPARATION")
+    print("=" * 50)
+    
+    # Calculate areas
+    rooms["Area_m2"] = rooms["Width_m"] * rooms["Length_m"]
+    
+    # Merge with occupancy requirements
+    rooms_full = pd.merge(rooms, occupancy, on="Type", how="left")
+    
+    # Calculate max occupancy
+    rooms_full["Max_Occupancy"] = (
+        rooms_full["Area_m2"] * rooms_full["People_per_m2"]
+    ).round()
+    
+    print("Sample of prepared data:")
+    print(rooms_full[["Name", "Type", "Floor", "Area_m2", "Max_Occupancy"]].head())
+    print()
+    
+    # Step 3: Data quality checks
+    print("=" * 50)
+    print("STEP 3: DATA QUALITY CHECKS")
+    print("=" * 50)
+    
+    # Check for issues
+    print("Missing values:", rooms_full.isnull().sum().sum())
+    print("Duplicate rooms:", rooms_full.duplicated(subset=["RoomID"]).sum())
+    
+    # Validate areas
+    small_rooms = rooms_full[rooms_full["Area_m2"] < 10]
+    if len(small_rooms) > 0:
+        print(f"Warning: {len(small_rooms)} rooms smaller than 10 m²")
+        print(small_rooms[["Name", "Area_m2"]].values)
+    print()
+    
+    # Step 4: Analysis by room type
+    print("=" * 50)
+    print("STEP 4: ANALYSIS BY ROOM TYPE")
+    print("=" * 50)
+    
+    type_analysis = rooms_full.groupby("Type").agg({
+        "Area_m2": ["count", "sum", "mean", "min", "max"],
+        "Max_Occupancy": "sum"
+    }).round(1)
+    
+    print("Room type analysis:")
+    print(type_analysis)
+    print()
+    
+    # Step 5: Analysis by floor
+    print("=" * 50)
+    print("STEP 5: ANALYSIS BY FLOOR")
+    print("=" * 50)
+    
+    floor_analysis = rooms_full.groupby("Floor").agg({
+        "Area_m2": "sum",
+        "Max_Occupancy": "sum",
+        "RoomID": "count"
+    })
+    floor_analysis.columns = ["Total_Area_m2", "Total_Occupancy", "Room_Count"]
+    floor_analysis = floor_analysis.sort_index()
+    
+    print("Floor analysis:")
+    print(floor_analysis)
+    print()
+    
+    # Step 6: Space efficiency metrics
+    print("=" * 50)
+    print("STEP 6: SPACE EFFICIENCY METRICS")
+    print("=" * 50)
+    
+    # Calculate percentages by type
+    type_percentages = (
+        rooms_full.groupby("Type")["Area_m2"].sum() / 
+        rooms_full["Area_m2"].sum() * 100
+    ).round(1)
+    
+    print("Space allocation by type:")
+    for room_type, pct in type_percentages.items():
+        print(f"  {room_type:10s}: {pct:5.1f}% ({rooms_full[rooms_full['Type']==room_type]['Area_m2'].sum():.0f} m²)")
+    print()
+    
+    # Calculate circulation vs usable space
+    service_area = rooms_full[rooms_full["Type"] == "Service"]["Area_m2"].sum()
+    usable_area = rooms_full[rooms_full["Type"] != "Service"]["Area_m2"].sum()
+    efficiency = (usable_area / rooms_full["Area_m2"].sum() * 100)
+    
+    print(f"Usable area: {usable_area:.0f} m² ({efficiency:.1f}%)")
+    print(f"Service area: {service_area:.0f} m² ({100-efficiency:.1f}%)")
+    print()
+    
+    # Step 7: Identify optimization opportunities
+    print("=" * 50)
+    print("STEP 7: OPTIMIZATION OPPORTUNITIES")
+    print("=" * 50)
+    
+    # Find underutilized spaces (low occupancy density)
+    rooms_full["Occupancy_Density"] = (
+        rooms_full["Max_Occupancy"] / rooms_full["Area_m2"]
+    )
+    
+    underutilized = rooms_full[
+        rooms_full["Occupancy_Density"] < 0.1
+    ][["Name", "Type", "Area_m2", "Max_Occupancy"]]
+    
+    if len(underutilized) > 0:
+        print("Potentially underutilized spaces:")
+        print(underutilized)
+    print()
+    
+    # Find oversized rooms compared to type average
+    for room_type in rooms_full["Type"].unique():
+        type_rooms = rooms_full[rooms_full["Type"] == room_type]
+        mean_area = type_rooms["Area_m2"].mean()
+        std_area = type_rooms["Area_m2"].std()
+        
+        if std_area > 0:  # Only if there's variation
+            oversized = type_rooms[
+                type_rooms["Area_m2"] > mean_area + 1.5 * std_area
+            ]
+            if len(oversized) > 0:
+                print(f"Oversized {room_type} rooms:")
+                for _, room in oversized.iterrows():
+                    print(f"  {room['Name']}: {room['Area_m2']:.0f} m² "
+                          f"(avg: {mean_area:.0f} m²)")
+    
+    # Step 8: Generate summary report
+    print("=" * 50)
+    print("STEP 8: SUMMARY REPORT")
+    print("=" * 50)
+    
+    print("BUILDING SUMMARY")
+    print("-" * 30)
+    print(f"Total rooms: {len(rooms_full)}")
+    print(f"Total floors: {rooms_full['Floor'].nunique()} "
+          f"(from {rooms_full['Floor'].min()} to {rooms_full['Floor'].max()})")
+    print(f"Total area: {rooms_full['Area_m2'].sum():.0f} m²")
+    print(f"Total capacity: {rooms_full['Max_Occupancy'].sum():.0f} people")
+    print()
+    
+    print("AVERAGES")
+    print("-" * 30)
+    print(f"Average room size: {rooms_full['Area_m2'].mean():.1f} m²")
+    print(f"Average occupancy per room: {rooms_full['Max_Occupancy'].mean():.1f} people")
+    print(f"Average occupancy density: {(rooms_full['Max_Occupancy'].sum() / rooms_full['Area_m2'].sum()):.2f} people/m²")
+    print()
+    
+    print("LARGEST SPACES")
+    print("-" * 30)
+    largest = rooms_full.nlargest(3, "Area_m2")[["Name", "Type", "Floor", "Area_m2"]]
+    for _, room in largest.iterrows():
+        print(f"{room['Name']:10s} ({room['Type']}): {room['Area_m2']:.0f} m² on floor {room['Floor']}")
+    
+}{Complete building analysis workflow}
+
+% ====================================================================
+% PART XI – BEST PRACTICES AND TIPS
+% ====================================================================
+
+\hh{Best practices for data analysis}
+
+\begin{tcolorbox}[
+    title=Data Analysis Best Practices,
+    colframe=blue,
+    colback=white,
+    arc=2mm
+]
+\textbf{1. Always start with inspection:}
+\begin{itemize}
+\item Use \c{head()}, \c{info()}, \c{describe()} before any analysis
+\item Check data types with \c{dtypes}
+\item Look for missing values with \c{isnull().sum()}
+\end{itemize}
+
+\textbf{2. Clean before analyzing:}
+\begin{itemize}
+\item Handle missing values explicitly (fill or drop)
+\item Remove duplicates with \c{drop_duplicates()}
+\item Fix data types with \c{astype()} or \c{pd.to_numeric()}
+\end{itemize}
+
+\textbf{3. Use meaningful variable names:}
+\begin{itemize}
+\item \c{df_rooms} instead of \c{df1}
+\item \c{area_by_floor} instead of \c{result}
+\item \c{rooms_filtered} instead of \c{temp}
+\end{itemize}
+
+\textbf{4. Chain operations efficiently:}
+\begin{verbatim}
+# Good: Chain operations
+result = (df
+    .dropna()
+    .groupby("Type")["Area"]
+    .mean()
+    .sort_values(ascending=False))
+
+# Avoid: Multiple intermediate variables
+temp1 = df.dropna()
+temp2 = temp1.groupby("Type")["Area"]
+temp3 = temp2.mean()
+result = temp3.sort_values(ascending=False)
+\end{verbatim}
+
+\textbf{5. Document your analysis:}
+\begin{itemize}
+\item Add comments explaining why, not just what
+\item Use meaningful column names
+\item Keep a data dictionary
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Common pitfalls and solutions}
+
+\begin{tcolorbox}[
+    title=Avoiding Common Mistakes,
+    colframe=blue,
+    colback=white,
+    arc=2mm
+]
+\textbf{Problem: SettingWithCopyWarning}
+\begin{verbatim}
+# Bad: Modifying a slice
+df_subset = df[df["Area"] > 30]
+df_subset["Cost"] = df_subset["Area"] * 100  # Warning!
+
+# Good: Use .copy()
+df_subset = df[df["Area"] > 30].copy()
+df_subset["Cost"] = df_subset["Area"] * 100  # Safe
+\end{verbatim}
+
+\textbf{Problem: Losing data during merge}
+\begin{verbatim}
+# Check before merging
+print("Rows before:", len(df1))
+merged = pd.merge(df1, df2, on="ID", how="inner")
+print("Rows after:", len(merged))
+# If different, some IDs didn't match!
+\end{verbatim}
+
+\textbf{Problem: Memory issues with large files}
+\begin{verbatim}
+# Read in chunks
+chunks = pd.read_csv("huge_file.csv", chunksize=1000)
+results = []
+for chunk in chunks:
+    # Process each chunk
+    result = chunk.groupby("Type")["Value"].sum()
+    results.append(result)
+final = pd.concat(results).groupby(level=0).sum()
+\end{verbatim}
+
+\textbf{Problem: Unexpected data types}
+\begin{verbatim}
+# Always check after loading
+print(df.dtypes)
+# Convert if needed
+df["Floor"] = pd.to_numeric(df["Floor"], errors="coerce")
+\end{verbatim}
+\end{tcolorbox}
+
+% ====================================================================
+% PART XII – QUICK REFERENCE
+% ====================================================================
+
+\hh{Quick reference card}
+
+\begin{tcolorbox}[
+    title=Pandas Essential Commands,
+    colframe=blue,
+    colback=white,
+    arc=2mm
+]
+\textbf{Creating/Loading Data}
+\begin{itemize}
+\item \c{pd.DataFrame(dict)} - Create from dictionary
+\item \c{pd.read_csv("file.csv")} - Load CSV
+\item \c{pd.read_excel("file.xlsx")} - Load Excel
+\item \c{df.to_csv("file.csv")} - Save to CSV
+\end{itemize}
+
+\textbf{Inspection}
+\begin{itemize}
+\item \c{df.head(n)} - First n rows
+\item \c{df.tail(n)} - Last n rows
+\item \c{df.info()} - Overview of DataFrame
+\item \c{df.describe()} - Statistical summary
+\item \c{df.shape} - (rows, columns)
+\item \c{df.columns} - Column names
+\item \c{df.dtypes} - Data types
+\end{itemize}
+
+\textbf{Selection}
+\begin{itemize}
+\item \c{df["column"]} - Single column
+\item \c{df[["col1", "col2"]]} - Multiple columns
+\item \c{df.iloc[0]} - Row by position
+\item \c{df.loc["label"]} - Row by label
+\item \c{df[df["col"] > value]} - Filter rows
+\end{itemize}
+
+\textbf{Cleaning}
+\begin{itemize}
+\item \c{df.isnull().sum()} - Count missing
+\item \c{df.dropna()} - Remove missing
+\item \c{df.fillna(value)} - Fill missing
+\item \c{df.drop_duplicates()} - Remove duplicates
+\item \c{df.rename(columns=dict)} - Rename columns
+\end{itemize}
+
+\textbf{Transformation}
+\begin{itemize}
+\item \c{df.sort_values("col")} - Sort by column
+\item \c{df.groupby("col")} - Group by column
+\item \c{pd.merge(df1, df2)} - Join DataFrames
+\item \c{df.pivot_table()} - Create pivot table
+\item \c{df.apply(function)} - Apply function
+\end{itemize}
+
+\textbf{Analysis}
+\begin{itemize}
+\item \c{df["col"].sum()} - Sum values
+\item \c{df["col"].mean()} - Average
+\item \c{df["col"].median()} - Median
+\item \c{df["col"].std()} - Standard deviation
+\item \c{df["col"].value_counts()} - Count unique
+\item \c{df.corr()} - Correlation matrix
+\end{itemize}
+\end{tcolorbox}
+
+% ====================================================================
+% PART XIII – EXERCISES AND LABS
+% ====================================================================
+
+\hh{Practice exercises}
+
+\begin{tcolorbox}[
+    title=Exercise 1: Room Schedule Analysis,
+    colframe=purple,
+    colback=white,
+    arc=2mm
+]
+Given a CSV file with room data, complete these tasks:
+\begin{enumerate}
+\item Load the data and inspect its structure
+\item Add a column for room volume (area × height)
+\item Find all rooms larger than 50 m²
+\item Calculate average area by room type
+\item Identify the floor with the most total area
+\item Export a summary report as a new CSV
+\end{enumerate}
+
+\textbf{Challenge:} Create a function that takes a DataFrame and automatically generates a building summary report.
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+    title=Exercise 2: Cost Estimation,
+    colframe=purple,
+    colback=white,
+    arc=2mm
+]
+You have two datasets:
+\begin{itemize}
+\item Rooms: RoomID, Name, Area, Type
+\item Costs: Type, Cost\_per\_m2, Installation\_cost
+\end{itemize}
+
+Tasks:
+\begin{enumerate}
+\item Merge the datasets appropriately
+\item Calculate total cost for each room
+\item Find the most expensive room type on average
+\item Create a pivot table showing costs by floor and type
+\item Identify cost-saving opportunities
+\end{enumerate}
+
+\textbf{Challenge:} Add regional adjustment factors and recalculate all costs.
+\end{tcolorbox}
+
+% ====================================================================
+% PART XIV – KEY TAKEAWAYS
+% ====================================================================
+
+\hh{Key Takeaways}
+
+\begin{tcolorbox}[
+    colframe=orange,
+    colback=white,
+    arc=2mm
+]
+Pandas transforms how you work with architectural data in Python. Instead of struggling with nested lists or writing complex loops, you can manipulate entire datasets with clear, expressive commands. This isn't just about efficiency---it's about thinking at a higher level about your data.
+
+\textbf{Core concepts to remember:}
+\begin{itemize}
+\item \textbf{Series} are labeled 1D arrays (single columns)
+\item \textbf{DataFrames} are labeled 2D tables (full spreadsheets)
+\item Always \textbf{inspect} before analyzing
+\item \textbf{Clean} data before calculations
+\item Use \textbf{groupby} for aggregations by category
+\item \textbf{Merge} to combine data from multiple sources
+\item Think in terms of \textbf{operations on entire columns}, not individual cells
+\end{itemize}
+
+\textbf{For architectural practice:}
+\begin{itemize}
+\item Use Pandas for room schedules, material takeoffs, and cost estimates
+\item Automate repetitive analysis tasks
+\item Create reproducible reports
+\item Combine data from BIM, spreadsheets, and databases
+\item Generate insights that would be hidden in raw spreadsheets
+\end{itemize}
+
+Remember: If you're manually copying and pasting in Excel, or writing loops to process spreadsheet data, Pandas can probably do it better. Start with simple operations and gradually incorporate more advanced features as you get comfortable.
+\end{tcolorbox}

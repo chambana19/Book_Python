@@ -1,0 +1,55 @@
+% =====================
+% 00_Title_Cover_Image.tex — Clean cover with one centered image
+% Works with: \documentclass{textbook}
+% Requires in preamble: \usepackage{graphicx} (\usepackage{xcolor} optional)
+% Usage: \input{00_Title_Cover_Image.tex} instead of \maketitle
+% =====================
+
+\makeatletter
+\providecommand{\BookTitle}{\@title}
+\providecommand{\BookSubtitle}{Basic Scripting, Algorithmic Coding, Data Analysis, Visualization, Problem-Solving and Optimization}
+\providecommand{\BookAuthor}{Junho Chun, PhD}
+\providecommand{\BookAuthorTitle}{Associate Professor}
+\providecommand{\BookAuthorAffiliation}{School of Architecture, Syracuse University}
+\providecommand{\BookCourse}{ARC500}
+\providecommand{\BookTerm}{Fall 2025}
+\providecommand{\BookPublisher}{}
+% Set this to your actual image file; path can be relative to the .tex file.
+%\providecommand{\BookCoverImage}{figs/cover/cover-image.png}
+\makeatother
+
+\begin{titlepage}
+\thispagestyle{empty}
+
+% Top-left title block
+\vspace*{1.8cm}
+\begin{flushleft}
+  {\bfseries\fontsize{38}{42}\selectfont \BookTitle\par}
+  \vspace{6pt}
+  {\color{black!65}\fontsize{14}{18}\selectfont \BookSubtitle\par}
+\end{flushleft}
+
+% Centered image (scaled to fit without distortion)
+\vfill
+\begin{center}
+  \includegraphics[width=.3\textwidth,height=.45\textheight,keepaspectratio]{Figures/Program symbol.pdf}
+  % If you need to crop margins from the image, add: ,trim=20 20 20 20,clip
+\end{center}
+\vfill
+
+% Bottom meta row
+\begin{flushleft}
+%{\small \BookAuthor \hspace{1em} -- \hspace{1em} \BookCourse, \BookTerm}
+  {\small \BookAuthor}\par
+  {\small \BookAuthorTitle}
+\end{flushleft}
+
+\begin{flushleft}
+  {\small \BookAuthorAffiliation}
+\end{flushleft}
+
+\begin{flushright}
+  {\small \BookPublisher}
+\end{flushright}
+
+\end{titlepage}

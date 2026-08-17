@@ -1,0 +1,312 @@
+% =====================
+% Chapter 11: Python Built-in Functions (ARC500)
+% =====================
+
+\h{Built-in Functions}
+
+Python provides many useful functions that are available at all times, without importing
+any modules. These are called \textbf{built-in functions}. They save time, avoid 
+reinventing the wheel, and make your code easier to read.
+
+Think of them as your "starter toolbox." You have a collection of ready-made tools for 
+working with numbers, text, lists, and more.
+
+In this chapter we cover the most common built-ins for beginners.
+
+\begin{tcolorbox}[title=Focus of this chapter:,colframe=orange,colback=white,arc=2mm]
+\begin{itemize}
+    \item Use built-in functions to inspect and transform data.
+    \item Apply numeric functions like \c{sum}, \c{max}, and \c{round}.
+    \item Handle sequences (lists, tuples, strings) with \c{len}, \c{sorted}, \c{reversed}.
+    \item Convert between types (\c{int}, \c{float}, \c{str}).
+    \item Combine lists cleanly with \c{zip}, number items with \c{enumerate}, 
+          and test conditions with \c{any}/\c{all}.
+    \item Explore Python objects with \c{help} and \c{dir}.
+    \item Recognize when to import modules for more power.
+\end{itemize}
+\end{tcolorbox}
+
+% ====================================================================
+% PART I — INSPECTION AND INFORMATION
+% ====================================================================
+
+\hh{Getting information: len, type, id}
+
+\code{c11_info}{python}{
+    rooms = ["Lobby", "Studio", "Cafe"]
+    areas = [28.0, 32.5, 18.0]
+
+    print("count of rooms:", len(rooms))    # 3
+    print("type of areas:", type(areas))    # <class 'list'>
+    print("id of areas:", id(areas))        # unique memory id
+}{Inspect objects quickly}
+
+\noindent
+\textbf{What these functions do.}
+\begin{itemize}
+  \item \c{len(obj)}: number of items (length of a list, tuple, string, etc.).
+  \item \c{type(x)}: the object's type (helpful for debugging).
+  \item \c{id(x)}: a unique identifier for the object in memory.
+\end{itemize}
+
+% ====================================================================
+% PART II — NUMERIC FUNCTIONS
+% ====================================================================
+
+\hh{Numbers: sum, max, min, abs, round, pow}
+
+\code{c11_numeric}{python}{
+    spans = [6.0, 7.5, 8.0, 6.5]
+
+    print("total span:", sum(spans))        # 28.0
+    print("longest span:", max(spans))      # 8.0
+    print("shortest span:", min(spans))     # 6.0
+
+    drift = -0.12
+    print("absolute drift:", abs(drift))    # 0.12
+
+    pi = 3.14159
+    print("rounded:", round(pi, 2))         # 3.14
+
+    print("power(3,2):", pow(3, 2))         # 9
+}{Useful numeric functions}
+
+\noindent
+\textbf{What these functions do.}
+\begin{itemize}
+  \item \c{sum}, \c{min}, \c{max}: quick totals and extremes (e.g., total floor area, longest span).
+  \item \c{abs}: magnitude without sign (e.g., deflection magnitude).
+  \item \c{round(x, n)}: present results to a fixed precision.
+  \item \c{pow(a, b)}: compute $a^b$ (sometimes clearer than \c{a ** b} for beginners).
+\end{itemize}
+
+% ====================================================================
+% PART III — SEQUENCE FUNCTIONS
+% ====================================================================
+
+\hh{Working with sequences: sorted, reversed, range}
+
+\code{c11_sequence}{python}{
+    floors = [3, 1, 4, 2]
+
+    print("sorted:", sorted(floors))                     # [1, 2, 3, 4]
+    print("reverse sorted:", sorted(floors, reverse=True))  # [4, 3, 2, 1]
+
+    print("reversed object:", list(reversed(floors)))    # [2, 4, 1, 3]
+
+    print("range example:", list(range(1, 6)))           # [1, 2, 3, 4, 5]
+}{Sorting, reversing, and generating sequences}
+
+\noindent
+\textbf{What these functions do.}
+\begin{itemize}
+  \item \c{sorted(iterable)}: returns a \emph{new} list; the original is unchanged.
+  \item \c{reversed(iterable)}: returns a reverse iterator (wrap with \c{list(...)} to display).
+  \item \c{range(start, stop, step)}: generates numbers (commonly used in loops).
+\end{itemize}
+
+\hh{Enumerate: loop with index}
+
+\code{c11_enumerate}{python}{
+    rooms = ["Lobby", "Studio", "Cafe"]
+    for i, r in enumerate(rooms, start=1):
+        print(i, r)
+    # Outcome:
+    # 1 Lobby
+    # 2 Studio
+    # 3 Cafe
+}{enumerate() for numbering in loops}
+
+\c{enumerate(seq, start=1)} gives you both the running index and the item, which keeps loops clean.
+
+\hh{Zip: pairing data}
+
+\code{c11_zip}{python}{
+    names = ["Alice", "Bob", "Charlie"]
+    scores = [85, 90, 88]
+
+    pairs = list(zip(names, scores))
+    print(pairs)
+    # Outcome:
+    # [('Alice', 85), ('Bob', 90), ('Charlie', 88)]
+}{zip() pairs lists into tuples}
+
+\noindent
+\textbf{How it works.} \c{zip} combines two or more lists element by element, like the teeth of a zipper. 
+This is useful for parallel datasets---names with scores, beams with loads, rooms with areas.
+
+\code{c11_zip_loop}{python}{
+    rooms = ["Lobby", "Studio", "Cafe"]
+    areas = [28.0, 32.5, 18.0]
+
+    for r, a in zip(rooms, areas):
+        print(r, ":", a)
+    # Outcome:
+    # Lobby : 28.0
+    # Studio : 32.5
+    # Cafe : 18.0
+}{Iterate through paired data}
+
+\hh{Any and all: quick checks}
+
+\code{c11_any_all}{python}{
+    heights = [3.2, 3.4, 0.0, 2.8]
+    print("any > 3.0?", any(h > 3.0 for h in heights))   # True
+    print("all > 3.0?", all(h > 3.0 for h in heights))   # False
+}{Check conditions across a list}
+
+\noindent
+\textbf{What these functions do.}
+\begin{itemize}
+  \item \c{any(cond for x in items)}: at least one item passes.
+  \item \c{all(cond for x in items)}: every item passes.
+\end{itemize}
+
+% ====================================================================
+% PART IV — TYPE AND CONVERSION
+% ====================================================================
+
+\hh{Converting between types: int, float, str, list, dict}
+
+\code{c11_type_convert}{python}{
+    num_str = "42"
+    print(int(num_str))     # 42
+    print(float(num_str))   # 42.0
+    print(str(3.14))        # "3.14"
+    print(list("ABC"))      # ['A', 'B', 'C']
+
+    # isinstance: check a value's type
+    value = 3.5
+    print("is float?", isinstance(value, float))  # True
+}{Convert types and test with isinstance()}
+
+\noindent
+\textbf{What these functions do.}
+\begin{itemize}
+  \item \c{int}, \c{float}, \c{str}, \c{list}: convert values.
+  \item \c{isinstance(x, T)}: check if \c{x} is of type \c{T}.
+\end{itemize}
+
+% ====================================================================
+% PART V — APPLYING FUNCTIONS TO COLLECTIONS
+% ====================================================================
+
+\hh{Map and filter}
+
+\code{c11_map_filter}{python}{
+    nums = [1, 2, 3, 4, 5]
+
+    squares = list(map(lambda x: x**2, nums))
+    evens = list(filter(lambda x: x % 2 == 0, nums))
+
+    print("squares:", squares)
+    print("evens:", evens)
+    # Outcome:
+    # squares: [1, 4, 9, 16, 25]
+    # evens: [2, 4]
+}{map() applies, filter() selects}
+
+\noindent
+\textbf{What these functions do.}
+\begin{itemize}
+  \item \c{map(f, seq)}: applies function \c{f} to every item.
+  \item \c{filter(pred, seq)}: keeps only items where the predicate is True.
+\end{itemize}
+
+% ====================================================================
+% PART VI — HELPERS FOR EXPLORATION
+% ====================================================================
+
+\hh{help and dir}
+
+\code{c11_help_dir}{python}{
+    # Use help interactively (prints a lot):
+    # help(len)
+
+    print("list methods:", dir([])[:8])
+    print("float methods:", dir(3.14)[:8])
+}{Explore an object with help() and dir()}
+
+\noindent
+\c{help(object)} prints documentation, and \c{dir(object)} lists methods/attributes.
+
+% ====================================================================
+% PART VII — INPUT/OUTPUT
+% ====================================================================
+
+\hh{Basic input and output}
+
+\code{c11_io}{python}{
+    print("Room area m^2:", 3.5 * 5.0)
+
+    # name = input("Project name: ")
+    # print("Hello,", name)
+}{print for output, input for user data}
+
+\noindent
+\c{input()} pauses for the user. Test it interactively.
+
+% ====================================================================
+% PART VIII — IMPORTING MODULES
+% ====================================================================
+
+\hh{Importing more tools}
+
+\code{c11_import}{python}{
+    import math
+    from statistics import mean
+
+    spans = [6.0, 7.5, 8.0, 6.5]
+    print("mean span:", mean(spans))           # 7.0
+    print("circle area r=3:", math.pi * 3**2)  # 28.274...
+}{Use import to access the standard library}
+
+\c{import} pulls in the Python Standard Library (and third-party packages).
+
+% ====================================================================
+% PART IX — MINI-LABS
+% ====================================================================
+
+\hh{Mini-Lab 1 — Exploring room data}
+
+\begin{itemize}
+    \item Start with a list: \c{[24.5, 18.0, 32.5, 28.0]}.
+    \item Print the count, maximum, minimum, and average.
+\end{itemize}
+
+\hh{Mini-Lab 2 — Sorting and converting}
+
+\begin{itemize}
+    \item Given floors \c{[3, 1, 5, 2]}, print them sorted ascending and descending.
+    \item Convert the integer \c{42} to a string, and print it with a label.
+\end{itemize}
+
+\hh{Mini-Lab 3 — Zip for pairing}
+
+\begin{itemize}
+    \item Pair room names \c{["A", "B", "C"]} with areas \c{[20.0, 30.0, 25.0]}.
+    \item Print each pair as \c{"Room A: 20.0 m^2"}.
+\end{itemize}
+
+% ====================================================================
+% PART X — TAKE-HOME
+% ====================================================================
+
+\hh{Key Takeaways}
+\begin{tcolorbox}[% passing options here
+    colframe=orange,
+    colback = white,
+%    colback=orange!40!yellow!30, % think of mixing 2 colors with sliders
+    arc=2mm % sharp corners
+ ]
+\begin{itemize}
+    \item Python includes many built-in functions for everyday tasks.
+    \item Learn the basics first: \c{len}, \c{type}, \c{id}, \c{sum}, \c{min}, \c{max}, 
+          \c{abs}, \c{round}, \c{pow}, \c{sorted}, \c{reversed}, \c{range}, 
+          \c{enumerate}, \c{zip}, \c{any}, \c{all}, 
+          \c{int}, \c{float}, \c{str}, \c{list}, \c{isinstance}, 
+          \c{help}, \c{dir}.
+    \item Built-ins reduce custom code and speed up your workflow.
+    \item Use \c{import} to extend Python with more specialized tools.
+\end{itemize}
+\end{tcolorbox}

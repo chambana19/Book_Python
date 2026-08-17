@@ -1,0 +1,414 @@
+% =====================
+% Chapter 16: Data Visualization with Matplotlib (ARC500)
+% =====================
+% Focus: Matplotlib for 2D and 3D plots only (no pandas in this chapter)
+% Pattern for each example: Syntax → Expected Outcome → Key Ideas → Small Variation
+% Code blocks use the course macro \code{python}{...} and are indented with 4 spaces inside.
+
+\h*{Chapter 16: Data Visualization with Matplotlib}
+
+\hh{Overview}
+Matplotlib is the foundational plotting library in Python. In architecture and design, we use it to turn numbers into geometric insight: trend lines for loads, grids and heatmaps for floor data, and 3D surfaces for forms and shells. This chapter builds from first plots to multi-axes layouts and 3D, using a clear, repeatable recipe. (Pandas-based plotting is covered in the next chapter.)
+
+\hh{Learning Objectives}
+By the end of this chapter, you will be able to:
+\begin{itemize}
+    \item Create 2D plots (line, scatter, bar, histogram, boxplot, errorbar, step)
+    \item Control titles, labels, ticks, limits, legends, grids, and styles
+    \item Arrange multi-plot layouts with the object-oriented (OO) API
+    \item Draw images and heatmaps for 2D scalar fields
+    \item Build 3D plots (line, scatter, surface, wireframe, contour3D, trisurface)
+    \item Export publication-quality figures (PNG, PDF/SVG)
+\end{itemize}
+
+\section{1. Orientation: Figures, Axes, and APIs}
+\hh{Mental Model}
+A \emph{Figure} is the whole canvas. Each \emph{Axes} is a plotting area inside a Figure. Plots are composed of \emph{artists} (lines, patches, text).
+
+\hh{Two Ways to Plot}
+\begin{itemize}
+    \item \textbf{Pyplot (quick):} state-machine style via \texttt{plt.plot(...)}.
+    \item \textbf{Object-Oriented (precise):} create \texttt{fig, ax = plt.subplots()} then call \texttt{ax.plot(...)} on specific axes.
+\end{itemize}
+\NoteBox{Start with \textbf{pyplot} to learn the basics. Move to the \textbf{OO API} when you need multiple plots, fine layout control, or 3D.}
+
+\section{2. The Minimal Plotting Recipe}
+Use this 6-step template throughout the chapter.
+\begin{enumerate}
+    \item Import: \texttt{import matplotlib.pyplot as plt}
+    \item Data: prepare \texttt{x}, \texttt{y}
+    \item Plot: \texttt{plt.plot(x, y)} or \texttt{ax.plot(x, y)}
+    \item Decorate: title, labels, legend, grid
+    \item Show: \texttt{plt.show()}
+    \item Save (optional): \texttt{plt.savefig('figure.png', dpi=300)}
+\end{enumerate}
+
+\section{3. Core 2D Plot Types}
+\subsection{3.1 Line Plot}
+\code{python}{
+    import matplotlib.pyplot as plt
+
+    x = [0, 1, 2, 3]
+    y = [0, 2, 4, 6]
+
+    plt.plot(x, y)
+    plt.title('Simple Line')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.grid(True)
+    plt.show()
+}
+\textbf{Expected Outcome:} A straight line through (0,0), (1,2), (2,4), (3,6) with grid and labels.
+\textbf{Key Ideas:} \texttt{plot} connects points in order; labels and grids improve readability.
+\textit{Variation:} Add markers: \texttt{plt.plot(x, y, marker='o')}.
+
+\subsection{3.2 Scatter Plot}
+\code{python}{
+    import random
+    import matplotlib.pyplot as plt
+
+    x = [random.random() for _ in range(50)]
+    y = [random.random() for _ in range(50)]
+
+    plt.scatter(x, y, alpha=0.7)
+    plt.title('Scatter (Random Points)')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.grid(True)
+    plt.show()
+}
+\textbf{Expected Outcome:} 50 semi-transparent points uniformly spread in the unit square.
+\textbf{Key Ideas:} \texttt{scatter} is best for relationships and clusters; \texttt{alpha} controls transparency.
+\textit{Variation:} Size by a third variable: \texttt{plt.scatter(x, y, s=[30 + 200*r for r in x])}.
+
+\subsection{3.3 Bar and Barh}
+\code{python}{
+    import matplotlib.pyplot as plt
+
+    cats = ['A', 'B', 'C', 'D']
+    vals = [23, 45, 56, 31]
+
+    plt.bar(cats, vals)
+    plt.title('Category Values')
+    plt.ylabel('Value')
+    plt.grid(axis='y')
+    plt.show()
+}
+\textbf{Expected Outcome:} Vertical bars for A–D with heights matching \texttt{vals}.
+\textbf{Key Ideas:} Bars for categories; grid on y improves reading.
+\textit{Variation:} Horizontal bars: \texttt{plt.barh(cats, vals)}.
+
+\subsection{3.4 Histogram}
+\code{python}{
+    import random
+    import matplotlib.pyplot as plt
+
+    samples = [random.gauss(0, 1) for _ in range(1000)]
+
+    plt.hist(samples, bins=30, alpha=0.8)
+    plt.title('Normal-like Distribution')
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
+    plt.show()
+}
+\textbf{Expected Outcome:} Bell-shaped frequency distribution with ~30 bins.
+\textbf{Key Ideas:} Use histograms for distributions; \texttt{bins} affects smoothness.
+\textit{Variation:} Density view: \texttt{plt.hist(samples, bins=30, density=True)}.
+
+\subsection{3.5 Boxplot and Errorbar}
+\code{python}{
+    import random
+    import matplotlib.pyplot as plt
+
+    A = [random.gauss(50, 10) for _ in range(100)]
+    B = [random.gauss(55, 8) for _ in range(100)]
+
+    plt.boxplot([A, B], labels=['A', 'B'])
+    plt.title('Boxplot of Two Groups')
+    plt.grid(True)
+    plt.show()
+}
+\textbf{Expected Outcome:} Two box-and-whisker plots with medians around 50 and 55.
+\textbf{Key Ideas:} Boxplots summarize spread and outliers succinctly.
+\textit{Variation (means with error bars):}
+\code{python}{
+    import statistics as st
+    import matplotlib.pyplot as plt
+
+    A = [50, 52, 48, 60, 55]
+    B = [56, 58, 54, 63, 57]
+
+    means = [st.mean(A), st.mean(B)]
+    errs = [st.pstdev(A), st.pstdev(B)]
+
+    plt.errorbar(['A', 'B'], means, yerr=errs, fmt='o-')
+    plt.title('Means with Std Dev')
+    plt.grid(True)
+    plt.show()
+}
+
+\section{4. Decorations \\& Readability}
+\code{python}{
+    import matplotlib.pyplot as plt
+
+    x = [0, 1, 2, 3]
+    y = [0, 2, 4, 6]
+
+    plt.plot(x, y, marker='o', linestyle='--')
+    plt.title('Decorated Line', loc='left')
+    plt.xlabel('Span (m)')
+    plt.ylabel('Load (kN)')
+    plt.xlim(-0.5, 3.5)
+    plt.ylim(-1, 7)
+    plt.xticks([0, 1, 2, 3])
+    plt.yticks(range(0, 7))
+    plt.grid(True, which='both', axis='both')
+    plt.legend(['Linear relation'])
+    plt.show()
+}
+\textbf{Expected Outcome:} Ticked, limited axes; dashed line with markers; legend and grid.
+\textbf{Key Ideas:} Ticks and limits frame the story; legends name data.
+\textit{Variation:} Scientific tick formatting via \texttt{ScalarFormatter} (advanced).
+
+\section{5. Subplots with the OO API}
+\code{python}{
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    fig, axs = plt.subplots(2, 2, figsize=(8, 6), constrained_layout=True)
+
+    x = np.linspace(0, 2*np.pi, 200)
+    axs[0, 0].plot(x, np.sin(x))
+    axs[0, 0].set_title('sin')
+
+    axs[0, 1].plot(x, np.cos(x))
+    axs[0, 1].set_title('cos')
+
+    axs[1, 0].plot(x, np.tan(x))
+    axs[1, 0].set_title('tan (clipped)')
+    axs[1, 0].set_ylim(-5, 5)
+
+    axs[1, 1].hist(np.random.randn(1000), bins=30)
+    axs[1, 1].set_title('hist')
+
+    plt.show()
+}
+\textbf{Expected Outcome:} A 2×2 grid with sin, cos, tan (limited), and a histogram.
+\textbf{Key Ideas:} \texttt{fig, ax = plt.subplots()} manages layout; each \texttt{ax} is independent.
+\textit{Variation:} Shared axes: \texttt{subplots(2, 2, sharex=True, sharey=True)}.
+
+\section{6. Styles, Colors, and Annotations}
+\code{python}{
+    import matplotlib.pyplot as plt
+
+    x = [0, 1, 2, 3]
+    y = [0, 2, 4, 6]
+
+    plt.plot(x, y, marker='s', linewidth=2)
+    plt.annotate(
+        'Max',
+        xy=(3, 6),
+        xytext=(2.2, 6.2),
+        arrowprops=dict(arrowstyle='->')
+    )
+    plt.axhline(0, linestyle=':')
+    plt.axvline(0, linestyle=':')
+    plt.title('Annotations & Reference Lines')
+    plt.grid(True)
+    plt.show()
+}
+\textbf{Expected Outcome:} A square-marked line with an arrow pointing at (3,6), and reference axes.
+\textbf{Key Ideas:} \texttt{annotate} and \texttt{axhline/axvline} highlight features.
+\textit{Variation:} Use different markers and line styles to distinguish multiple series.
+
+\section{7. Images and Heatmaps (2D Fields)}
+\code{python}{
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    Z = np.random.rand(20, 30)  # e.g., panel intensities across a facade
+
+    plt.imshow(Z, origin='lower', aspect='auto')
+    plt.colorbar(label='Intensity')
+    plt.title('Heatmap Example')
+    plt.xlabel('column')
+    plt.ylabel('row')
+    plt.show()
+}
+\textbf{Expected Outcome:} A color-mapped rectangle with a colorbar.
+\textbf{Key Ideas:} \texttt{imshow} displays a 2D scalar field; add a colorbar; control aspect.
+\textit{Variation:} Discrete colormap with \texttt{ListedColormap} (advanced).
+
+\section{8. 3D Plotting with \texttt{mplot3d}}
+\hh{Setup}
+Activate a 3D axes by passing \texttt{projection='3d'} when creating an Axes.
+\code{python}{
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D  # registers 3D projection
+
+    fig = plt.figure(figsize=(6, 5))
+    ax = fig.add_subplot(111, projection='3d')
+}
+
+\subsection{8.1 3D Line and Scatter}
+\code{python}{
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    z = np.linspace(0, 2*np.pi, 200)
+    x = np.cos(z)
+    y = np.sin(z)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot(x, y, z)
+    ax.set_title('3D Line (Helix)')
+    plt.show()
+}
+\textbf{Expected Outcome:} A helical curve winding upward in 3D.
+\textbf{Key Ideas:} \texttt{ax.plot} accepts x, y, z arrays; 3D camera can be rotated interactively.
+\textit{Variation:} 3D scatter: \texttt{ax.scatter(x, y, z, s=10, alpha=0.8)}.
+
+\subsection{8.2 Surface and Wireframe}
+\code{python}{
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    X = np.linspace(-3, 3, 60)
+    Y = np.linspace(-3, 3, 60)
+    X, Y = np.meshgrid(X, Y)
+    Z = np.sin(np.sqrt(X**2 + Y**2))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    surf = ax.plot_surface(X, Y, Z)
+    fig.colorbar(surf, ax=ax, shrink=0.6, label='z')
+    ax.set_title('3D Surface')
+    plt.show()
+}
+\textbf{Expected Outcome:} A smooth, rippled surface with a colorbar.
+\textbf{Key Ideas:} \texttt{plot\_surface} colors by Z; add a colorbar to read values.
+\textit{Variation:} Wireframe: \texttt{ax.plot\_wireframe(X, Y, Z, rstride=3, cstride=3)}.
+
+\subsection{8.3 Contour3D and Triangulated Surfaces}
+\code{python}{
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    X = np.linspace(-3, 3, 60)
+    Y = np.linspace(-3, 3, 60)
+    X, Y = np.meshgrid(X, Y)
+    Z = np.sin(np.sqrt(X**2 + Y**2))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.contour3D(X, Y, Z, levels=30)
+    ax.set_title('3D Contours')
+    plt.show()
+}
+\textit{Variation (irregular mesh):}
+\code{python}{
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    np.random.seed(0)
+    x = np.random.uniform(-2, 2, 400)
+    y = np.random.uniform(-2, 2, 400)
+    z = np.cos(x) * np.sin(y)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_trisurf(x, y, z)
+    ax.set_title('Triangulated Surface')
+    plt.show()
+}
+
+\section{9. Colormaps and Colorbars}
+\code{python}{
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    X = np.linspace(-3, 3, 200)
+    Y = np.linspace(-3, 3, 200)
+    X, Y = np.meshgrid(X, Y)
+    Z = np.exp(-0.3 * (X**2 + Y**2))
+
+    img = plt.imshow(Z, origin='lower')
+    plt.colorbar(img, label='intensity')
+    plt.title('Colormap Showcase')
+    plt.show()
+}
+\textbf{Expected Outcome:} A gaussian “bump” with a smooth colormap and labeled colorbar.
+\textbf{Key Ideas:} Choose perceptually uniform colormaps; colorbars turn colors into quantities.
+\textit{Variation:} \texttt{plt.colormaps()} lists available colormaps; set via \texttt{cmap='viridis'}.
+
+\section{10. Exporting Figures}
+\code{python}{
+    import matplotlib.pyplot as plt
+
+    plt.plot([0, 1, 2], [0, 1, 0])
+    plt.title('Export Example')
+    plt.savefig('export_example.png', dpi=300, bbox_inches='tight')
+    plt.savefig('export_example.pdf', bbox_inches='tight')
+    plt.show()
+}
+\textbf{Expected Outcome:} A small curve saved as high-resolution PNG and vector PDF.
+\textbf{Key Ideas:} Use \texttt{dpi} for raster quality; PDF/SVG are vector—great for LaTeX.
+\textit{Variation:} Set figure size: \texttt{plt.figure(figsize=(6, 4))}.
+
+\section{11. Advanced Topics (Optional)}
+\subsection{11.1 Animations}
+\code{python}{
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib.animation import FuncAnimation
+
+    x = np.linspace(0, 2*np.pi, 200)
+
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+    ax.set_xlim(0, 2*np.pi)
+    ax.set_ylim(-1, 1)
+
+    def update(frame):
+        y = np.sin(x + frame/10)
+        line.set_data(x, y)
+        return line,
+
+    ani = FuncAnimation(fig, update, frames=100, interval=30)
+    plt.show()
+}
+\textbf{Expected Outcome:} A sine wave that moves horizontally.
+\textbf{Key Ideas:} \texttt{FuncAnimation} updates artists per frame; export with \texttt{ani.save}.
+
+\subsection{11.2 Large Data and Performance}
+\begin{itemize}
+    \item Downsample lines (plot every Nth point) for speed.
+    \item Prefer one \texttt{plot} call with large arrays over many per-point calls.
+    \item Use \texttt{alpha} to reduce overplotting.
+\end{itemize}
+
+\subsection{11.3 Axes Transforms and Inset Axes}
+\begin{itemize}
+    \item Inset plots: detail views within a larger plot (\texttt{inset\_axes}, \texttt{zoomed\_inset\_axes}).
+    \item Axis transforms for annotations in figure or axes coordinates.
+\end{itemize}
+
+\section{12. Troubleshooting}
+\begin{itemize}
+    \item Nothing shows? Add \texttt{plt.show()} (scripts) or check backend.
+    \item Labels overlap: rotate ticks (\texttt{plt.xticks(rotation=45)}), use \texttt{constrained\_layout=True}.
+    \item Axis limits odd: set with \texttt{xlim/ylim}; check data ranges.
+    \item Unicode text: ensure fonts support your characters.
+\end{itemize}
+
+\section{13. Mini-Labs (Practice)}
+\begin{enumerate}
+    \item \textbf{Facade Panel Heatmap:} Create a 20×30 grid of random values; show with \texttt{imshow}, add colorbar and labeled axes.
+    \item \textbf{Roof Shell Surface:} Plot \texttt{z = sin(r)} as a 3D surface over \texttt{x,y \in [-3,3]}; add 3D contours.
+    \item \textbf{Dashboard:} Build a 2×2 subplot figure containing line, scatter, histogram, and bar of any small synthetic dataset.
+    \item \textbf{Animation (Optional):} Animate a parametric curve changing a shape parameter.
+\end{enumerate}
+
+% End of Chapter 16 (Matplotlib only)

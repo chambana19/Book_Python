@@ -1,0 +1,424 @@
+\h{Handling Errors with try and except}
+Imagine your Python script is a detailed set of construction instructions for a complex project. The instructions are followed perfectly, one after the other. But what happens if the script encounters an impossible situation? What if it's told to divide a structural load by an area of zero, or to read material specifications from a file that doesn't exist?
+
+Without a contingency plan, the entire project comes to a halt. When Python runs into an operation it cannot complete, it raises an exception—a signal that a critical error has occurred. If this exception is unhandled, it's like a "stop work" order: your entire program crashes. The try and except statements are Python's mechanism for creating a contingency plan. They allow you to anticipate potential errors and handle them gracefully, ensuring your script remains in control and provides helpful feedback instead of abruptly failing.
+
+\begin{tcolorbox}[% passing options here
+    title=Focus of this chapter:,
+    colframe=orange,
+    colback = white,
+%    colback=orange!40!yellow!30, % think of mixing 2 colors with sliders
+    arc=2mm % sharp corners
+ ]
+\begin{itemize}
+    \item What exceptions are and where they come from
+    \item The try/except pattern for handling errors
+    \item Using \c{else} (happy path) and \c{finally} (always runs)
+    \item Minimal, runnable examples for common beginner errors
+    \item Input validation loops with friendly messages
+    \item When (and how) to raise your own exceptions
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Basic try/except}
+
+If a line \emph{might} fail, put it inside a \c{try} block and catch the specific error you expect. This keeps the program from crashing and gives the user a clear message.
+
+\code{c09_basic_try}{python}{
+    # Divide two numbers with protection against ZeroDivisionError
+    a = 12
+    b = 0
+
+    try:
+        result = a / b
+        print("result:", result)
+    except ZeroDivisionError:
+        print("Cannot divide by zero. Please choose a non-zero denominator.")
+    # Outcome:
+    # Cannot divide by zero. Please choose a non-zero denominator.
+}{Catch a specific exception to prevent a crash.}
+
+\hh{Catching multiple exception types}
+
+You can handle different problems with different messages. Use except <Type> lines in order from most specific to most general.
+
+\code{c09_multiple_except}{python}{
+    raw_width = "three point five"   # user typed a phrase, not a number
+    raw_count = "0"
+
+    try:
+        width = float(raw_width)     # may raise ValueError
+        count = int(raw_count)       # may raise ValueError
+        avg = width / count          # may raise ZeroDivisionError
+        print("average:", avg)
+    except ValueError:
+        print("Please enter numbers only (e.g., 3.5).")
+    except ZeroDivisionError:
+        print("Count cannot be zero.")
+    # Outcome:
+    # Please enter numbers only (e.g., 3.5).
+}{Handle different errors with tailored messages.}
+
+\hh{Access the exception object}
+
+To show or log the original message from Python, capture the exception as e. This is useful for debugging or when you need to include details (like a filename) in your feedback.
+
+\code{c09_exception_object}{python}{
+    path = "missing_file.txt"
+
+    try:
+        with open(path, "r") as f:
+            data = f.read()
+    except FileNotFoundError as e:
+        print("File problem:", e)
+    # Outcome (message varies by OS):
+    # File problem: [Errno 2] No such file or directory: 'missing_file.txt'
+}{Capture and print the system message.}
+
+\hh{else: the happy path}
+
+Use else for code that should run only when no exception happens. It keeps the success path uncluttered and separates it from error handling.
+
+\code{c09_else}{python}{
+    raw = "24.0"
+
+    try:
+        area = float(raw)
+    except ValueError:
+        print("Not a number.")
+    else:
+        print("Area is", area, "m^2")  # runs only if no error
+    # Outcome:
+    # Area is 24.0 m^2
+}{Place the success path in else.}
+
+\hh{finally: always run cleanup}
+
+Code in finally runs whether there was an error or not. Use it for cleanup actions like closing files or printing a status line.
+
+\code{c09_finally}{python}{
+    print("Starting...")
+
+    try:
+        x = 1 / 0
+    except ZeroDivisionError:
+        print("Handled division by zero.")
+    finally:
+        print("Done (this always runs).")
+    # Outcome:
+    # Starting...
+    # Handled division by zero.
+    # Done (this always runs).
+}{Use finally for actions that must happen.}
+
+\begin{NoteBox}
+\textbf{Order matters.} Put specific except clauses first (e.g., \c{ValueError}), then optional broader ones (e.g., \c{Exception}). A bare \c{except:} is discouraged—use \c{except Exception as e:} if you truly need a catch-all.
+\end{NoteBox}
+
+% ====================================================================
+% PART II — COMMON BEGINNER ERRORS (WITH MINIMAL EXAMPLES)
+% ====================================================================
+
+\hh{TypeError (wrong type for an operation)}
+
+Happens when an operation receives an unexpected type (e.g., adding number to string).
+
+\code{c09_typeerror_min}{python}{
+    # This raises TypeError: cannot add float and str
+    try:
+        total = 3.0 + "5.0"
+        print(total)
+    except TypeError as e:
+        print("TypeError:", e)
+    # Outcome:
+    # TypeError: unsupported operand type(s) for +: 'float' and 'str'
+}{Mixing types can raise TypeError.}
+
+\hh{ValueError (bad content for a type)}
+
+Happens when converting text to a number and the text is not numeric.
+
+\code{c09_valueerror_min}{python}{
+    # This raises ValueError: 'Lobby' is not a float
+    try:
+        x = float("Lobby")
+        print(x)
+    except ValueError as e:
+        print("ValueError:", e)
+    # Outcome:
+    # ValueError: could not convert string to float: 'Lobby'
+}{Invalid numeric text causes ValueError.}
+
+\hh{ZeroDivisionError (divide by zero)}
+
+\code{c09_zerodiv_min}{python}{
+    try:
+        print(10 / 0)
+    except ZeroDivisionError as e:
+        print("ZeroDivisionError:", e)
+    # Outcome:
+    # ZeroDivisionError: division by zero
+}{Guard divisions against zero.}
+
+\hh{NameError (variable not defined)}
+
+\code{c09_nameerror_min}{python}{
+    try:
+        print(level)  # 'level' was never defined
+    except NameError as e:
+        print("NameError:", e)
+    # Outcome:
+    # NameError: name 'level' is not defined
+}{Use clear, consistent variable names and define them before use.}
+
+\hh{IndexError and KeyError (missing position or key)}
+
+\code{c09_index_key_min}{python}{
+    try:
+        nums = [10, 20]
+        print(nums[5])              # IndexError
+    except IndexError as e:
+        print("IndexError:", e)
+
+    try:
+        room = {"name": "Lobby", "area": 24.0}
+        print(room["level"])        # KeyError
+    except KeyError as e:
+        print("KeyError:", e)
+    # Outcome:
+    # IndexError: list index out of range
+    # KeyError: 'level'
+}{Check lengths and use dict.get("key") with defaults.}
+
+\hh{FileNotFoundError (path is wrong)}
+
+\code{c09_filenotfound_min}{python}{
+    try:
+        with open("no_such_file.csv", "r") as f:
+            data = f.read()
+    except FileNotFoundError as e:
+        print("FileNotFoundError:", e)
+    # Outcome:
+    # FileNotFoundError: [Errno 2] No such file or directory: 'no_such_file.csv'
+}{Verify paths; show friendly hints to the user.}
+
+% ====================================================================
+% PART III — FRIENDLY INPUT VALIDATION
+% ====================================================================
+
+\hh{Single conversion with message}
+
+Do one thing: try to convert, catch failure, print a friendly message. This is the smallest building block.
+
+\code{c09_input_once}{python}{
+    raw = "3O"  # note: letter 'O', not zero
+    try:
+        width = float(raw)
+        print("width:", width)
+    except ValueError:
+        print("Please enter a numeric value, e.g., 3.0")
+    # Outcome:
+    # Please enter a numeric value, e.g., 3.0
+}{Convert with a clear error message.}
+
+\hh{Loop until valid input (while + try/except)}
+
+Ask repeatedly until the user gives a positive number. This is the standard pattern for beginner-friendly scripts.
+
+\code{c09_input_loop}{python}{
+    while True:
+        txt = input("Width (m): ").strip()
+        try:
+            w = float(txt)
+            if w <= 0:
+                print("Please enter a number greater than zero.")
+                continue
+            break
+        except ValueError:
+            print("Please enter a numeric value, e.g., 3.2")
+    print("Width accepted:", w)
+}{Repeat until valid input is entered.}
+
+\begin{NoteBox}
+\textbf{Style.} Prefer “ask--try--convert” over pre-checking with \c{.isdigit()}, because \c{float()} correctly handles decimals and negatives. This “try it and handle failures” approach is called EAFP (Easier to Ask Forgiveness than Permission).
+\end{NoteBox}
+
+% ====================================================================
+% PART IV — RAISING YOUR OWN EXCEPTIONS
+% ====================================================================
+
+\hh{Validate and raise}
+
+When a function receives invalid inputs, raise a clear exception. This stops the function immediately and lets the caller decide how to respond.
+
+\code{c09_raise_valueerror}{python}{
+    def area_m2(width, length):
+        if width <= 0 or length <= 0:
+            raise ValueError("width and length must be positive")
+        return width * length
+
+    try:
+        print(area_m2(3.0, 5.0))     # OK
+        print(area_m2(-2.0, 5.0))    # raises ValueError
+    except ValueError as e:
+        print("Invalid input:", e)
+    # Outcome:
+    # 15.0
+    # Invalid input: width and length must be positive
+}{Use raise to signal invalid inputs.}
+
+\hh{Wrap a call and report (caller side)}
+
+The caller catches the error and decides what to do next (show message, ask again, etc.).
+
+\code{c09_caller_wrap}{python}{
+    def parse_positive_float(text):
+        try:
+            x = float(text)
+        except ValueError:
+            raise ValueError("Not a number")
+        if x <= 0:
+            raise ValueError("Must be positive")
+        return x
+
+    user_input = "zero"
+    try:
+        val = parse_positive_float(user_input)
+        print("value:", val)
+    except ValueError as e:
+        print("Problem:", e)
+    # Outcome:
+    # Problem: Not a number
+}{Functions raise; callers handle.}
+
+% ====================================================================
+% PART V — PRACTICAL FILE HANDLING
+% ====================================================================
+
+\hh{Read a file safely with messages}
+
+Catch file errors and show a helpful hint. Use with open(...) to ensure files are closed even on errors; combine with try/except for messages.
+
+\code{c09_file_safe}{python}{
+    path = "rooms.csv"  # try a wrong path first to see the message
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
+    except FileNotFoundError:
+        print("Could not find", path)
+        print("Tip: place the file in the same folder as your script or use an absolute path.")
+    else:
+        print("File read OK, length:", len(content))
+}{Handle missing files and succeed gracefully.}
+
+\hh{finally for cleanup (illustration)}
+
+Most of the time, with handles closing for you. This example shows manual cleanup with finally for contexts that need it.
+
+\code{c09_finally_cleanup}{python}{
+    f = None
+    try:
+        f = open("rooms.csv", "r", encoding="utf-8")
+        content = f.read()
+        print("Read", len(content), "characters")
+    except FileNotFoundError:
+        print("rooms.csv not found")
+    finally:
+        if f is not None:
+            f.close()  # ensures closing even if an error happened
+            print("File closed (finally).")
+}{Use finally when resources must be released.}
+
+% ====================================================================
+% PART VI — REFERENCE AND PRACTICE
+% ====================================================================
+
+\hh{Common exceptions (quick reference)}
+
+\renewcommand{\arraystretch}{1.12}
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|X|}
+\hline
+\textbf{Exception} & \textbf{Typical cause} & \textbf{Beginner fix} \\ \hline
+\texttt{ValueError} & Converting non-numeric text to number & Validate input; show an example format \\ \hline
+\texttt{TypeError} & Mixing types (e.g., number + string) & Convert types first; keep units clear \\ \hline
+\texttt{ZeroDivisionError} & Dividing by zero & Check denominator; prompt for non-zero \\ \hline
+\texttt{NameError} & Variable not defined yet & Define before use; avoid typos \\ \hline
+\texttt{IndexError} & List index out of range & Check length; guard with \texttt{if i < len(lst)} \\ \hline
+\texttt{KeyError} & Missing dict key & Use \texttt{dict.get("key", default)} \\ \hline
+\texttt{FileNotFoundError} & Wrong path or filename & Verify location; show path tips to user \\ \hline
+\end{tabularx}
+\caption{Frequent exceptions, causes, and quick fixes.}
+\end{table}
+
+\hh{Mini-Lab A — Robust area input}
+
+Goal: Ask for width and length (floats $> 0$), compute area, and handle bad input without crashing.
+
+\code{c09_minilab_area}{python}{
+    def read_positive_float(prompt):
+        while True:
+            txt = input(prompt).strip()
+            try:
+                x = float(txt)
+            except ValueError:
+                print("Please type a number like 3.2")
+                continue
+            if x <= 0:
+                print("Please enter a positive value")
+                continue
+            return x
+
+    w = read_positive_float("Width (m): ")
+    l = read_positive_float("Length (m): ")
+    print("Area:", w * l, "m^2")
+}{Loop plus try/except for friendly validation.}
+
+\hh{Mini-Lab B — Safe average}
+
+Goal: Read a list of numbers from a single line (e.g., 10 20 30), compute the average, and handle empty input and zero-length cases gracefully.
+
+\code{c09_minilab_average}{python}{
+    line = input("Enter numbers separated by spaces: ").strip()
+    try:
+        nums = [float(tok) for tok in line.split()]
+    except ValueError:
+        print("Please enter only numbers like: 10 20 30")
+    else:
+        if len(nums) == 0:
+            print("No numbers provided.")
+        else:
+            print("Average:", sum(nums) / len(nums))
+}{Comprehension wrapped in try/except plus checks.}
+
+\hh{Mini-Lab C — File report}
+
+Goal: Ask for a filename, print size (characters), and show a friendly hint if the file is missing.
+
+\code{c09_minilab_file}{python}{
+    path = input("File to open: ").strip()
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = f.read()
+    except FileNotFoundError:
+        print("Couldn't find that file.")
+        print("Tip: is it in the same folder? Did you spell the name correctly?")
+    else:
+        print("OK:", len(data), "characters")
+}{User-friendly file handling.}
+
+\hh{Key Takeaways}
+\begin{tcolorbox}[% passing options here
+    colframe=orange,
+    colback = white,
+%    colback=orange!40!yellow!30, % think of mixing 2 colors with sliders
+    arc=2mm % sharp corners
+ ]
+\begin{itemize}
+    \item Handle problems you expect (ValueError, ZeroDivisionError) right where they can happen.
+    \item Keep success code in else, and necessary cleanup in finally.
+    \item Show clear, polite messages and examples of valid input.
+    \item Raise your own exceptions inside functions to enforce rules.
+\end{itemize}
+\end{tcolorbox}

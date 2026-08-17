@@ -1,0 +1,195 @@
+% =====================
+% Chapter 1: Python Basics
+% Audience: Architecture students new to coding
+% Sources aligned with: A Byte of Python (About Python, Installation, First Steps)
+% =====================
+
+\h{Getting Started With Python}
+
+\begin{NoteBox}
+\textbf{What you'll learn.} What Python is and why we use it; how to install Python 3 and set up \emph{Visual Studio Code}; how to run a script and use the interactive prompt; and the first building blocks (print, variables, comments, indentation). Examples use unit-aware names (e.g., \texttt{span\_m}) tied to studio or structural tasks.
+\end{NoteBox}
+
+\hh{Why Python (for architects and engineers)}
+Python is a high-level, interpreted, multi-paradigm language designed for readability:
+\begin{itemize}
+  \item Readable, concise syntax (indentation instead of braces).
+  \item ``Batteries included'': rich standard library (files, text, data, math, web).
+  \item Cross-platform and free (Windows, macOS, Linux; open source).
+  \item Versatile: quick scripts, data wrangling (CSV/Excel), visualization, geometry, APIs, automation.
+\end{itemize}
+For ARC500, Python helps you prototype: check areas, generate reports, process schedules, or test structural formulas without heavy software.
+
+\hh{Interpreted and interactive}
+\begin{itemize}
+  \item \textbf{Interpreted}: run code directly (no separate compile step) for rapid feedback.
+  \item \textbf{Interactive}: a prompt (REPL) lets you try expressions and see results immediately.
+\end{itemize}
+
+\hh{Installation and setup (Python 3 + VS Code)}
+\textbf{Goal:} Have Python 3 installed, VS Code configured, and a working terminal.
+
+\hhh*{1) Install Python 3}
+\begin{itemize}
+  \item \textbf{Windows}: \url{https://www.python.org/downloads/}. During setup, check ``Add Python to PATH''. If prompted, accept ``Disable PATH length limit''.
+  \item \textbf{macOS}: Use the official installer or a package manager. You will typically use \texttt{python3} in Terminal.
+\end{itemize}
+
+\code{c01-verify-python}{bash}{
+    python --version
+    python3 --version
+    py --version
+}{Verify Python in your terminal}
+
+\hhh*{2) Install Visual Studio Code}
+\begin{itemize}
+  \item Install VS Code: \url{https://code.visualstudio.com/}.
+  \item Install the \textbf{Python} extension (by Microsoft).
+  \item Press \texttt{Ctrl+Shift+P}/\texttt{Cmd+Shift+P} and run ``Python: Select Interpreter'' to choose Python 3.
+\end{itemize}
+
+\hhh*{3) Open a folder and the integrated terminal}
+\begin{itemize}
+  \item File \textrightarrow{} Open Folder... (e.g., \texttt{arc500/}).
+  \item Terminal \textrightarrow{} New Terminal to open a shell in that folder.
+\end{itemize}
+
+\hh{Your first script in VS Code}
+Create \texttt{hello.py} and paste:
+
+\code{c01-hello}{python}{
+    print("Hello, ARC500!")
+    for i in range(3):
+        print("Iteration", i)
+}{First run in Python}
+
+Run from the VS Code terminal:
+
+\code{c01-run}{bash}{
+    python hello.py    # Windows or macOS if python -> Python 3
+    py hello.py        # Windows launcher alternative
+    python3 hello.py   # macOS typical
+}{Run your script from the terminal}
+
+You should see the greeting and lines counting 0, 1, 2.
+
+\hhh{Troubleshooting quick fixes}
+\begin{itemize}
+  \item \textbf{Command not found}: Python not on PATH. Reinstall and check ``Add Python to PATH'' (Windows). On macOS try \texttt{python3}.
+  \item \textbf{Wrong interpreter}: Use ``Python: Select Interpreter'' in VS Code.
+  \item \textbf{Nothing prints}: Be sure you ran the file from the terminal, not just typed in the editor.
+\end{itemize}
+
+\hh{Using the interactive prompt (REPL)}
+Start it with \texttt{python}, \texttt{python3}, or \texttt{py} and try:
+
+\code{c01-repl}{python}{
+    >>> 2 + 3 * 4
+    14
+    >>> width_m, length_m = 7.2, 9.1
+    >>> area_m2 = width_m * length_m
+    >>> area_m2
+    65.52
+    >>> f"Area = {area_m2:.1f} m^2"
+    'Area = 65.5 m^2'
+}{Quick calculations in the REPL}
+
+Exit with \texttt{exit()} or Ctrl+D (macOS/Linux) or Ctrl+Z then Enter (Windows).
+
+\hh{First steps: print, variables, and input}
+\texttt{print} shows results; variables store values; \texttt{input()} reads user text (always a string).
+
+\code{c01-io}{python}{
+    print("Room calculator")
+    w = float(input("Width (m): "))
+    l = float(input("Length (m): "))
+    area_m2 = w * l
+    print(f"Area: {area_m2:.2f} m^2")
+}{Input, conversion, and f-string output}
+
+\begin{NoteBox}
+\textbf{Key idea.} \texttt{input()} returns a string. Convert with \texttt{float()} or \texttt{int()} before math. Keep unit-aware names (e.g., \texttt{height\_m}, \texttt{udl\_kPa}).
+\end{NoteBox}
+
+\hh{Comments and readable code}
+Comments (\texttt{\#}) do not execute; they document intent, assumptions, and nonobvious choices.
+
+\code{c01-comments}{python}{
+    # Compute total facade area for a rectangular elevation
+    width_m = 18.0    # meters
+    height_m = 12.0   # meters
+    facade_area_m2 = width_m * height_m
+    print(f"Facade area: {facade_area_m2} m^2")
+}{Comments and unit-aware names}
+
+\hh{Indentation defines blocks}
+Python uses significant indentation to group code. Use 4 spaces per level (no tabs).
+
+\code{c01-indent}{python}{
+    threshold = 3
+    for i in range(5):
+        if i >= threshold:
+            print(f"{i} is at or above threshold")
+        else:
+            print(f"{i} is below threshold")
+}{Blocks defined by indentation}
+
+\begin{NoteBox}
+\textbf{Common errors.} \emph{IndentationError}: misaligned spaces or mixing tabs/spaces. \emph{NameError}: using a name before assignment. Read the traceback from the bottom: the last line names the error type and message.
+\end{NoteBox}
+
+\hh{Numbers and simple expressions (first look)}
+Use Python like a calculator; include units in names.
+
+\code{c01-exprs}{python}{
+    span_m = 8.0
+    uniform_load_kNpm = 12.5
+    midspan_M_kNm = uniform_load_kNpm * span_m**2 / 8
+    print(f"M_mid ~= {midspan_M_kNm:.1f} kN*m")
+}{Expressions with units and exponentiation}
+
+\hh{Strings and f-strings (first look)}
+F-strings embed values and control formatting:
+
+\code{c01-fstrings}{python}{
+    project = "Studio Pavilion"
+    level = 2
+    print(f"{project} - Level {level}")
+    print(f"{1/3:.3f}")       # 0.333
+    print(f"{'Lobby':_^11}")  # ___Lobby___
+}{Readable formatted output}
+
+\hh{Mini-Lab 1 -- Room Area and Volume (15 min)}
+\textbf{Goal.} Prompt for width, length, and height (m); compute area and volume; print a one-line summary.
+\begin{itemize}
+  \item Use \texttt{input()} then \texttt{float()} for numbers.
+  \item Use unit-aware names.
+  \item Use an f-string with controlled decimals.
+\end{itemize}
+
+\code{ml01-starter}{python}{
+    print("Room calculator")
+    w = float(input("Width (m): "))
+    l = float(input("Length (m): "))
+    h = float(input("Height (m): "))
+    area_m2 = w * l
+    volume_m3 = area_m2 * h
+    print(f"Area = {area_m2:.2f} m^2, Volume = {volume_m3:.2f} m^3")
+}{Mini-Lab starter}
+
+\textbf{Challenge.} Ask for a material unit weight (kN/m\textsuperscript{3}) and estimate total weight of the room's air volume.
+
+\hh{Style tips (PEP 8 essentials)}
+\begin{itemize}
+  \item Four spaces per indent; keep lines under about 79--100 characters.
+  \item \texttt{lowercase\_with\_underscores} for variables and functions.
+  \item Meaningful, unit-aware names: \texttt{span\_m}, \texttt{live\_load\_psf}.
+\end{itemize}
+
+\hh{Quick practice set}
+Create \texttt{basics\_drills.py} and solve:
+\begin{enumerate}
+  \item Ask for total floor area (m\textsuperscript{2}) and floor-to-floor height (m). Print an estimate of exterior wall area using a simple rule you state in a comment (e.g., perimeter \textasciitilde{} 0.35*sqrt(area)).
+  \item Print the first 10 even integers on one line, separated by commas.
+  \item Given \texttt{span\_m} and \texttt{uniform\_load\_kNpm}, compute midspan moment \(wL^2/8\) (kN*m) and print it with units using an f-string.
+\end{enumerate}

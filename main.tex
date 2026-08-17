@@ -1,0 +1,69 @@
+\documentclass{textbook}
+
+
+% --- Safe fallbacks (do NOT override standard \title/\author) ---
+\providecommand{\toc}{\tableofcontents}
+\providecommand{\h}[1]{\section{#1}}
+\providecommand{\hh}[1]{\subsection{#1}}
+\providecommand{\hhh}[1]{\subsubsection{#1}}
+\providecommand{\hhhh}[1]{\paragraph{#1}}
+
+% Minimal metadata using standard LaTeX commands
+
+\title{Introduction to programming with Python}
+%\author{test}
+% Custom environments and helpers
+\input{preamble}
+
+\begin{document}
+
+\input{Chapters/00_Title_Cover}
+\section{Update History}
+This draft textbook is a living document. It will be updated throughout the semester with new chapters, additional content, and revisions to existing material. Major changes are recorded below (most recent first).
+
+\begin{itemize}
+\item[] \textbf{October 7, 2025}: \texttt{Data visualization} revised
+\item[] \textbf{October 1, 2025}: \texttt{Data analysis with Pandas}, \texttt{Data visualization} chapters released
+\item[] \textbf{September 25, 2025}: \texttt{Numpy} chapter released
+\item[] \textbf{September 16, 2025}: Added, revised and reorganized chapters (exception, function, built-in function, and copy)
+\item[] \textbf{September 13, 2025}: Added Chapter 10
+\item[] \textbf{September 9, 2025}: Revised Chapter 8.
+\item[] \textbf{September 8, 2025}: Added Chapter 9; revised Chapters 5 and 7.
+\item[] \textbf{September 3, 2025}: Added Chapter 8; revised Chapters 5 and 6.
+\item[] \textbf{August 25, 2025}: Added Chapter 7.
+\item[] \textbf{August 15, 2025}: Added Chapters 5 and 6.
+\item[] \textbf{July 2025}: Initial release.
+\end{itemize}
+\newpage
+
+\input{Chapters/00_Title_Imprint}
+\newpage
+
+\toc
+\newpage
+
+\input{Chapters/01_Getting_started}
+\input{Chapters/02_Basics}
+\input{Chapters/03_Data_Type}
+\input{Chapters/04_Lists}
+\input{Chapters/05_Dictionaries}
+\input{Chapters/06_Booleans}
+\input{Chapters/07_Operators}
+\input{Chapters/08_Control_Flow}
+\input{Chapters/09_Exception}
+\input{Chapters/10_Function}
+\input{Chapters/11_Built_in_function}
+\input{Chapters/12_Copy}
+\input{Chapters/13_File_IO}
+\input{Chapters/14_Numpy_final}
+%\input{Chapters/14_Numpy} old one
+\input{Chapters/15_Data_Analysis_Pandas}
+\input{Chapters/16_Visualization_b}
+%\input{Chapters/16_Visualization}
+%\input{Chapters/16_Visualization_short}
+%\input{Chapters/17_Data_Visualization_Pandas_Matplotlib}
+%\input{Chapters/16_Visualization_b}
+\input{Chapters/99_backcover}
+\end{document}
+
+\end{document}

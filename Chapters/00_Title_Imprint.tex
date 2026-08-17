@@ -1,0 +1,50 @@
+% =====================
+% 00_Title_Imprint.tex — Dedication + imprint page (no images)
+% Usage: \newpage\input{00_Title_Imprint.tex}
+% =====================
+
+\makeatletter
+\providecommand{\DedicationTo}{}
+\providecommand{\DedicationWhy}{}
+\providecommand{\ImprintPublisher}{}
+\providecommand{\ImprintCity}{}
+\providecommand{\ImprintEdition}{}
+\providecommand{\ImprintThanks}{Thank you to the ARC500 cohort for feedback and testing.}
+\providecommand{\ImprintCopyrightYears}{2024--2025}
+\providecommand{\ImprintHolder}{Junho Chun}
+\providecommand{\ImprintLicense}{}
+\providecommand{\ImprintISBN}{000-0-00-000000-0}
+\makeatother
+
+\thispagestyle{empty}
+\vspace*{1.8cm}
+
+% Dedication (top-left)
+{\itshape \DedicationTo\par}
+\vspace{0.2\baselineskip}
+{\itshape \DedicationWhy\par}
+
+\vfill
+
+% Imprint block (bottom-left)
+{\small
+\textbf{Publisher:} \ImprintPublisher \ImprintCity\par
+\ImprintEdition\par
+\ImprintThanks\par
+
+\vspace{1.2\baselineskip}
+\textbf{Copyright} \ImprintCopyrightYears\ \ImprintHolder\par
+\ImprintLicense\par
+
+\vspace{1.2\baselineskip}
+\textbf{ISBN:} \ImprintISBN\par
+}
+
+% Minimal "barcode-like" rules (no image, purely decorative)
+\vspace{1.2cm}
+\noindent\begingroup
+\setlength{\fboxsep}{0pt}
+
+\par\medskip
+{\footnotesize \ImprintISBN}
+\endgroup
