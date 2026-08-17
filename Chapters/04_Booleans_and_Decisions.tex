@@ -1,0 +1,407 @@
+% Part II -- Python Foundations
+% Chapter 4: Booleans and Decisions
+
+\h{Booleans and Decisions}
+
+Programs often need to choose between actions. A room may pass or fail a size
+check. A value may be inside or outside a permitted range. Python represents
+these yes-or-no results with booleans and uses conditional statements to choose
+which instructions to run.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand variables, numbers, strings,
+lists, dictionaries, membership, and basic input conversion.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item create boolean values with comparisons;
+    \item combine conditions with \c{and}, \c{or}, and \c{not};
+    \item write \c{if}, \c{elif}, and \c{else} statements;
+    \item use membership tests in decisions; and
+    \item trace which branch of a conditional statement will run.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Boolean values}
+
+Python has two boolean values: \c{True} and \c{False}. Their capital letters
+matter.
+
+\code{c04_boolean_values}{python}{
+    is_accessible = True
+    needs_review = False
+
+    print(is_accessible)
+    print(needs_review)
+}{Store and display boolean values}
+
+Boolean values usually come from questions expressed as comparisons.
+
+\hh{Compare values}
+
+Comparison operators produce \c{True} or \c{False}.
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Question} & \textbf{Operator} & \textbf{Example} \\
+Equal to & \c{==} & \c{area_m2 == 30} \\
+Not equal to & \c{!=} & \c{level != 1} \\
+Greater than & \c{>} & \c{width_m > 3} \\
+Less than & \c{<} & \c{width_m < 3} \\
+Greater than or equal to & \c{>=} & \c{area_m2 >= 20} \\
+Less than or equal to & \c{<=} & \c{area_m2 <= 40} \\
+\end{tabular}
+\end{center}
+
+\code{c04_comparisons}{python}{
+    area_m2 = 32.0
+
+    print(area_m2 > 20.0)
+    print(area_m2 == 32.0)
+    print(area_m2 < 25.0)
+}{Three comparisons}
+
+Expected output:
+
+\code{c04_comparisons_output}{text}{
+    True
+    True
+    False
+}{Comparison results}
+
+Do not confuse \c{=} with \c{==}. A single equals sign assigns a value. Two
+equals signs compare two values.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} What are the results of \c{5 >= 5}, \c{5 > 5}, and
+\c{"Studio" == "studio"}?
+\end{NoteBox}
+
+\hh{Check a range}
+
+Python can express a range as one chained comparison.
+
+\code{c04_chained_comparison}{python}{
+    area_m2 = 32.0
+    is_medium = 20.0 <= area_m2 <= 40.0
+
+    print(is_medium)
+}{Check whether a value is inside a range}
+
+The expression is true when both boundaries are satisfied.
+
+\hh{Combine conditions with and}
+
+The \c{and} operator is true only when both conditions are true.
+
+\code{c04_and_operator}{python}{
+    width_m = 4.0
+    length_m = 7.0
+
+    dimensions_positive = width_m > 0 and length_m > 0
+    print(dimensions_positive)
+}{Require two conditions}
+
+Use \c{and} when every requirement must be satisfied.
+
+\hh{Combine alternatives with or}
+
+The \c{or} operator is true when at least one condition is true.
+
+\code{c04_or_operator}{python}{
+    room_type = "Studio"
+
+    is_work_space = room_type == "Studio" or room_type == "Office"
+    print(is_work_space)
+}{Accept either of two values}
+
+Use \c{or} when one of several alternatives is enough.
+
+\hh{Reverse a boolean with not}
+
+The \c{not} operator reverses a boolean result.
+
+\code{c04_not_operator}{python}{
+    needs_review = False
+    is_approved = not needs_review
+
+    print(is_approved)
+}{Reverse a boolean value}
+
+Keep combined conditions short. A named boolean such as \c{is_approved} is
+often easier to read than a long expression repeated several times.
+
+\hh{Use membership conditions}
+
+The \c{in} operator works with collections and returns a boolean.
+
+\code{c04_membership_condition}{python}{
+    allowed_types = ["Studio", "Office", "Classroom"]
+    room_type = "Studio"
+
+    is_allowed = room_type in allowed_types
+    print(is_allowed)
+}{Check whether a value is in a list}
+
+Use \c{not in} to ask the opposite question.
+
+\code{c04_not_in}{python}{
+    allowed_types = ["Studio", "Office", "Classroom"]
+    room_type = "Storage"
+
+    print(room_type not in allowed_types)
+}{Check that a value is absent}
+
+\hh{Make a decision with if}
+
+An \c{if} statement runs an indented block only when its condition is true.
+
+\code{c04_first_if}{python}{
+    area_m2 = 32.0
+
+    if area_m2 >= 20.0:
+        print("Area requirement passed")
+
+    print("Check complete")
+}{A basic if statement}
+
+The colon ends the \c{if} line. The four spaces before the first \c{print()}
+place that instruction inside the conditional block. The final \c{print()} is
+not indented, so it runs regardless of the condition.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} What will the program display if \c{area_m2} changes
+to \c{18.0}?
+\end{NoteBox}
+
+\hh{Choose between two actions}
+
+Use \c{if} and \c{else} when exactly one of two branches should run.
+
+\code{c04_if_else}{python}{
+    area_m2 = 18.0
+
+    if area_m2 >= 20.0:
+        print("Pass")
+    else:
+        print("Review")
+}{Choose one of two branches}
+
+Only one message appears. The \c{else} branch runs when the \c{if} condition is
+false.
+
+\hh{Choose among several actions}
+
+Use \c{elif}, meaning ``else if,'' for additional conditions.
+
+\code{c04_if_elif_else}{python}{
+    area_m2 = 32.0
+
+    if area_m2 < 20.0:
+        category = "Small"
+    elif area_m2 < 40.0:
+        category = "Medium"
+    else:
+        category = "Large"
+
+    print(category)
+}{Classify a value with three branches}
+
+Python checks the conditions from top to bottom and stops after the first true
+branch. Because the first branch already handled values below 20, the second
+branch only needs to check whether the area is below 40.
+
+\hh{Read a decision program}
+
+Trace values before running the code. Write the value of each variable, then
+evaluate each condition as true or false.
+
+\code{c04_trace_decision}{python}{
+    width_m = 4.0
+    length_m = 6.0
+    area_m2 = width_m * length_m
+
+    large_enough = area_m2 >= 20.0
+    dimensions_positive = width_m > 0 and length_m > 0
+
+    if large_enough and dimensions_positive:
+        print("Accepted")
+    else:
+        print("Review the dimensions")
+}{Trace named conditions before the decision}
+
+Named conditions make the final decision easier to read and test.
+
+\hh{Use basic truthiness carefully}
+
+Python treats some values as false in a condition. These include \c{0}, an
+empty string, and empty collections. Nonempty values usually count as true.
+
+\code{c04_truthiness}{python}{
+    room_name = "Studio"
+
+    if room_name:
+        print("A room name was provided")
+    else:
+        print("The room name is empty")
+}{Use a string directly as a condition}
+
+For beginners, explicit comparisons are often clearer. Use truthiness when the
+meaning of empty versus nonempty is obvious.
+
+\hh{Keep nesting shallow}
+
+An \c{if} statement may appear inside another branch, but deep nesting becomes
+difficult to follow.
+
+\code{c04_nested_if}{python}{
+    area_m2 = 32.0
+    has_daylight = True
+
+    if area_m2 >= 20.0:
+        if has_daylight:
+            print("Area and daylight checks passed")
+        else:
+            print("Daylight review required")
+    else:
+        print("Area review required")
+}{A two-level nested decision}
+
+When possible, combine related requirements with \c{and} or give conditions
+clear names.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Using \c{=} in a condition}: use \c{==} for comparison.
+    \item \textbf{Forgetting the colon}: every \c{if}, \c{elif}, and \c{else}
+          header ends with a colon.
+    \item \textbf{Inconsistent indentation}: use four spaces for each block level.
+    \item \textbf{Writing overlapping branches}: order conditions from specific
+          or restrictive to general.
+    \item \textbf{Comparing strings with inconsistent capitalization}: normalize
+          or use the exact expected form.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+\code{c04_practice_level0}{python}{
+    width_m = 3.0
+    print(width_m > 2.5)
+    print(width_m == 4.0)
+}{Predict two boolean results}
+
+\hhh{Level 1 -- Modify}
+
+Run the following code, then try values below, inside, and above the range.
+
+\code{c04_practice_level1}{python}{
+    area_m2 = 25.0
+    is_in_range = 20.0 <= area_m2 <= 40.0
+    print(is_in_range)
+}{Test several values against one range}
+
+\hhh{Level 2 -- Complete}
+
+Complete a decision that displays \c{Pass} when both dimensions are positive.
+
+\code{c04_practice_level2}{python}{
+    width_m = 4.0
+    length_m = 7.0
+
+    if width_m > 0 and length_m > 0:
+        print("Pass")
+    else:
+        print("Review")
+}{A completed two-condition decision}
+
+\hhh{Level 3 -- Apply}
+
+Ask the user for an area. Display \c{Small} below 20, \c{Medium} from 20 up to
+but not including 40, and \c{Large} at 40 or above.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: Convert the input with \c{float()}.
+    \item \textbf{Hint 2}: Use \c{if}, \c{elif}, and \c{else}.
+    \item \textbf{Hint 3}: After the first condition fails, the value is already
+          known to be at least 20.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Extend Level 3. If the area is zero or negative, display \c{Invalid area}
+instead of a size category.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The results are \c{True} and \c{False}.
+
+\textbf{Level 3}
+
+\code{c04_solution_level3}{python}{
+    area_m2 = float(input("Area in m2: "))
+
+    if area_m2 < 20.0:
+        print("Small")
+    elif area_m2 < 40.0:
+        print("Medium")
+    else:
+        print("Large")
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c04_solution_level4}{python}{
+    area_m2 = float(input("Area in m2: "))
+
+    if area_m2 <= 0:
+        print("Invalid area")
+    elif area_m2 < 20.0:
+        print("Small")
+    elif area_m2 < 40.0:
+        print("Medium")
+    else:
+        print("Large")
+}{One solution to Level 4}
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item What are Python's two boolean values?
+    \item What is the difference between \c{=} and \c{==}?
+    \item When is an \c{and} expression true?
+    \item When is an \c{or} expression true?
+    \item What does \c{not} do?
+    \item What does \c{in} return?
+    \item Which symbol ends an \c{if} header?
+    \item How many spaces should indent one block level?
+    \item When does an \c{else} branch run?
+    \item Why does condition order matter in an \c{if--elif--else} statement?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item \c{True} and \c{False}.
+    \item \c{=} assigns; \c{==} compares.
+    \item When both conditions are true.
+    \item When at least one condition is true.
+    \item It reverses a boolean result.
+    \item A boolean indicating whether the value is present.
+    \item A colon.
+    \item Four spaces.
+    \item When the preceding conditions are false.
+    \item Python runs only the first matching branch.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+Comparisons produce boolean values. Logical operators combine or reverse those
+results. Conditional statements use the results to choose which instructions
+run. Chapter 5 uses loops to repeat instructions for several values.
+\end{tcolorbox}
+

@@ -1,0 +1,447 @@
+% Part II -- Python Foundations
+% Chapter 3: Organizing Data
+
+\h{Organizing Data}
+
+A single variable holds one value. Many tasks require several related values:
+room names, floor areas, material codes, or measurements. Python provides
+collections for storing these values together. This chapter introduces four
+collections and explains when each one is useful.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand values, variables, assignment,
+basic types, and \c{print()}.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item create, read, and modify a list;
+    \item store labeled values in a dictionary;
+    \item use a tuple for a fixed record and a set for unique values;
+    \item test whether a collection contains a value; and
+    \item choose a suitable collection for a simple situation.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Why collections are useful}
+
+Without a collection, four room names require four variables.
+
+\code{c03_separate_names}{python}{
+    room_1 = "Lobby"
+    room_2 = "Studio"
+    room_3 = "Office"
+    room_4 = "Cafe"
+}{Four separate variables}
+
+A list stores the same information under one name.
+
+\code{c03_first_list}{python}{
+    room_names = ["Lobby", "Studio", "Office", "Cafe"]
+    print(room_names)
+}{Store several room names in one list}
+
+The square brackets identify a list. Commas separate its items.
+
+\hh{Create lists}
+
+A list is an ordered, changeable collection. Its items may be numbers, strings,
+booleans, or other values.
+
+\code{c03_list_examples}{python}{
+    floor_numbers = [1, 2, 3, 4]
+    room_areas_m2 = [24.0, 35.5, 18.0]
+    status_labels = ["Open", "Closed", "Review"]
+    empty_list = []
+
+    print(floor_numbers)
+    print(room_areas_m2)
+    print(status_labels)
+    print(empty_list)
+}{Create four lists}
+
+Use \c{len()} to find the number of items.
+
+\code{c03_list_length}{python}{
+    room_names = ["Lobby", "Studio", "Office", "Cafe"]
+    print(len(room_names))
+}{Count list items}
+
+\hh{Read list items by index}
+
+Each item has a position called an \emph{index}. Python begins counting at
+zero.
+
+\code{c03_list_index}{python}{
+    room_names = ["Lobby", "Studio", "Office", "Cafe"]
+
+    print(room_names[0])
+    print(room_names[1])
+    print(room_names[-1])
+}{Read list items by position}
+
+Expected output:
+
+\code{c03_list_index_output}{text}{
+    Lobby
+    Studio
+    Cafe
+}{List indexing output}
+
+An index of \c{-1} means the last item.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} What will \c{room_names[2]} display? What is the
+largest valid positive index for this four-item list?
+\end{NoteBox}
+
+An index outside the list produces an \c{IndexError}.
+
+\hh{Select part of a list}
+
+A slice selects a range of items. The stop position is not included.
+
+\code{c03_list_slice}{python}{
+    levels = ["B1", "L1", "L2", "L3", "Roof"]
+
+    print(levels[1:4])
+    print(levels[:2])
+    print(levels[3:])
+}{Select list slices}
+
+Expected output:
+
+\code{c03_list_slice_output}{text}{
+    ['L1', 'L2', 'L3']
+    ['B1', 'L1']
+    ['L3', 'Roof']
+}{Three list slices}
+
+\hh{Change a list}
+
+Lists are mutable, which means their contents can change.
+
+\code{c03_modify_list}{python}{
+    room_names = ["Lobby", "Studio", "Office"]
+
+    room_names[2] = "Meeting Room"
+    room_names.append("Cafe")
+
+    print(room_names)
+}{Replace one item and append another}
+
+Common list methods include:
+\begin{itemize}
+    \item \c{append(value)}: add one item at the end;
+    \item \c{insert(index, value)}: add an item at a chosen position;
+    \item \c{remove(value)}: remove the first matching value;
+    \item \c{pop()}: remove and return the last item; and
+    \item \c{clear()}: remove all items.
+\end{itemize}
+
+\code{c03_list_methods}{python}{
+    materials = ["Concrete", "Steel"]
+
+    materials.insert(1, "Timber")
+    materials.remove("Steel")
+    removed_item = materials.pop()
+
+    print(materials)
+    print(removed_item)
+}{Insert, remove, and pop list items}
+
+After \c{remove("Steel")}, the list contains \c{"Concrete"} and
+\c{"Timber"}. Then \c{pop()} removes and returns \c{"Timber"}.
+
+\hh{Check membership}
+
+The \c{in} operator asks whether a collection contains a value. The result is
+\c{True} or \c{False}.
+
+\code{c03_list_membership}{python}{
+    materials = ["Concrete", "Timber", "Glass"]
+
+    print("Timber" in materials)
+    print("Brick" in materials)
+}{Check list membership}
+
+Membership checks are case-sensitive. \c{"timber"} and \c{"Timber"} are
+different strings.
+
+\hh{Create dictionaries}
+
+A dictionary stores key--value pairs. Each key is a label used to retrieve its
+value. Curly braces identify a dictionary, and a colon separates each key from
+its value.
+
+\code{c03_first_dictionary}{python}{
+    room = {
+        "name": "Studio",
+        "area_m2": 48.0,
+        "level": 2
+    }
+
+    print(room)
+}{A dictionary describing one room}
+
+Use a key inside square brackets to read a value.
+
+\code{c03_dictionary_access}{python}{
+    room = {
+        "name": "Studio",
+        "area_m2": 48.0,
+        "level": 2
+    }
+
+    print(room["name"])
+    print(room["area_m2"])
+}{Read dictionary values by key}
+
+Unlike list indexes, dictionary keys communicate what the values mean.
+
+\hh{Update a dictionary}
+
+Assign to an existing key to replace its value. Assign to a new key to add a
+new pair.
+
+\code{c03_dictionary_update}{python}{
+    room = {
+        "name": "Studio",
+        "area_m2": 48.0
+    }
+
+    room["area_m2"] = 50.5
+    room["level"] = 2
+
+    print(room)
+}{Replace one value and add another}
+
+Use \c{pop(key)} to remove a pair and return its value.
+
+\code{c03_dictionary_pop}{python}{
+    room = {
+        "name": "Studio",
+        "area_m2": 50.5,
+        "level": 2
+    }
+
+    removed_level = room.pop("level")
+    print(removed_level)
+    print(room)
+}{Remove a dictionary pair}
+
+\hh{Use safe dictionary lookup}
+
+Square-bracket lookup produces a \c{KeyError} when the requested key is
+missing. The \c{get()} method can return a default value instead.
+
+\code{c03_dictionary_get}{python}{
+    room = {
+        "name": "Studio",
+        "area_m2": 50.5
+    }
+
+    print(room.get("name"))
+    print(room.get("occupancy", "Not recorded"))
+}{Use get for a key that may be missing}
+
+Use square brackets when a key must exist. Use \c{get()} when a missing value
+has a reasonable default.
+
+Dictionary membership checks keys.
+
+\code{c03_dictionary_membership}{python}{
+    room = {"name": "Studio", "area_m2": 50.5}
+
+    print("name" in room)
+    print("level" in room)
+}{Check whether dictionary keys exist}
+
+\hh{Use tuples for fixed records}
+
+A tuple is an ordered collection that cannot be changed after creation.
+Parentheses identify a tuple.
+
+\code{c03_first_tuple}{python}{
+    point_xy = (12.5, 8.0)
+
+    print(point_xy[0])
+    print(point_xy[1])
+}{A fixed two-coordinate record}
+
+A tuple is useful when the number and meaning of its positions should remain
+fixed. Use a list when items need to be added, removed, or replaced.
+
+\hh{Use sets for unique values}
+
+A set stores unique values. Repeated values are removed automatically. Sets do
+not provide list-style positional indexing.
+
+\code{c03_first_set}{python}{
+    materials = {"Steel", "Glass", "Steel", "Concrete"}
+    print(materials)
+}{A set removes a repeated value}
+
+The displayed order may vary. Use \c{set()} to create an empty set because
+empty curly braces create an empty dictionary.
+
+\code{c03_set_membership}{python}{
+    materials = {"Steel", "Glass", "Concrete"}
+
+    materials.add("Timber")
+    print("Timber" in materials)
+    print(len(materials))
+}{Add an item and check set membership}
+
+\hh{Choose a collection}
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Collection} & \textbf{Main feature} & \textbf{Use when} \\
+List & Ordered and changeable & Position and sequence matter \\
+Dictionary & Labeled key--value pairs & Values need meaningful labels \\
+Tuple & Ordered and fixed & A small record should not change \\
+Set & Unique values & Duplicates should be removed \\
+\end{tabular}
+\end{center}
+
+Ask two questions before choosing: Does order matter? Does each value need a
+label? These questions usually narrow the choice quickly.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Starting at index 1}: the first list index is 0.
+    \item \textbf{Using a missing key}: check the key or use \c{get()}.
+    \item \textbf{Expecting a set to preserve position}: sets are not indexed sequences.
+    \item \textbf{Creating an empty set with curly braces}: use \c{set()}.
+    \item \textbf{Changing a tuple}: create a new tuple instead.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+\code{c03_practice_level0}{python}{
+    levels = ["B1", "L1", "L2"]
+    print(levels[0])
+    print(levels[-1])
+}{Predict two list lookups}
+
+\hhh{Level 1 -- Modify}
+
+Add two room names to the list, replace the first item, and print the result.
+
+\code{c03_practice_level1}{python}{
+    rooms = ["Lobby", "Studio"]
+    rooms.append("Office")
+    rooms.append("Cafe")
+    rooms[0] = "Entry Lobby"
+    print(rooms)
+}{One completed modification}
+
+\hhh{Level 2 -- Complete}
+
+Complete a dictionary that stores a room name, area, and level. Then display
+only the name and area.
+
+\code{c03_practice_level2}{python}{
+    room = {
+        "name": "Seminar Room",
+        "area_m2": 32.0,
+        "level": 3
+    }
+
+    print(room["name"])
+    print(room["area_m2"])
+}{A completed room dictionary}
+
+\hhh{Level 3 -- Apply}
+
+Create:
+\begin{enumerate}
+    \item a list containing four material names;
+    \item a dictionary containing one material's name and unit cost; and
+    \item a set created from a list that contains at least one duplicate.
+\end{enumerate}
+Display each collection and its length.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: Use square brackets for the list.
+    \item \textbf{Hint 2}: Use descriptive string keys in the dictionary.
+    \item \textbf{Hint 3}: Pass the duplicate-containing list to \c{set()}.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Create a dictionary containing a room's name and a list of three finish
+materials. Add a fourth material to the nested list and display the result.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The output is \c{B1}, then \c{L2}.
+
+\textbf{Level 3 -- one possible solution}
+
+\code{c03_solution_level3}{python}{
+    materials = ["Concrete", "Steel", "Glass", "Timber"]
+    material_cost = {"name": "Concrete", "cost_per_m2": 42.0}
+
+    repeated_names = ["Steel", "Glass", "Steel", "Timber"]
+    unique_materials = set(repeated_names)
+
+    print(materials, len(materials))
+    print(material_cost, len(material_cost))
+    print(unique_materials, len(unique_materials))
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c03_solution_level4}{python}{
+    room = {
+        "name": "Studio",
+        "finishes": ["Concrete", "Paint", "Timber"]
+    }
+
+    room["finishes"].append("Glass")
+    print(room)
+}{One solution to Level 4}
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item Which brackets identify a list?
+    \item What is the index of the first list item?
+    \item What does a negative index of \c{-1} select?
+    \item Does a slice include its stop position?
+    \item Which method adds one item to the end of a list?
+    \item What two parts make up a dictionary pair?
+    \item When is \c{get()} useful?
+    \item Why might you choose a tuple instead of a list?
+    \item What happens to duplicate values in a set?
+    \item How do you create an empty set?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item Square brackets.
+    \item Zero.
+    \item The last item.
+    \item No.
+    \item \c{append()}.
+    \item A key and a value.
+    \item When a key may be missing and a default is appropriate.
+    \item A tuple communicates that the record should remain fixed.
+    \item They are removed.
+    \item Use \c{set()}.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+Lists store ordered, changeable items. Dictionaries connect labels to values.
+Tuples are useful for fixed records, and sets store unique values. Chapter 4
+uses boolean expressions and conditions to make decisions with these values.
+\end{tcolorbox}
+

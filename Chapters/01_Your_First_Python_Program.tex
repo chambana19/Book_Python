@@ -1,0 +1,365 @@
+% Part I -- Getting Started
+% Chapter 1: Your First Python Program
+
+\h{Your First Python Program}
+
+Python lets you give a computer a clear sequence of instructions. Your goal in
+this chapter is simple: install the necessary tools, run a short program, and
+understand what appears on the screen. You do not need previous coding
+experience.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} A Windows or macOS computer, permission to install
+software, and a folder where you can save your work.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item explain the difference between the editor, terminal, script, and REPL;
+    \item verify that Python 3 is installed;
+    \item create and run a Python file in Visual Studio Code;
+    \item use \c{print()} to display text and calculation results; and
+    \item respond to common setup errors without guessing.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{How to use this book}
+
+This book is designed for independent study. Work through each chapter in
+order. Type the examples instead of only reading them. Small typing mistakes
+are normal, and correcting them is part of learning.
+
+You will see five kinds of material:
+\begin{itemize}
+    \item \textbf{Explanation}: a concept described in plain language.
+    \item \textbf{Runnable code}: Python you can type into a file and run.
+    \item \textbf{Expected output}: what a correct run should display.
+    \item \textbf{Stop and predict}: a question to answer before running code.
+    \item \textbf{Practice}: an activity followed by hints and a solution.
+\end{itemize}
+
+Do not try to memorize every command. Focus on recognizing what each line asks
+Python to do.
+
+\hh{What Python is}
+
+Python is a programming language. A Python program is a text file containing
+instructions. Python reads those instructions and performs them in order.
+
+\code{c01_first_print}{python}{
+    print("Hello, Python!")
+}{A single Python instruction}
+
+The word \c{print} names an action. The parentheses contain the information the
+action will use. The quotation marks identify text.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} What would you change to display
+\c{Hello, ARC500!}?
+\end{NoteBox}
+
+\hh{Install Python 3}
+
+Python 3 is the form of the language used in this book.
+
+\hhh*{Windows}
+\begin{enumerate}
+    \item Visit \url{https://www.python.org/downloads/}.
+    \item Download the current Python 3 installer.
+    \item Start the installer.
+    \item Select \textbf{Add Python to PATH} before choosing Install.
+\end{enumerate}
+
+\hhh*{macOS}
+\begin{enumerate}
+    \item Visit \url{https://www.python.org/downloads/}.
+    \item Download and run the current macOS installer.
+    \item Complete the installation using the default options.
+\end{enumerate}
+
+\hh{Verify the installation}
+
+Open a terminal and enter one of the following commands. Run the commands one
+at a time. You only need one of them to work.
+
+\code{c01_verify_python}{bash}{
+    python --version
+    py --version
+    python3 --version
+}{Terminal commands for checking the Python version}
+
+A successful response will be similar to:
+
+\code{c01_version_output}{text}{
+    Python 3.x.x
+}{Example version output; the numbers may differ}
+
+These are terminal commands. Do not type them into a Python file.
+
+\hh{Install Visual Studio Code}
+
+Visual Studio Code, usually called VS Code, is the editor used in this book.
+The editor is where you write and save Python instructions.
+
+\begin{enumerate}
+    \item Download VS Code from \url{https://code.visualstudio.com/}.
+    \item Install and open it.
+    \item Select the Extensions icon on the left side.
+    \item Search for \textbf{Python} and install the extension published by Microsoft.
+    \item Open the Command Palette with \texttt{Ctrl+Shift+P} on Windows or
+          \texttt{Cmd+Shift+P} on macOS.
+    \item Choose \textbf{Python: Select Interpreter}, then select Python 3.
+\end{enumerate}
+
+\hh{Create a study folder}
+
+Create a folder named \texttt{arc500-python}. Inside it, create a folder named
+\texttt{chapter01}. Keeping each chapter in its own folder makes your files
+easier to find.
+
+In VS Code, choose \textbf{File $\rightarrow$ Open Folder} and open
+\texttt{chapter01}. The folder name should appear in the Explorer panel.
+
+\hh{Understand the four working areas}
+
+\begin{itemize}
+    \item \textbf{Editor}: the area in VS Code where you write and save code.
+    \item \textbf{Terminal}: a text-based area where you enter system commands.
+    \item \textbf{Script}: a saved Python file whose name ends in \texttt{.py}.
+    \item \textbf{REPL}: an interactive Python prompt that runs one instruction at a time.
+\end{itemize}
+
+The terminal and editor are not interchangeable. A command such as
+\texttt{python hello.py} belongs in the terminal. An instruction such as
+\c{print("Hello")} belongs in a Python file or the REPL.
+
+\hh{Write and run your first script}
+
+In the VS Code Explorer, create a file named \texttt{hello.py}. Type and save:
+
+\code{c01_hello_script}{python}{
+    print("Hello, ARC500!")
+    print("This is my first Python script.")
+}{The complete hello.py script}
+
+Open the VS Code terminal with \textbf{Terminal $\rightarrow$ New Terminal}.
+Run the script with the command that works on your computer:
+
+\code{c01_run_script}{bash}{
+    python hello.py
+}{Run a Python script from the terminal}
+
+On some Windows computers, use \texttt{py hello.py}. On some macOS computers,
+use \texttt{python3 hello.py}.
+
+Expected output:
+
+\code{c01_hello_output}{text}{
+    Hello, ARC500!
+    This is my first Python script.
+}{Expected output from hello.py}
+
+Python runs the first instruction and then the second. The output appears in
+the same order as the instructions.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} If you exchange the two lines in the file, what will
+appear first when you run it again?
+\end{NoteBox}
+
+\hh{Display a calculation}
+
+The \c{print()} function can display a calculation as well as text.
+
+\code{c01_print_calculations}{python}{
+    print(6 + 4)
+    print(6 * 4)
+    print(24 / 6)
+}{Display three calculation results}
+
+Expected output:
+
+\code{c01_calculation_output}{text}{
+    10
+    24
+    4.0
+}{Output from the calculations}
+
+Python uses \c{*} for multiplication and \c{/} for division. Chapter 2
+explains numbers and arithmetic in more detail.
+
+\hh{Use the interactive prompt}
+
+The REPL is useful when you want to try one instruction without creating a
+file. In the terminal, enter \texttt{python}, \texttt{py}, or
+\texttt{python3}. A prompt similar to \c{>>>} will appear.
+
+\code{c01_repl_session}{text}{
+    >>> print("Testing one instruction")
+    Testing one instruction
+    >>> 8 * 5
+    40
+}{A short REPL session}
+
+The \c{>>>} symbol is the prompt. Do not include it in a Python script. Enter
+\c{exit()} to leave the REPL.
+
+\hh{Read an error message calmly}
+
+Suppose you accidentally omit a closing quotation mark:
+
+\code{c01_syntax_error}{python}{
+    print("Hello)
+}{An intentionally incorrect instruction}
+
+Python reports a \c{SyntaxError}. The last line of the message gives the error
+type. Look near the indicated line for a missing quotation mark, parenthesis,
+or other symbol.
+
+\code{c01_syntax_fixed}{python}{
+    print("Hello")
+}{The corrected instruction}
+
+\hh{Troubleshooting setup problems}
+
+\begin{itemize}
+    \item \textbf{Command not found}: try \texttt{py} or \texttt{python3}. If none
+          works, reinstall Python and ensure it is added to PATH.
+    \item \textbf{The file does not run}: confirm that the terminal is open in
+          the folder containing the file.
+    \item \textbf{Old output appears}: save the file before running it.
+    \item \textbf{The wrong version appears}: use
+          \textbf{Python: Select Interpreter} in VS Code.
+    \item \textbf{Nothing appears}: confirm that the file contains \c{print()}
+          and that you ran the correct filename.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+Write down the expected output before running this code:
+
+\code{c01_practice_level0}{python}{
+    print("Start")
+    print(3 + 2)
+    print("Finish")
+}{Predict the output before running the code}
+
+\hhh{Level 1 -- Modify}
+
+Copy the code into \texttt{practice1.py}. Replace the text with your own
+subject and learning goal.
+
+\code{c01_practice_level1}{python}{
+    print("Subject: Python")
+    print("Goal: Run a program successfully")
+}{Modify two text values}
+
+\hhh{Level 2 -- Complete}
+
+Write three \c{print()} instructions that produce:
+
+\code{c01_practice_level2_output}{text}{
+    ARC500
+    20
+    Complete
+}{Target output for Level 2}
+
+\hhh{Level 3 -- Apply}
+
+Create \texttt{practice3.py}. It should display your name, the text
+\texttt{Chapter 1 complete}, and the result of \c{9 * 7}.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: Use one \c{print()} instruction for each line.
+    \item \textbf{Hint 2}: Text needs quotation marks; a calculation does not.
+    \item \textbf{Hint 3}: Your file should contain three instructions.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Use four \c{print()} instructions to produce:
+
+\code{c01_practice_level4_output}{text}{
+    Python Study Record
+    -------------------
+    Chapter: 1
+    Status: Complete
+}{Target output for the optional challenge}
+
+\hh{Practice solutions}
+
+\textbf{Level 0}
+
+\code{c01_solution_level0}{text}{
+    Start
+    5
+    Finish
+}{Level 0 solution}
+
+\textbf{Level 2}
+
+\code{c01_solution_level2}{python}{
+    print("ARC500")
+    print(12 + 8)
+    print("Complete")
+}{One solution to Level 2}
+
+\textbf{Level 3}
+
+\code{c01_solution_level3}{python}{
+    print("Your Name")
+    print("Chapter 1 complete")
+    print(9 * 7)
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c01_solution_level4}{python}{
+    print("Python Study Record")
+    print("-------------------")
+    print("Chapter: 1")
+    print("Status: Complete")
+}{Solution to Level 4}
+
+\hh{Chapter checkpoint}
+
+Answer without looking back, then check your answers.
+
+\begin{enumerate}
+    \item What filename extension identifies a Python script?
+    \item Where do you write and save Python code in VS Code?
+    \item Where do you enter \texttt{python hello.py}?
+    \item What does \c{print()} do?
+    \item What symbols identify text in this chapter's examples?
+    \item What multiplication symbol does Python use?
+    \item What is the purpose of the REPL?
+    \item Should \c{>>>} be copied into a Python script?
+    \item What should you check first when old output appears?
+    \item Name one common cause of a \c{SyntaxError}.
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item \texttt{.py}.
+    \item In the editor.
+    \item In the terminal.
+    \item It displays information.
+    \item Quotation marks.
+    \item An asterisk: \c{*}.
+    \item It runs one instruction or expression at a time.
+    \item No. It is the interactive prompt.
+    \item Check that the file was saved and that you ran the correct file.
+    \item A missing quotation mark or parenthesis is one possible cause.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+You installed Python and VS Code, created and ran a Python file, displayed text
+and calculations, used the REPL, and corrected a basic syntax mistake. Chapter
+2 introduces values, variables, and calculations.
+\end{tcolorbox}
+

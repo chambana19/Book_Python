@@ -1,0 +1,449 @@
+% Part II -- Python Foundations
+% Chapter 5: Loops and Repetition
+
+\h{Loops and Repetition}
+
+Repeating similar instructions by hand creates long code and makes mistakes
+more likely. A loop tells Python to repeat a block of instructions. The values
+may come from a list, a dictionary, a numeric range, or a condition that
+changes while the program runs.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand lists, dictionaries, booleans,
+comparisons, conditional statements, and indentation.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item repeat instructions with a \c{for} loop;
+    \item use \c{range()} for a known number of repetitions;
+    \item calculate a running total;
+    \item iterate over dictionary keys and values;
+    \item pair values with \c{enumerate()} and \c{zip()}; and
+    \item control a basic \c{while} loop safely.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Why loops are useful}
+
+Suppose a list contains four room names. Repeating \c{print()} with four
+indexes works, but the code must change whenever the list changes.
+
+\code{c05_without_loop}{python}{
+    rooms = ["Lobby", "Studio", "Office", "Cafe"]
+
+    print(rooms[0])
+    print(rooms[1])
+    print(rooms[2])
+    print(rooms[3])
+}{Repeated instructions without a loop}
+
+A loop expresses the real intention: display every item.
+
+\code{c05_first_loop}{python}{
+    rooms = ["Lobby", "Studio", "Office", "Cafe"]
+
+    for room in rooms:
+        print(room)
+}{Display every item with a for loop}
+
+Read the loop header as ``for each \c{room} in \c{rooms}.'' During each
+repetition, \c{room} refers to the next item.
+
+\hh{Understand the loop block}
+
+The colon ends the loop header. Indented instructions form the loop body and
+run once for each item. Instructions after the indentation ends run once after
+the loop.
+
+\code{c05_loop_block}{python}{
+    rooms = ["Lobby", "Studio", "Office"]
+
+    print("Room list")
+    for room in rooms:
+        print(room)
+        print("Checked")
+
+    print("All rooms checked")
+}{Distinguish repeated and non-repeated instructions}
+
+\begin{NoteBox}
+\textbf{Stop and predict.} How many times will \c{Checked} appear? How many
+times will \c{All rooms checked} appear?
+\end{NoteBox}
+
+\hh{Transform a value during each repetition}
+
+The loop variable may be used in a calculation or f-string.
+
+\code{c05_loop_calculation}{python}{
+    areas_m2 = [24.0, 35.5, 18.0]
+
+    for area_m2 in areas_m2:
+        area_ft2 = area_m2 * 10.764
+        print(f"{area_m2:.1f} m2 = {area_ft2:.1f} ft2")
+}{Apply one calculation to every list item}
+
+Each result is calculated from the current item. The original list is not
+changed.
+
+\hh{Repeat with range}
+
+The \c{range()} function produces a sequence of integers. It is useful when
+you know how many times to repeat.
+
+\code{c05_range_basic}{python}{
+    for number in range(5):
+        print(number)
+}{Count from zero through four}
+
+The stop value is not included. \c{range(5)} produces 0, 1, 2, 3, and 4.
+
+Provide a start and stop value when counting should begin elsewhere.
+
+\code{c05_range_start_stop}{python}{
+    for level in range(1, 5):
+        print(f"Level {level}")
+}{Count from one through four}
+
+A third argument sets the step.
+
+\code{c05_range_step}{python}{
+    for grid_line in range(0, 25, 5):
+        print(grid_line)
+}{Count from zero by fives}
+
+\hh{Calculate a running total}
+
+An accumulator stores a result that changes during the loop. Begin at zero,
+then add each value.
+
+\code{c05_running_total}{python}{
+    areas_m2 = [24.0, 35.5, 18.0]
+    total_area_m2 = 0.0
+
+    for area_m2 in areas_m2:
+        total_area_m2 = total_area_m2 + area_m2
+
+    print(f"Total area: {total_area_m2:.1f} m2")
+}{Accumulate a total}
+
+The shorter statement \c{total_area_m2 += area_m2} has the same purpose.
+
+\code{c05_running_total_short}{python}{
+    areas_m2 = [24.0, 35.5, 18.0]
+    total_area_m2 = 0.0
+
+    for area_m2 in areas_m2:
+        total_area_m2 += area_m2
+
+    average_area_m2 = total_area_m2 / len(areas_m2)
+    print(f"Average area: {average_area_m2:.1f} m2")
+}{Use an accumulator to calculate an average}
+
+Keep the final calculation outside the loop because it is needed only once.
+
+\hh{Combine loops and conditions}
+
+An \c{if} statement inside a loop can select which items receive an action.
+
+\code{c05_loop_with_if}{python}{
+    areas_m2 = [24.0, 35.5, 18.0, 42.0]
+
+    for area_m2 in areas_m2:
+        if area_m2 >= 30.0:
+            print(f"Large area: {area_m2:.1f} m2")
+}{Display only values that meet a condition}
+
+Indentation shows the structure: the \c{if} belongs to the loop, and its
+\c{print()} belongs to the \c{if}.
+
+\hh{Iterate over dictionaries}
+
+Looping directly over a dictionary produces its keys.
+
+\code{c05_dictionary_keys}{python}{
+    room_areas = {
+        "Lobby": 24.0,
+        "Studio": 35.5,
+        "Office": 18.0
+    }
+
+    for room_name in room_areas:
+        print(room_name)
+}{Iterate over dictionary keys}
+
+Use \c{items()} when both the key and value are needed.
+
+\code{c05_dictionary_items}{python}{
+    room_areas = {
+        "Lobby": 24.0,
+        "Studio": 35.5,
+        "Office": 18.0
+    }
+
+    for room_name, area_m2 in room_areas.items():
+        print(f"{room_name}: {area_m2:.1f} m2")
+}{Iterate over dictionary key--value pairs}
+
+The two loop variables receive the key and value from each pair.
+
+\hh{Number items with enumerate}
+
+The \c{enumerate()} function provides an index and an item during each
+repetition.
+
+\code{c05_enumerate}{python}{
+    rooms = ["Lobby", "Studio", "Office"]
+
+    for number, room_name in enumerate(rooms, start=1):
+        print(f"{number}. {room_name}")
+}{Number list items starting at one}
+
+Expected output:
+
+\code{c05_enumerate_output}{text}{
+    1. Lobby
+    2. Studio
+    3. Office
+}{Numbered output from enumerate}
+
+Use \c{enumerate()} instead of manually updating a counter when you need both
+position and value.
+
+\hh{Pair collections with zip}
+
+The \c{zip()} function pairs corresponding items from two or more collections.
+
+\code{c05_zip}{python}{
+    room_names = ["Lobby", "Studio", "Office"]
+    areas_m2 = [24.0, 35.5, 18.0]
+
+    for room_name, area_m2 in zip(room_names, areas_m2):
+        print(f"{room_name}: {area_m2:.1f} m2")
+}{Pair room names and areas}
+
+If the collections have different lengths, \c{zip()} stops at the end of the
+shortest one. Check that related collections have matching lengths.
+
+\hh{Repeat while a condition is true}
+
+A \c{while} loop repeats as long as its condition remains true. Something in
+the loop must eventually make the condition false.
+
+\code{c05_first_while}{python}{
+    count = 1
+
+    while count <= 4:
+        print(count)
+        count += 1
+
+    print("Finished")
+}{A while loop with an updating counter}
+
+Trace the counter carefully:
+\begin{enumerate}
+    \item \c{count} begins at 1.
+    \item Python checks \c{count <= 4}.
+    \item The body displays and increases \c{count}.
+    \item When \c{count} becomes 5, the condition is false.
+\end{enumerate}
+
+Forgetting \c{count += 1} creates an infinite loop. Use
+\texttt{Ctrl+C} in the terminal to stop a program that does not end.
+
+\hh{Stop a loop with break}
+
+The \c{break} statement exits the nearest loop immediately.
+
+\code{c05_break}{python}{
+    room_names = ["Lobby", "Studio", "Office", "Cafe"]
+    target = "Office"
+
+    for room_name in room_names:
+        if room_name == target:
+            print("Found the target")
+            break
+
+        print(f"Checked {room_name}")
+}{Stop after finding a target}
+
+Use \c{break} when continuing would serve no purpose.
+
+\hh{Skip one repetition with continue}
+
+The \c{continue} statement skips the rest of the current repetition and moves
+to the next item.
+
+\code{c05_continue}{python}{
+    values = [24.0, None, 35.5, None, 18.0]
+
+    for value in values:
+        if value is None:
+            continue
+
+        print(f"Area: {value:.1f} m2")
+}{Skip missing values}
+
+Use \c{continue} only when it makes the loop easier to read than an additional
+level of nesting.
+
+\hh{Optional extension: a simple list comprehension}
+
+After an ordinary loop is clear, a short list comprehension can express a
+simple transformation.
+
+\code{c05_ordinary_transform}{python}{
+    areas_m2 = [20.0, 30.0, 40.0]
+    doubled_areas = []
+
+    for area_m2 in areas_m2:
+        doubled_areas.append(area_m2 * 2)
+
+    print(doubled_areas)
+}{Build a transformed list with an ordinary loop}
+
+The equivalent comprehension is:
+
+\code{c05_list_comprehension}{python}{
+    areas_m2 = [20.0, 30.0, 40.0]
+    doubled_areas = [area_m2 * 2 for area_m2 in areas_m2]
+
+    print(doubled_areas)
+}{The same transformation as a list comprehension}
+
+Prefer the ordinary loop when the transformation includes several steps or
+would be difficult to explain in one short sentence.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Forgetting the colon}: loop headers end with a colon.
+    \item \textbf{Incorrect indentation}: only indented instructions repeat.
+    \item \textbf{Using an index when the item is enough}: write
+          \c{for room in rooms} instead of indexing unnecessarily.
+    \item \textbf{Placing the final calculation inside the loop}: calculate once
+          after accumulating all values.
+    \item \textbf{Forgetting to update a while-loop variable}: the loop may never end.
+    \item \textbf{Using collections of unequal length with zip}: extra values are ignored.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+\code{c05_practice_level0}{python}{
+    names = ["A", "B", "C"]
+
+    for name in names:
+        print(name)
+
+    print("Done")
+}{Predict repeated and final output}
+
+\hhh{Level 1 -- Modify}
+
+Add two names to the list and change the message inside the loop.
+
+\hhh{Level 2 -- Complete}
+
+Complete the accumulator so the program displays the total.
+
+\code{c05_practice_level2}{python}{
+    areas_m2 = [20.0, 32.5, 18.0, 29.5]
+    total_area_m2 = 0.0
+
+    for area_m2 in areas_m2:
+        total_area_m2 += area_m2
+
+    print(f"Total: {total_area_m2:.1f} m2")
+}{A completed accumulator}
+
+\hhh{Level 3 -- Apply}
+
+Given matching lists of four room names and four areas, use \c{zip()} to
+display each pair. Display \c{Large} after a pair when its area is at least 30.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: Use two loop variables with \c{zip()}.
+    \item \textbf{Hint 2}: Put an \c{if} statement inside the loop.
+    \item \textbf{Hint 3}: Indent the conditional message one level farther.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Extend Level 3 by counting how many areas are at least 30 and displaying the
+count after the loop.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The output is \c{A}, \c{B}, \c{C}, and then \c{Done}.
+
+\textbf{Level 2:} The total is \c{100.0 m2}.
+
+\textbf{Level 3}
+
+\code{c05_solution_level3}{python}{
+    room_names = ["Lobby", "Studio", "Office", "Cafe"]
+    areas_m2 = [24.0, 35.5, 18.0, 31.0]
+
+    for room_name, area_m2 in zip(room_names, areas_m2):
+        print(f"{room_name}: {area_m2:.1f} m2")
+        if area_m2 >= 30.0:
+            print("Large")
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c05_solution_level4}{python}{
+    room_names = ["Lobby", "Studio", "Office", "Cafe"]
+    areas_m2 = [24.0, 35.5, 18.0, 31.0]
+    large_count = 0
+
+    for room_name, area_m2 in zip(room_names, areas_m2):
+        print(f"{room_name}: {area_m2:.1f} m2")
+        if area_m2 >= 30.0:
+            print("Large")
+            large_count += 1
+
+    print(f"Large room count: {large_count}")
+}{One solution to Level 4}
+
+\hh{Part II checkpoint}
+
+\begin{enumerate}
+    \item What does the loop variable represent during one repetition?
+    \item Which instructions repeat in a \c{for} loop?
+    \item Does \c{range(5)} include 5?
+    \item Where should an accumulator be initialized?
+    \item When should a final average be calculated?
+    \item What does \c{dictionary.items()} provide?
+    \item When is \c{enumerate()} useful?
+    \item What happens when collections passed to \c{zip()} have different lengths?
+    \item What must happen inside a \c{while} loop to ensure it ends?
+    \item What is the difference between \c{break} and \c{continue}?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item The current item from the collection.
+    \item The indented instructions in the loop body.
+    \item No. It produces values from 0 through 4.
+    \item Before the loop.
+    \item After the loop has processed all values.
+    \item Key--value pairs.
+    \item When both an item's position and value are needed.
+    \item It stops when the shortest collection ends.
+    \item A value or condition must change so the condition eventually becomes false.
+    \item \c{break} exits the loop; \c{continue} skips to the next repetition.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Part II summary,colframe=orange,colback=white,arc=2mm]
+You can now store values in variables and collections, calculate results, make
+decisions, and repeat instructions. These ideas form the foundation for writing
+larger and more reliable Python programs in the following chapters.
+\end{tcolorbox}
+

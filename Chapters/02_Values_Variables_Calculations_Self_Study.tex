@@ -1,0 +1,424 @@
+% Part II -- Python Foundations
+% Chapter 2: Values, Variables, and Calculations
+
+\h{Values, Variables, and Calculations}
+
+A useful program needs information to work with. That information may be a
+number, a piece of text, or a yes-or-no value. In this chapter, you will learn
+how Python represents these values, how to give them clear names, and how to
+use them in calculations.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should be able to create, save, and run a Python
+file and use \c{print()}.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item recognize integers, floating-point numbers, strings, booleans, and \c{None};
+    \item assign values to clearly named variables;
+    \item perform and organize arithmetic calculations;
+    \item read text with \c{input()} and convert it to a number; and
+    \item produce readable output with an f-string.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Values and types}
+
+A \emph{value} is one piece of information. Every value has a \emph{type}. The
+type tells Python what kind of information the value represents and which
+operations make sense for it.
+
+\code{c02_basic_values}{python}{
+    print(4)
+    print(3.5)
+    print("Studio")
+    print(True)
+    print(None)
+}{Five basic Python values}
+
+These values have different types:
+\begin{itemize}
+    \item \c{4} is an integer, written \c{int}.
+    \item \c{3.5} is a floating-point number, written \c{float}.
+    \item \c{"Studio"} is a string, written \c{str}.
+    \item \c{True} is a boolean, written \c{bool}.
+    \item \c{None} represents the absence of a value.
+\end{itemize}
+
+Use \c{type()} when you want Python to report a value's type.
+
+\code{c02_type_check}{python}{
+    print(type(4))
+    print(type(3.5))
+    print(type("Studio"))
+}{Inspect three value types}
+
+\begin{NoteBox}
+\textbf{Stop and predict.} What type will Python report for \c{"4"}? Notice
+that quotation marks change a number into text.
+\end{NoteBox}
+
+\hh{Variables give values names}
+
+A variable is a name connected to a value. The equals sign assigns the value
+on the right to the name on the left.
+
+\code{c02_first_variables}{python}{
+    room_name = "Studio"
+    width_m = 6.0
+    length_m = 8.0
+
+    print(room_name)
+    print(width_m)
+    print(length_m)
+}{Assign and display three variables}
+
+Read \c{width_m = 6.0} as ``assign the value 6.0 to \c{width_m}.'' The equals
+sign performs assignment here; it is not asking a mathematical question.
+
+Use names that explain the value:
+\begin{itemize}
+    \item begin with a letter or underscore;
+    \item use letters, numbers, and underscores only;
+    \item use lowercase words separated by underscores; and
+    \item include units when they prevent confusion.
+\end{itemize}
+
+Names such as \c{wall_height_m} and \c{area_m2} are clearer than \c{x} and
+\c{result}.
+
+\hh{Variables can be reassigned}
+
+A variable can receive a new value later.
+
+\code{c02_reassignment}{python}{
+    floor_count = 3
+    print(floor_count)
+
+    floor_count = 4
+    print(floor_count)
+}{Reassign a variable}
+
+Expected output:
+
+\code{c02_reassignment_output}{text}{
+    3
+    4
+}{Output after reassignment}
+
+Reassignment does not change the earlier output. It changes which value the
+name refers to from that point forward.
+
+\hh{Work with numbers}
+
+Python uses familiar arithmetic operators.
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Operation} & \textbf{Operator} & \textbf{Example} \\
+Addition & \c{+} & \c{8 + 2} \\
+Subtraction & \c{-} & \c{8 - 2} \\
+Multiplication & \c{*} & \c{8 * 2} \\
+Division & \c{/} & \c{8 / 2} \\
+Floor division & \c{//} & \c{9 // 2} \\
+Exponentiation & \c{**} & \c{3 ** 2} \\
+\end{tabular}
+\end{center}
+
+Parentheses make the intended order clear.
+
+\code{c02_arithmetic}{python}{
+    width_m = 6.0
+    length_m = 8.0
+    height_m = 3.2
+
+    area_m2 = width_m * length_m
+    volume_m3 = area_m2 * height_m
+
+    print(area_m2)
+    print(volume_m3)
+}{Calculate area and volume}
+
+\begin{NoteBox}
+\textbf{Stop and predict.} If \c{width_m} changes to \c{7.0}, which results
+will change? Make a prediction before running the revised code.
+\end{NoteBox}
+
+\hh{Control calculation order}
+
+Python follows standard arithmetic precedence. Multiplication and division
+occur before addition and subtraction. Parentheses let you state the intended
+order directly.
+
+\code{c02_precedence}{python}{
+    result_a = 4 + 3 * 2
+    result_b = (4 + 3) * 2
+
+    print(result_a)
+    print(result_b)
+}{Parentheses change calculation order}
+
+Expected output:
+
+\code{c02_precedence_output}{text}{
+    10
+    14
+}{Results with and without parentheses}
+
+Use parentheses when a reader might otherwise need to stop and check the
+order.
+
+\hh{Work with strings}
+
+A string is text inside quotation marks. Single and double quotation marks
+both create strings.
+
+\code{c02_strings}{python}{
+    room_name = "Lecture Room"
+    level_name = 'Second Floor'
+
+    print(room_name)
+    print(level_name)
+}{Create two strings}
+
+Choose one quotation style and use it consistently. A string can contain
+spaces, punctuation, and digits. The digits in \c{"Room 204"} are still text.
+
+Strings can be joined with \c{+}.
+
+\code{c02_string_join}{python}{
+    room_name = "Studio"
+    message = "Room: " + room_name
+    print(message)
+}{Join two strings}
+
+For messages containing numbers, an f-string is usually clearer than joining
+many converted values.
+
+\hh{Read input from the student}
+
+The \c{input()} function displays a prompt, waits for the user to type, and
+returns the response as a string.
+
+\code{c02_text_input}{python}{
+    room_name = input("Room name: ")
+    print("You entered: " + room_name)
+}{Read and display text input}
+
+Even when a user types digits, \c{input()} returns text. Convert the response
+before using it in arithmetic.
+
+\code{c02_numeric_input}{python}{
+    width_text = input("Width in meters: ")
+    width_m = float(width_text)
+
+    print(width_m * 2)
+}{Convert input text to a floating-point number}
+
+You can combine reading and conversion when the shorter form remains clear.
+
+\code{c02_direct_conversion}{python}{
+    width_m = float(input("Width in meters: "))
+    length_m = float(input("Length in meters: "))
+    area_m2 = width_m * length_m
+
+    print(area_m2)
+}{Read two dimensions and calculate area}
+
+If the user types text that cannot be converted, Python reports a
+\c{ValueError}. Chapter 7 will show how to handle that error. For now, enter a
+valid number when a prompt requests one.
+
+\hh{Format output with f-strings}
+
+An f-string places values inside a readable message. Begin the string with
+\c{f} and place variable names inside braces.
+
+\code{c02_first_fstring}{python}{
+    room_name = "Studio"
+    area_m2 = 48.0
+
+    print(f"{room_name} area: {area_m2} m2")
+}{Insert values into an f-string}
+
+Use a format specification to control decimal places.
+
+\code{c02_decimal_format}{python}{
+    width_m = 5.75
+    length_m = 7.2
+    area_m2 = width_m * length_m
+
+    print(f"Area: {area_m2:.2f} m2")
+}{Display a number with two decimal places}
+
+The specification \c{:.2f} displays a floating-point value with two digits
+after the decimal point. It changes the displayed form, not the stored value.
+
+\hh{Use comments to explain intent}
+
+A comment begins with \c{#}. Python ignores the comment when the program runs.
+Use comments to explain an assumption or decision.
+
+\code{c02_comments}{python}{
+    # Dimensions are measured in meters.
+    width_m = 5.75
+    length_m = 7.2
+
+    area_m2 = width_m * length_m
+    print(f"Area: {area_m2:.2f} m2")
+}{A comment records an important assumption}
+
+Avoid comments that merely repeat the code. A comment should add information
+that the names and operations do not already communicate.
+
+\hh{Common mistakes}
+
+\hhh{Using a variable before assigning it}
+
+\code{c02_name_error}{python}{
+    print(area_m2)
+}{This intentionally produces a NameError}
+
+Assign \c{area_m2} before trying to use it.
+
+\hhh{Mixing text and numbers with plus}
+
+\code{c02_type_error}{python}{
+    area_m2 = 48.0
+    print("Area: " + area_m2)
+}{This intentionally produces a TypeError}
+
+Use an f-string instead:
+
+\code{c02_type_error_fixed}{python}{
+    area_m2 = 48.0
+    print(f"Area: {area_m2} m2")
+}{Use an f-string to combine text and a number}
+
+\hhh{Using an unclear name}
+
+\code{c02_unclear_names}{python}{
+    a = 6.0
+    b = 8.0
+    c = a * b
+}{Valid code with unclear names}
+
+Prefer \c{width_m}, \c{length_m}, and \c{area_m2}. Clear names reduce the
+amount of explanation a reader needs.
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+Predict the output before running the code.
+
+\code{c02_practice_level0}{python}{
+    width_m = 4.0
+    length_m = 6.0
+    area_m2 = width_m * length_m
+    print(area_m2)
+}{Predict a calculation result}
+
+\hhh{Level 1 -- Modify}
+
+Run the code above. Change the width and length to two different values. Check
+the result by hand, then run the code again.
+
+\hhh{Level 2 -- Complete}
+
+Complete the missing expressions so the program calculates perimeter.
+
+\code{c02_practice_level2}{python}{
+    width_m = 5.0
+    length_m = 9.0
+    perimeter_m = 2 * (width_m + length_m)
+
+    print(f"Perimeter: {perimeter_m:.1f} m")
+}{A completed perimeter calculation}
+
+\hhh{Level 3 -- Apply}
+
+Write a program that asks for width, length, and height. Calculate area and
+volume, then display both results with two decimal places.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: Use \c{float(input(...))} three times.
+    \item \textbf{Hint 2}: Calculate area before volume.
+    \item \textbf{Hint 3}: Volume equals area multiplied by height.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Extend Level 3 by calculating the difference between the length and width.
+Display a clear sentence describing the difference.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The output is \c{24.0}.
+
+\textbf{Level 3}
+
+\code{c02_solution_level3}{python}{
+    width_m = float(input("Width in meters: "))
+    length_m = float(input("Length in meters: "))
+    height_m = float(input("Height in meters: "))
+
+    area_m2 = width_m * length_m
+    volume_m3 = area_m2 * height_m
+
+    print(f"Area: {area_m2:.2f} m2")
+    print(f"Volume: {volume_m3:.2f} m3")
+}{One solution to Level 3}
+
+\textbf{Level 4 addition}
+
+\code{c02_solution_level4}{python}{
+    width_m = float(input("Width in meters: "))
+    length_m = float(input("Length in meters: "))
+
+    difference_m = length_m - width_m
+    print(f"Length minus width: {difference_m:.2f} m")
+}{One self-contained solution to Level 4}
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item What is the difference between \c{4} and \c{"4"}?
+    \item What does the assignment operator do?
+    \item Why is \c{area_m2} clearer than \c{x}?
+    \item Which operator performs multiplication?
+    \item Why might you use parentheses in a calculation?
+    \item What type does \c{input()} return?
+    \item How do you convert \c{"3.5"} to a number?
+    \item What does the \c{f} before an f-string mean for its braces?
+    \item What does \c{:.2f} control?
+    \item What symbol begins a comment?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item \c{4} is an integer; \c{"4"} is a string.
+    \item It connects a name to a value.
+    \item The name describes the quantity and its unit.
+    \item \c{*}.
+    \item To make the intended order clear or change the normal order.
+    \item A string.
+    \item Use \c{float("3.5")}.
+    \item Values or expressions inside braces are inserted into the text.
+    \item The displayed number of decimal places.
+    \item \c{#}.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+Values have types. Variables give values meaningful names. Python can perform
+calculations with numeric variables, read responses with \c{input()}, convert
+text to numbers, and insert results into f-strings. Chapter 3 shows how to
+organize several related values in collections.
+\end{tcolorbox}
+
+
+
