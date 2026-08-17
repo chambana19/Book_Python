@@ -1,0 +1,400 @@
+% Part III -- Reusable and Reliable Programs
+% Chapter 9: Copying Data Safely
+
+\h{Copying Data Safely}
+
+Two variables can refer to the same list or dictionary. When that happens, a
+change made through one name appears through the other. This behavior is useful
+when sharing is intentional and surprising when an independent copy was
+expected.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand variables, mutable collections,
+nested lists and dictionaries, loops, and functions.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item distinguish equality from object identity;
+    \item explain why assignment does not copy a mutable collection;
+    \item make a shallow copy of a flat list or dictionary;
+    \item identify shared inner objects in nested data;
+    \item use \c{copy.deepcopy()} when full independence is required; and
+    \item prevent unintended mutation inside functions.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Equality and identity answer different questions}
+
+The \c{==} operator asks whether two values are equal. The \c{is} operator asks
+whether two names refer to the same object.
+
+\code{c09_equality_identity}{python}{
+    first = ["Lobby", "Office"]
+    second = ["Lobby", "Office"]
+
+    print(first == second)
+    print(first is second)
+}{Compare equal values stored in separate lists}
+
+The lists contain equal values, so \c{==} returns \c{True}. They are separate
+list objects, so \c{is} returns \c{False}.
+
+Use \c{==} for normal value comparisons. Use \c{is} mainly for identity checks,
+especially \c{value is None}.
+
+\hh{Assignment creates another name}
+
+Assigning a list to another variable does not create a new list.
+
+\code{c09_assignment_alias}{python}{
+    original_rooms = ["Lobby", "Office"]
+    shared_rooms = original_rooms
+
+    shared_rooms.append("Cafe")
+
+    print(original_rooms)
+    print(shared_rooms)
+    print(original_rooms is shared_rooms)
+}{Two names refer to one list}
+
+Both names point to the same mutable object. Appending through either name
+changes that one list.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} If \c{original_rooms.append("Gallery")} runs next,
+what will \c{shared_rooms} contain?
+\end{NoteBox}
+
+\hh{Immutable values behave differently}
+
+Numbers and strings cannot be changed in place. Reassignment connects a name to
+a different value; it does not change the earlier value.
+
+\code{c09_immutable_reassignment}{python}{
+    first_count = 3
+    second_count = first_count
+
+    second_count = 4
+
+    print(first_count)
+    print(second_count)
+}{Reassign one name bound to an integer}
+
+The output is 3 and 4. No integer object was mutated.
+
+\hh{Make a shallow list copy}
+
+For a flat list, \c{.copy()}, a full slice, and \c{list()} each create a new
+outer list.
+
+\code{c09_flat_list_copy}{python}{
+    original_rooms = ["Lobby", "Office"]
+    copied_rooms = original_rooms.copy()
+
+    copied_rooms.append("Cafe")
+
+    print(original_rooms)
+    print(copied_rooms)
+    print(original_rooms is copied_rooms)
+}{Copy a flat list}
+
+The copied list is independent because the contained strings are immutable.
+
+\hh{Make shallow dictionary and set copies}
+
+The \c{.copy()} method also creates new dictionary and set containers.
+
+\code{c09_dict_set_copy}{python}{
+    original_room = {"name": "Lobby", "area_m2": 24.0}
+    copied_room = original_room.copy()
+    copied_room["area_m2"] = 25.0
+
+    original_levels = {1, 2, 3}
+    copied_levels = original_levels.copy()
+    copied_levels.add(4)
+
+    print(original_room)
+    print(copied_room)
+    print(original_levels)
+    print(copied_levels)
+}{Copy flat dictionaries and sets}
+
+These examples are flat. Their values do not contain mutable collections.
+
+\hh{A shallow copy shares nested objects}
+
+A shallow copy creates a new outer container but reuses the objects inside it.
+
+\code{c09_shallow_nested}{python}{
+    original = {
+        "name": "Lobby",
+        "tags": ["public", "entry"]
+    }
+
+    shallow = original.copy()
+    shallow["tags"].append("display")
+
+    print(original["tags"])
+    print(shallow["tags"])
+    print(original["tags"] is shallow["tags"])
+}{A shallow dictionary copy shares its inner list}
+
+The dictionaries are separate, but their \c{"tags"} values point to the same
+list. That is the meaning of \emph{shallow}.
+
+\hh{Copy only the nested part that will change}
+
+Sometimes a targeted copy is clearer than copying the entire structure.
+
+\code{c09_targeted_nested_copy}{python}{
+    original = {
+        "name": "Lobby",
+        "tags": ["public", "entry"]
+    }
+
+    revised = original.copy()
+    revised["tags"] = original["tags"].copy()
+    revised["tags"].append("display")
+
+    print(original["tags"])
+    print(revised["tags"])
+}{Copy the outer dictionary and one inner list}
+
+This approach states exactly which nested value must become independent.
+
+\hh{Use a deep copy for full nested independence}
+
+The standard-library \c{copy} module can recursively duplicate nested mutable
+objects.
+
+\code{c09_deep_copy}{python}{
+    import copy
+
+    original = {
+        "name": "Lobby",
+        "tags": ["public", "entry"],
+        "dimensions_m": {"width": 6.0, "length": 8.0}
+    }
+
+    independent = copy.deepcopy(original)
+    independent["tags"].append("display")
+    independent["dimensions_m"]["width"] = 7.0
+
+    print(original)
+    print(independent)
+}{Deep-copy nested data before independent editing}
+
+Deep copying is convenient, but it may copy more than necessary. Prefer a
+targeted copy when the structure is large and only one part will change.
+
+\hh{Avoid replicated inner lists}
+
+Multiplying a list that contains another list repeats references to the same
+inner object.
+
+\code{c09_grid_alias_problem}{python}{
+    grid = [[0, 0, 0]] * 3
+    grid[0][0] = 1
+
+    print(grid)
+}{A replicated row is shared three times}
+
+Create each row separately instead.
+
+\code{c09_grid_independent_rows}{python}{
+    grid = []
+
+    for _ in range(3):
+        grid.append([0, 0, 0])
+
+    grid[0][0] = 1
+    print(grid)
+}{Build independent rows with an ordinary loop}
+
+The underscore is a conventional loop variable when its value is not used.
+
+\hh{Functions can mutate caller data}
+
+A function receives a reference to the supplied list. A method such as
+\c{append()} therefore changes the caller's list.
+
+\code{c09_function_mutation}{python}{
+    def add_room_in_place(room_names, new_name):
+        room_names.append(new_name)
+
+    rooms = ["Lobby", "Office"]
+    add_room_in_place(rooms, "Cafe")
+
+    print(rooms)
+}{A function intentionally mutates its input list}
+
+The function name includes \c{in_place} to make the mutation visible. When the
+caller should keep its data, copy before changing it.
+
+\code{c09_function_copy}{python}{
+    def with_added_room(room_names, new_name):
+        revised_names = room_names.copy()
+        revised_names.append(new_name)
+        return revised_names
+
+    rooms = ["Lobby", "Office"]
+    expanded_rooms = with_added_room(rooms, "Cafe")
+
+    print(rooms)
+    print(expanded_rooms)
+}{Return a revised copy and preserve the input}
+
+Neither approach is automatically correct. The important point is to make the
+behavior intentional and clear.
+
+\hh{Choose the smallest sufficient copy}
+
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Situation} & \textbf{Usual choice} \\
+Two names should share one object & Assignment \\
+Flat list, dictionary, or set & Shallow copy \\
+Nested data; only one inner value changes & Targeted shallow copies \\
+Many nested values must be independent & \c{copy.deepcopy()} \\
+Immutable number or string & Usually no copy needed \\
+\end{tabular}
+\end{center}
+
+Inspect the structure and planned changes before choosing.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Using assignment when independence is expected}: both names share changes.
+    \item \textbf{Assuming a shallow copy duplicates nested lists}: inner objects remain shared.
+    \item \textbf{Using is for value equality}: use \c{==} for normal comparisons.
+    \item \textbf{Deep-copying everything automatically}: it may be unnecessary and expensive.
+    \item \textbf{Mutating a function argument without saying so}: callers may be surprised.
+    \item \textbf{Replicating a nested list with multiplication}: rows may share one object.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+\code{c09_practice_level0}{python}{
+    first = [1, 2]
+    second = first
+    second.append(3)
+
+    print(first)
+    print(first is second)
+}{Predict shared-list output}
+
+\hhh{Level 1 -- Modify}
+
+Change the assignment to \c{second = first.copy()}. Predict both outputs again.
+
+\hhh{Level 2 -- Complete}
+
+Create an independent copy of a flat dictionary and change only the copy.
+
+\code{c09_practice_level2}{python}{
+    original = {"name": "Lobby", "area_m2": 24.0}
+    revised = original.copy()
+    revised["area_m2"] = 26.0
+
+    print(original)
+    print(revised)
+}{Copy and revise a flat dictionary}
+
+\hhh{Level 3 -- Apply}
+
+Given a dictionary containing a room name and a list of tags, create a revised
+version with one additional tag while preserving the original.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: A dictionary copy alone is shallow.
+    \item \textbf{Hint 2}: Copy the outer dictionary and the inner tag list.
+    \item \textbf{Hint 3}: Append only after both copies exist.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Write \c{with_updated_width(room, width_m)}. Return an independent nested
+dictionary with the revised width while preserving all original data.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The outputs are \c{[1, 2, 3]} and \c{True}.
+
+\textbf{Level 2:} Only \c{revised} contains the area \c{26.0}.
+
+\textbf{Level 3}
+
+\code{c09_solution_level3}{python}{
+    original = {
+        "name": "Lobby",
+        "tags": ["public", "entry"]
+    }
+
+    revised = original.copy()
+    revised["tags"] = original["tags"].copy()
+    revised["tags"].append("display")
+
+    print(original)
+    print(revised)
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c09_solution_level4}{python}{
+    import copy
+
+    def with_updated_width(room, width_m):
+        revised = copy.deepcopy(room)
+        revised["dimensions_m"]["width"] = width_m
+        return revised
+
+    original = {
+        "name": "Lobby",
+        "dimensions_m": {"width": 6.0, "length": 8.0}
+    }
+
+    revised = with_updated_width(original, 7.0)
+    print(original)
+    print(revised)
+}{One solution to Level 4}
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item What question does \c{==} answer?
+    \item What question does \c{is} answer?
+    \item Does assigning a list to a new name copy the list?
+    \item What does a shallow copy duplicate?
+    \item What remains shared in a shallow copy of nested data?
+    \item When is a targeted copy useful?
+    \item What does \c{copy.deepcopy()} do?
+    \item Can a function mutate a list supplied by its caller?
+    \item Why is \c{[[0, 0]] * 3} risky?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item Whether two values are equal.
+    \item Whether two names refer to the same object.
+    \item No. It creates another reference to the same list.
+    \item The outer container.
+    \item The inner mutable objects.
+    \item When only selected nested parts need independence.
+    \item It recursively copies nested objects.
+    \item Yes, if it performs an in-place change.
+    \item Each repeated row may refer to the same inner list.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+You can distinguish equality from identity, recognize aliases, make shallow and
+deep copies, copy selected nested values, and control mutation in functions.
+The next chapter stores and retrieves data with files and paths.
+\end{tcolorbox}
+

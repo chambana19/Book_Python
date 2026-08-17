@@ -1,0 +1,372 @@
+% Part III -- Reusable and Reliable Programs
+% Chapter 7: Useful Built-in Functions
+
+\h{Useful Built-in Functions}
+
+Python includes a set of functions that are ready to use without an import.
+You have already met several of them, including \c{print()}, \c{len()},
+\c{range()}, and \c{type()}. This chapter organizes the most useful built-ins
+and shows when each one is a good choice.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand collections, loops,
+conditionals, and how to call a function.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item choose built-in functions for common numeric and collection tasks;
+    \item distinguish functions that return a new value from methods that modify data;
+    \item use \c{any()} and \c{all()} to summarize boolean values;
+    \item use \c{enumerate()} and \c{zip()} clearly;
+    \item inspect documentation with \c{help()}; and
+    \item import focused tools from Python's standard library.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Built-in means always available}
+
+A built-in function belongs to Python itself. You call it directly without an
+\c{import} statement.
+
+\code{c07_familiar_builtins}{python}{
+    room_names = ["Lobby", "Office", "Cafe"]
+
+    print(len(room_names))
+    print(type(room_names))
+}{Call two familiar built-in functions}
+
+The Python documentation lists every built-in, but beginners do not need to
+memorize the full list. Learn a small set and look up the rest when needed.
+
+\hh{Summarize numeric collections}
+
+Use \c{sum()}, \c{min()}, and \c{max()} for common summaries.
+
+\code{c07_numeric_summary}{python}{
+    areas_m2 = [24.0, 35.5, 18.0, 31.0]
+
+    total_m2 = sum(areas_m2)
+    smallest_m2 = min(areas_m2)
+    largest_m2 = max(areas_m2)
+    average_m2 = total_m2 / len(areas_m2)
+
+    print(f"Total: {total_m2:.1f} m2")
+    print(f"Range: {smallest_m2:.1f} to {largest_m2:.1f} m2")
+    print(f"Average: {average_m2:.1f} m2")
+}{Summarize a list of areas}
+
+These functions make the intent clearer than a manually written loop when only
+a standard summary is needed.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} What problem would \c{min([])} cause? An empty list
+has no smallest or largest item. Chapter 8 explains how to handle such errors.
+\end{NoteBox}
+
+\hh{Work with magnitude and precision}
+
+The \c{abs()} function removes the sign, and \c{round()} returns a value rounded
+to a requested number of decimal places.
+
+\code{c07_abs_round}{python}{
+    difference_m = -0.1267
+
+    magnitude_m = abs(difference_m)
+    rounded_m = round(magnitude_m, 2)
+
+    print(magnitude_m)
+    print(rounded_m)
+}{Use absolute value and rounding}
+
+Use rounding for display or when the specification requires it. Keep full
+precision during intermediate calculations when possible.
+
+\hh{Sort without changing the original}
+
+The \c{sorted()} function returns a new list. The original collection remains
+unchanged.
+
+\code{c07_sorted}{python}{
+    floor_numbers = [3, 1, 4, 2]
+
+    ascending = sorted(floor_numbers)
+    descending = sorted(floor_numbers, reverse=True)
+
+    print(floor_numbers)
+    print(ascending)
+    print(descending)
+}{Create sorted lists without changing the original}
+
+By contrast, the list method \c{floor_numbers.sort()} changes the list and
+returns \c{None}. Choose based on whether the original order should be kept.
+
+\code{c07_sort_method}{python}{
+    floor_numbers = [3, 1, 4, 2]
+    result = floor_numbers.sort()
+
+    print(floor_numbers)
+    print(result)
+}{A sorting method modifies the list}
+
+\hh{Reverse an order}
+
+The \c{reversed()} function produces values in reverse order. Convert the
+result to a list when you need to store or display all values at once.
+
+\code{c07_reversed}{python}{
+    room_names = ["Lobby", "Office", "Cafe"]
+    reverse_order = list(reversed(room_names))
+
+    print(reverse_order)
+    print(room_names)
+}{Reverse without modifying the original list}
+
+\hh{Summarize boolean values}
+
+Use \c{any()} when at least one \c{True} value is enough. Use \c{all()} when
+every value must be \c{True}.
+
+\code{c07_any_all}{python}{
+    checks = [True, True, False, True]
+
+    print(any(checks))
+    print(all(checks))
+}{Compare any with all}
+
+The first result is \c{True} because at least one check passes. The second is
+\c{False} because one check fails.
+
+The boolean list can be created from data before it is summarized.
+
+\code{c07_checks_from_values}{python}{
+    widths_m = [1.2, 0.9, 1.5, 1.1]
+    wide_enough = []
+
+    for width_m in widths_m:
+        wide_enough.append(width_m >= 1.0)
+
+    print(wide_enough)
+    print(all(wide_enough))
+}{Build and summarize boolean checks}
+
+\hh{Number and pair items}
+
+You used \c{enumerate()} and \c{zip()} in Chapter 5. They are worth keeping in
+your regular toolkit.
+
+\code{c07_enumerate_zip}{python}{
+    room_names = ["Lobby", "Office", "Cafe"]
+    areas_m2 = [24.0, 18.0, 31.0]
+
+    for number, pair in enumerate(zip(room_names, areas_m2), start=1):
+        room_name, area_m2 = pair
+        print(f"{number}. {room_name}: {area_m2:.1f} m2")
+}{Number paired values}
+
+When nested calls make a loop hard to read, create an intermediate variable or
+use a simpler loop. Compact code is not automatically clearer code.
+
+\hh{Convert between common types}
+
+The names \c{int}, \c{float}, \c{str}, \c{list}, \c{tuple}, and \c{set} can be
+called to create or convert values.
+
+\code{c07_type_conversion}{python}{
+    count_text = "4"
+    count = int(count_text)
+    area_text = str(24.5)
+    letters = list("ABC")
+    unique_levels = set([1, 2, 2, 3])
+
+    print(count)
+    print(area_text)
+    print(letters)
+    print(unique_levels)
+}{Convert values and collections}
+
+Conversion works only when the source value has a suitable form. For example,
+\c{int("four")} raises an exception.
+
+\hh{Check a type when it is genuinely needed}
+
+The \c{isinstance()} function checks whether a value has a particular type.
+
+\code{c07_isinstance}{python}{
+    value = 3.5
+
+    print(isinstance(value, float))
+    print(isinstance(value, str))
+}{Check a value's type}
+
+Do not add type checks everywhere. Clear inputs and conversions are usually
+easier to follow. Use \c{isinstance()} when a function intentionally accepts
+more than one kind of value.
+
+\hh{Read built-in documentation}
+
+The \c{help()} function displays documentation in the REPL.
+
+\code{c07_help_example}{python}{
+    values = [3, 1, 2]
+
+    print(sorted(values))
+    # Try help(sorted) in the REPL.
+}{Use help interactively when a function is unfamiliar}
+
+Documentation commonly shows parameters inside square brackets when they are
+optional. Try a small example after reading the description.
+
+\hh{Import focused standard-library tools}
+
+Not every useful function is built in. Python's standard library contains
+modules that are installed with Python.
+
+\code{c07_standard_library}{python}{
+    import math
+    from statistics import mean
+
+    areas_m2 = [24.0, 35.5, 18.0, 31.0]
+    radius_m = 3.0
+
+    print(f"Mean area: {mean(areas_m2):.2f} m2")
+    print(f"Circle area: {math.pi * radius_m ** 2:.2f} m2")
+}{Use the math and statistics modules}
+
+\c{math.pi} identifies where the name \c{pi} comes from. The targeted import
+\c{from statistics import mean} allows a direct call to \c{mean()}.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Expecting sorted() to change a list}: store its returned list.
+    \item \textbf{Expecting list.sort() to return the sorted list}: it returns \c{None}.
+    \item \textbf{Calling min() or max() on an empty collection}: check first.
+    \item \textbf{Rounding too early}: keep precision until the result is displayed.
+    \item \textbf{Using zip() with unequal lengths}: extra values are ignored.
+    \item \textbf{Importing many names without purpose}: import only the tools you use.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+\code{c07_practice_level0}{python}{
+    values = [6, 2, 9, 4]
+
+    print(min(values))
+    print(max(values))
+    print(sum(values))
+}{Predict three numeric summaries}
+
+\hhh{Level 1 -- Modify}
+
+Add two values to the list. Then display the average using \c{sum()} and
+\c{len()}.
+
+\hhh{Level 2 -- Complete}
+
+Create ascending and descending versions of a list while preserving the
+original.
+
+\code{c07_practice_level2}{python}{
+    levels = [4, 1, 3, 2]
+    ascending = sorted(levels)
+    descending = sorted(levels, reverse=True)
+
+    print(levels)
+    print(ascending)
+    print(descending)
+}{Preserve the original order}
+
+\hhh{Level 3 -- Apply}
+
+Given a list of areas, display the count, total, average, smallest value, and
+largest value. Format decimal results to one decimal place.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: Use \c{len()}, \c{sum()}, \c{min()}, and \c{max()}.
+    \item \textbf{Hint 2}: Average is total divided by count.
+    \item \textbf{Hint 3}: Store each result under a descriptive name.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Given room names and matching areas, display the rooms from largest area to
+smallest. Hint: pair the data with \c{zip()}, then use \c{sorted()}.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The outputs are \c{2}, \c{9}, and \c{21}.
+
+\textbf{Level 2:} The original remains \c{[4, 1, 3, 2]}.
+
+\textbf{Level 3}
+
+\code{c07_solution_level3}{python}{
+    areas_m2 = [24.0, 35.5, 18.0, 31.0]
+
+    count = len(areas_m2)
+    total_m2 = sum(areas_m2)
+    average_m2 = total_m2 / count
+
+    print(f"Count: {count}")
+    print(f"Total: {total_m2:.1f} m2")
+    print(f"Average: {average_m2:.1f} m2")
+    print(f"Smallest: {min(areas_m2):.1f} m2")
+    print(f"Largest: {max(areas_m2):.1f} m2")
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c07_solution_level4}{python}{
+    room_names = ["Lobby", "Office", "Cafe"]
+    areas_m2 = [24.0, 18.0, 31.0]
+
+    room_areas = list(zip(room_names, areas_m2))
+    largest_first = sorted(room_areas, key=lambda pair: pair[1], reverse=True)
+
+    for room_name, area_m2 in largest_first:
+        print(f"{room_name}: {area_m2:.1f} m2")
+}{One solution to Level 4}
+
+The short \c{lambda} supplies a sort key. It is optional vocabulary; a named
+function is better when the rule needs more explanation.
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item What makes a function built in?
+    \item Which three functions provide a total, minimum, and maximum?
+    \item Does \c{sorted()} modify its input list?
+    \item What does \c{list.sort()} return?
+    \item When does \c{any()} return \c{True}?
+    \item When does \c{all()} return \c{True}?
+    \item What risk comes with unequal collections passed to \c{zip()}?
+    \item What is \c{help()} useful for?
+    \item Why might you import \c{math} or \c{statistics}?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item It is available without an import.
+    \item \c{sum()}, \c{min()}, and \c{max()}.
+    \item No. It returns a new list.
+    \item \c{None}.
+    \item When at least one supplied value is true.
+    \item When every supplied value is true.
+    \item Pairing stops when the shortest collection ends.
+    \item Reading documentation for a function or object.
+    \item They provide focused tools that are not built in.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+You can select built-in functions for summaries, sorting, conversion, boolean
+checks, pairing, and inspection. You can also import focused tools from the
+standard library. The next chapter explains how to respond when an operation
+cannot be completed.
+\end{tcolorbox}
+

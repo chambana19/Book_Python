@@ -1,0 +1,368 @@
+% Part III -- Reusable and Reliable Programs
+% Chapter 6: Functions and Reusable Code
+
+\h{Functions and Reusable Code}
+
+By this point, you can store data, make decisions, and repeat instructions.
+Functions let you give a useful group of instructions a name. You can then run
+that group whenever it is needed, with different inputs each time.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand variables, lists, dictionaries,
+conditionals, and loops.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item define and call a function;
+    \item distinguish parameters from arguments;
+    \item return a value and use it in another calculation;
+    \item use positional, keyword, and default arguments;
+    \item explain local scope; and
+    \item combine small functions into a readable program.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Why functions help}
+
+Repeated code is harder to correct. If the same calculation appears in five
+places, a change must be made five times. A function keeps the calculation in
+one named place.
+
+\code{c06_repeated_calculation}{python}{
+    lobby_area_m2 = 6.0 * 8.0
+    office_area_m2 = 4.0 * 5.5
+
+    print(lobby_area_m2)
+    print(office_area_m2)
+}{The same calculation written twice}
+
+The next example moves the shared rule into a function.
+
+\hh{Define and call a function}
+
+Use \c{def} to define a function. The indented body contains the instructions
+that belong to it.
+
+\code{c06_first_function}{python}{
+    def show_welcome():
+        print("Welcome to Chapter 6")
+
+    show_welcome()
+    show_welcome()
+}{Define a function and call it twice}
+
+Defining a function does not run its body. The body runs when Python reaches a
+call such as \c{show_welcome()}.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} How many lines appear if the two calls are removed?
+The definition remains, but nothing calls it.
+\end{NoteBox}
+
+\hh{Give a function input}
+
+A \emph{parameter} is a name in the function definition. An \emph{argument} is
+the value supplied in a call.
+
+\code{c06_one_parameter}{python}{
+    def show_room(room_name):
+        print(f"Room: {room_name}")
+
+    show_room("Lobby")
+    show_room("Office")
+}{Pass one argument to a parameter}
+
+In this example, \c{room_name} is the parameter. \c{"Lobby"} and
+\c{"Office"} are arguments.
+
+\hh{Return a result}
+
+Use \c{return} when the caller needs a value. A returned value can be stored,
+printed, compared, or passed to another function.
+
+\code{c06_return_area}{python}{
+    def rectangle_area_m2(width_m, length_m):
+        area_m2 = width_m * length_m
+        return area_m2
+
+    lobby_area_m2 = rectangle_area_m2(6.0, 8.0)
+    office_area_m2 = rectangle_area_m2(4.0, 5.5)
+
+    print(lobby_area_m2)
+    print(office_area_m2)
+}{Return a calculation result}
+
+When Python reaches \c{return}, the function ends and sends the value back to
+the call.
+
+\hh{Return and print have different purposes}
+
+Printing displays information. Returning gives a value back to the caller.
+
+\code{c06_print_and_return}{python}{
+    def display_area(width_m, length_m):
+        print(width_m * length_m)
+
+    def calculate_area(width_m, length_m):
+        return width_m * length_m
+
+    displayed = display_area(3.0, 4.0)
+    calculated = calculate_area(3.0, 4.0)
+
+    print(f"Displayed returned: {displayed}")
+    print(f"Calculated returned: {calculated}")
+}{Compare printing with returning}
+
+The first function displays \c{12.0} but returns \c{None}. The second returns
+\c{12.0}, so the program can reuse it.
+
+\hh{Use several parameters}
+
+Parameters are matched with arguments from left to right unless keywords are
+used.
+
+\code{c06_multiple_parameters}{python}{
+    def volume_m3(width_m, length_m, height_m):
+        return width_m * length_m * height_m
+
+    result_m3 = volume_m3(5.0, 8.0, 3.2)
+    print(f"Volume: {result_m3:.2f} m3")
+}{Use three positional arguments}
+
+Choose parameter names that make their roles clear. A reader should not need to
+guess what each number represents.
+
+\hh{Use keyword arguments}
+
+Keywords connect each value to a parameter name. They are helpful when a
+function has several similar inputs.
+
+\code{c06_keyword_arguments}{python}{
+    def volume_m3(width_m, length_m, height_m):
+        return width_m * length_m * height_m
+
+    result_m3 = volume_m3(
+        length_m=8.0,
+        height_m=3.2,
+        width_m=5.0
+    )
+
+    print(f"Volume: {result_m3:.2f} m3")
+}{Call a function with keyword arguments}
+
+Keyword arguments may appear in a different order because their names show how
+they match.
+
+\hh{Provide a default value}
+
+A default makes an argument optional. Parameters without defaults must come
+before parameters with defaults.
+
+\code{c06_default_argument}{python}{
+    def area_with_waste(area_m2, waste_rate=0.05):
+        return area_m2 * (1 + waste_rate)
+
+    print(area_with_waste(100.0))
+    print(area_with_waste(100.0, waste_rate=0.10))
+}{Use and override a default argument}
+
+Defaults should represent a sensible common case. A caller can still provide a
+different value.
+
+\hh{Keep names local}
+
+A name created inside a function is local to that call. Code outside the
+function cannot use it directly.
+
+\code{c06_local_scope}{python}{
+    def calculate_perimeter_m(width_m, length_m):
+        perimeter_m = 2 * (width_m + length_m)
+        return perimeter_m
+
+    result_m = calculate_perimeter_m(4.0, 7.0)
+    print(result_m)
+}{Use a local variable and return its value}
+
+The name \c{perimeter_m} exists inside the function. The caller stores the
+returned value under the separate name \c{result_m}.
+
+Avoid changing global variables inside a function. Inputs and return values
+make the function's behavior easier to see and test.
+
+\hh{Use a guard clause}
+
+A guard clause handles a special case near the top of a function. It prevents
+the main calculation from becoming deeply nested.
+
+\code{c06_guard_clause}{python}{
+    def average(values):
+        if len(values) == 0:
+            return None
+
+        return sum(values) / len(values)
+
+    print(average([10.0, 20.0, 30.0]))
+    print(average([]))
+}{Return early for an empty collection}
+
+Chapter 8 shows how a function can raise an exception when invalid input should
+be reported as an error.
+
+\hh{Combine small functions}
+
+One function can call another. This is called composition.
+
+\code{c06_composition}{python}{
+    def rectangle_area_m2(width_m, length_m):
+        return width_m * length_m
+
+    def material_cost(area_m2, price_per_m2):
+        return area_m2 * price_per_m2
+
+    area_m2 = rectangle_area_m2(6.0, 8.0)
+    cost = material_cost(area_m2, 12.50)
+
+    print(f"Area: {area_m2:.2f} m2")
+    print(f"Cost: ${cost:.2f}")
+}{Compose two focused functions}
+
+Each function has one clear responsibility. The short main section shows how
+the pieces fit together.
+
+\hh{Document a function}
+
+A docstring is a string placed immediately below the function header. It
+briefly explains the function's purpose.
+
+\code{c06_docstring}{python}{
+    def celsius_to_fahrenheit(celsius):
+        """Return a Celsius temperature converted to Fahrenheit."""
+        return celsius * 9 / 5 + 32
+
+    print(celsius_to_fahrenheit(20))
+}{Add a short docstring}
+
+Use \c{help(celsius_to_fahrenheit)} in the REPL to display the docstring.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Defining but not calling}: the body does not run until a call occurs.
+    \item \textbf{Forgetting the colon}: a function header ends with a colon.
+    \item \textbf{Incorrect indentation}: every body instruction must be indented.
+    \item \textbf{Printing instead of returning}: the caller receives \c{None}.
+    \item \textbf{Using an unclear name}: prefer a verb such as
+          \c{calculate_area} over a vague name such as \c{do_it}.
+    \item \textbf{Writing one very long function}: divide it into focused steps.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+\code{c06_practice_level0}{python}{
+    def double(value):
+        return value * 2
+
+    first = double(4)
+    second = double(first)
+    print(second)
+}{Trace two function calls}
+
+\hhh{Level 1 -- Modify}
+
+Change \c{double} to \c{triple}. Update the name, calculation, and calls.
+
+\hhh{Level 2 -- Complete}
+
+Complete a function that returns the perimeter of a rectangle.
+
+\code{c06_practice_level2}{python}{
+    def rectangle_perimeter_m(width_m, length_m):
+        return 2 * (width_m + length_m)
+
+    print(rectangle_perimeter_m(5.0, 8.0))
+}{A completed perimeter function}
+
+\hhh{Level 3 -- Apply}
+
+Write \c{circle_area_m2(radius_m)}. Use \c{3.14159} for pi. Return the area,
+then display the result to two decimal places for a radius of 4 meters.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: Area equals pi multiplied by radius squared.
+    \item \textbf{Hint 2}: Use \c{radius_m ** 2}.
+    \item \textbf{Hint 3}: Format the returned result outside the function.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Write \c{room_report(name, width_m, length_m)}. It should use a separate area
+function and return one formatted sentence containing the name and area.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The output is \c{16}.
+
+\textbf{Level 2:} The output is \c{26.0}.
+
+\textbf{Level 3}
+
+\code{c06_solution_level3}{python}{
+    def circle_area_m2(radius_m):
+        return 3.14159 * radius_m ** 2
+
+    area_m2 = circle_area_m2(4.0)
+    print(f"Area: {area_m2:.2f} m2")
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c06_solution_level4}{python}{
+    def rectangle_area_m2(width_m, length_m):
+        return width_m * length_m
+
+    def room_report(name, width_m, length_m):
+        area_m2 = rectangle_area_m2(width_m, length_m)
+        return f"{name}: {area_m2:.2f} m2"
+
+    print(room_report("Lobby", 6.0, 8.0))
+}{One solution to Level 4}
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item Which keyword begins a function definition?
+    \item What is the difference between a parameter and an argument?
+    \item Does defining a function run its body?
+    \item What does \c{return} do?
+    \item What does a function return when it has no \c{return} statement?
+    \item Why can keyword arguments improve readability?
+    \item Where does a local variable exist?
+    \item What is a guard clause?
+    \item Why are several small functions often clearer than one long function?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item \c{def}.
+    \item A parameter is a name in the definition; an argument is a supplied value.
+    \item No. A call runs it.
+    \item It ends the function and sends a value to the caller.
+    \item \c{None}.
+    \item They show which value belongs to which parameter.
+    \item Inside the function call where it was created.
+    \item An early check and return for a special case.
+    \item Each small function can have one clear responsibility and be tested separately.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+You can define functions, pass arguments, return results, use defaults and
+keywords, and combine focused functions. The next chapter introduces useful
+functions and modules that Python already provides.
+\end{tcolorbox}
+

@@ -1,0 +1,398 @@
+% Part III -- Reusable and Reliable Programs
+% Chapter 8: Errors and Exceptions
+
+\h{Errors and Exceptions}
+
+Errors are normal while learning to program. The useful skill is not avoiding
+every error. It is reading what Python reports, locating the cause, and deciding
+whether the program should correct the problem or explain it to the user.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand type conversion, conditionals,
+loops, and functions with parameters and return values.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item distinguish syntax, runtime, and logic errors;
+    \item read the final line of a traceback;
+    \item catch a specific exception with \c{try} and \c{except};
+    \item use \c{else} and \c{finally} when they clarify the flow;
+    \item validate repeated input without hiding unrelated errors; and
+    \item raise a clear exception inside a function.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Three kinds of problems}
+
+Program problems often fall into three broad groups:
+
+\begin{itemize}
+    \item \textbf{Syntax error}: Python cannot understand the written structure.
+    \item \textbf{Runtime exception}: Python begins running but an operation fails.
+    \item \textbf{Logic error}: the program runs but produces the wrong result.
+\end{itemize}
+
+This intentionally incorrect instruction has an unclosed string:
+
+\code{c08_syntax_example}{text}{
+    print("Lobby)
+}{Text showing a syntax mistake; do not run it as correct code}
+
+A syntax problem must be corrected before the program can run. A runtime
+exception can sometimes be anticipated and handled. A logic error requires
+checking the calculation or decision rule.
+
+\hh{Read a traceback from the bottom}
+
+When an exception is not handled, Python prints a traceback. Begin with its
+last line. It names the exception and describes the immediate problem. Then
+look upward for the line in your file.
+
+\code{c08_runtime_error}{python}{
+    width_text = "three"
+    width_m = float(width_text)
+    print(width_m)
+}{An unhandled ValueError example}
+
+The final traceback line includes \c{ValueError}. The failed operation is the
+attempt to convert \c{"three"} to a floating-point number.
+
+\hh{Catch a specific exception}
+
+Place only the operation that may fail inside \c{try}. Catch the exception you
+expect by name.
+
+\code{c08_basic_try_except}{python}{
+    width_text = "three"
+
+    try:
+        width_m = float(width_text)
+    except ValueError:
+        print("Enter a number such as 3.5.")
+}{Handle an expected conversion error}
+
+The program does not crash. It gives a message that helps the user correct the
+input.
+
+\hh{Keep the try block narrow}
+
+A narrow \c{try} block makes it clear which operation is protected.
+
+\code{c08_narrow_try}{python}{
+    width_text = "6.0"
+    length_m = 8.0
+
+    try:
+        width_m = float(width_text)
+    except ValueError:
+        print("Width must be numeric.")
+    else:
+        area_m2 = width_m * length_m
+        print(f"Area: {area_m2:.2f} m2")
+}{Separate conversion from the success path}
+
+If the calculation in \c{else} contains a different bug, Python reports it
+instead of incorrectly treating it as a conversion problem.
+
+\hh{Handle different exceptions separately}
+
+Different failures often require different messages.
+
+\code{c08_multiple_exceptions}{python}{
+    total_text = "24.0"
+    count_text = "0"
+
+    try:
+        total = float(total_text)
+        count = int(count_text)
+        average = total / count
+    except ValueError:
+        print("Total and count must be numbers.")
+    except ZeroDivisionError:
+        print("Count must be greater than zero.")
+    else:
+        print(f"Average: {average:.2f}")
+}{Give each expected failure a useful message}
+
+Catch specific exceptions before broader ones. Avoid a bare \c{except:}
+because it can hide mistakes that should be fixed.
+
+\hh{Use the exception message carefully}
+
+Add \c{as error} when the original message is useful for diagnosis.
+
+\code{c08_exception_object}{python}{
+    value_text = "4O"
+
+    try:
+        value = float(value_text)
+    except ValueError as error:
+        print(f"Conversion failed: {error}")
+}{Capture the original exception message}
+
+System messages are helpful for a programmer but may be unclear to a beginner.
+A user-facing program can provide a plain explanation and record technical
+details separately when needed.
+
+\hh{Use else for successful completion}
+
+The \c{else} block runs only when the \c{try} block completes without an
+exception.
+
+\code{c08_else_block}{python}{
+    height_text = "3.2"
+
+    try:
+        height_m = float(height_text)
+    except ValueError:
+        print("Height must be numeric.")
+    else:
+        print(f"Accepted height: {height_m:.2f} m")
+}{Run a success action in else}
+
+Use \c{else} when it makes the success path easier to distinguish. It is not
+required after every \c{try} block.
+
+\hh{Use finally for an action that must run}
+
+The \c{finally} block runs whether the operation succeeds or fails.
+
+\code{c08_finally_block}{python}{
+    value_text = "not a number"
+
+    try:
+        value = float(value_text)
+        print(value)
+    except ValueError:
+        print("Conversion failed.")
+    finally:
+        print("Conversion attempt finished.")
+}{Run a final status action}
+
+Chapter 10 uses context managers to close files automatically. That is usually
+clearer than manual cleanup in \c{finally}.
+
+\hh{Repeat until input is valid}
+
+A \c{while} loop can ask again after an expected conversion failure.
+
+\code{c08_input_validation_loop}{python}{
+    while True:
+        value_text = input("Enter a positive width in meters: ")
+
+        try:
+            width_m = float(value_text)
+        except ValueError:
+            print("Use a number such as 3.5.")
+            continue
+
+        if width_m <= 0:
+            print("Width must be greater than zero.")
+            continue
+
+        break
+
+    print(f"Accepted: {width_m:.2f} m")
+}{Ask again until a positive number is entered}
+
+Conversion failure and value validation are separate. The exception handles
+text that is not numeric. The \c{if} statement handles a numeric value that is
+outside the accepted range.
+
+\hh{Raise an exception in a function}
+
+A function can use \c{raise} to report that an argument violates its rules.
+
+\code{c08_raise_value_error}{python}{
+    def rectangle_area_m2(width_m, length_m):
+        if width_m <= 0 or length_m <= 0:
+            raise ValueError("width and length must be positive")
+
+        return width_m * length_m
+
+    try:
+        print(rectangle_area_m2(-2.0, 5.0))
+    except ValueError as error:
+        print(f"Cannot calculate area: {error}")
+}{Raise and handle a clear ValueError}
+
+The function reports the invalid argument. The caller decides whether to show
+a message, ask again, or stop.
+
+\hh{Do not use exceptions for ordinary decisions}
+
+Use a condition when a situation is expected and easy to test.
+
+\code{c08_condition_before_operation}{python}{
+    values = []
+
+    if len(values) == 0:
+        print("No values are available.")
+    else:
+        print(sum(values) / len(values))
+}{Use a condition for an expected empty list}
+
+Use exception handling when an operation may fail for reasons that are awkward
+or unreliable to predict in advance, such as converting user text or opening a
+file.
+
+\hh{Common exception types}
+
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Exception} & \textbf{Typical cause} \\
+\c{ValueError} & A value has the right type but unsuitable content \\
+\c{TypeError} & An operation receives an unsuitable type \\
+\c{ZeroDivisionError} & A calculation divides by zero \\
+\c{NameError} & A name has not been defined \\
+\c{IndexError} & A list position does not exist \\
+\c{KeyError} & A dictionary key does not exist \\
+\c{FileNotFoundError} & A requested file cannot be found \\
+\end{tabular}
+\end{center}
+
+The exception name helps locate the category of problem. The surrounding code
+still needs to be examined.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Catching every error}: broad handling hides programming mistakes.
+    \item \textbf{Putting too much in try}: the source of failure becomes unclear.
+    \item \textbf{Ignoring the exception}: an empty handler leaves the user without guidance.
+    \item \textbf{Using the wrong exception type}: the handler never runs.
+    \item \textbf{Continuing with an undefined result}: success code belongs in \c{else}
+          or after a guaranteed assignment.
+    \item \textbf{Raising a vague message}: state which value or rule is invalid.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+\code{c08_practice_level0}{python}{
+    try:
+        value = int("12")
+    except ValueError:
+        print("Invalid")
+    else:
+        print(value + 1)
+}{Predict which block runs}
+
+\hhh{Level 1 -- Modify}
+
+Change the text to \c{"twelve"}. Run the program and explain why the other
+block executes.
+
+\hhh{Level 2 -- Complete}
+
+Catch division by zero and display a useful message.
+
+\code{c08_practice_level2}{python}{
+    numerator = 20
+    denominator = 0
+
+    try:
+        print(numerator / denominator)
+    except ZeroDivisionError:
+        print("Denominator must not be zero.")
+}{A completed division handler}
+
+\hhh{Level 3 -- Apply}
+
+Write \c{parse_floor_count(text)}. Convert the text to an integer. Raise a
+\c{ValueError} if the result is less than 1. Call it inside \c{try}/\c{except}.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: \c{int(text)} already raises \c{ValueError} for unsuitable text.
+    \item \textbf{Hint 2}: Use an \c{if} statement for a converted value below 1.
+    \item \textbf{Hint 3}: Return the accepted count.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Use a loop to ask for a floor count until \c{parse_floor_count()} returns a
+valid value. Display the reason after each rejected entry.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The output is \c{13}.
+
+\textbf{Level 2:} The handler displays \c{Denominator must not be zero.}
+
+\textbf{Level 3}
+
+\code{c08_solution_level3}{python}{
+    def parse_floor_count(text):
+        count = int(text)
+        if count < 1:
+            raise ValueError("floor count must be at least 1")
+        return count
+
+    try:
+        floor_count = parse_floor_count("0")
+    except ValueError as error:
+        print(f"Invalid floor count: {error}")
+    else:
+        print(f"Accepted: {floor_count}")
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c08_solution_level4}{python}{
+    def parse_floor_count(text):
+        count = int(text)
+        if count < 1:
+            raise ValueError("floor count must be at least 1")
+        return count
+
+    while True:
+        text = input("Floor count: ")
+        try:
+            floor_count = parse_floor_count(text)
+        except ValueError as error:
+            print(f"Try again: {error}")
+            continue
+        break
+
+    print(f"Accepted: {floor_count}")
+}{One solution to Level 4}
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item What are the three broad kinds of program problems described here?
+    \item Where should you begin when reading a traceback?
+    \item Why should an \c{except} clause name a specific exception?
+    \item When does \c{else} run after a \c{try} block?
+    \item When does \c{finally} run?
+    \item Why should a \c{try} block be narrow?
+    \item What does \c{raise} do?
+    \item Should a numeric value below an accepted limit require conversion handling?
+    \item Why is a bare \c{except:} risky?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item Syntax errors, runtime exceptions, and logic errors.
+    \item At the final line, then trace upward to your code.
+    \item It handles only the expected failure and leaves other bugs visible.
+    \item Only when the \c{try} block finishes without an exception.
+    \item Whether the \c{try} block succeeds or fails.
+    \item It makes the failing operation easier to identify.
+    \item It creates an exception and ends the current function or operation.
+    \item No. Convert first, then use a condition to check the range.
+    \item It can catch and hide errors that were not anticipated.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+You can classify errors, read a traceback, catch specific exceptions, separate
+success and cleanup paths, validate repeated input, and raise clear errors from
+functions. The next chapter explains why two variable names may share the same
+mutable object.
+\end{tcolorbox}
+

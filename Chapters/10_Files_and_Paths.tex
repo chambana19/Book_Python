@@ -1,0 +1,547 @@
+% Part III -- Reusable and Reliable Programs
+% Chapter 10: Files and Paths
+
+\h{Files and Paths}
+
+Variables disappear when a program ends. Files let a later run recover saved
+text or structured data. This chapter begins with small text files, then adds
+paths, line-by-line processing, CSV, and JSON.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand strings, collections, loops,
+functions, and specific exception handling.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item create platform-independent paths with \c{pathlib.Path};
+    \item write, read, and append UTF-8 text;
+    \item use \c{with} so files close automatically;
+    \item process a text file one line at a time;
+    \item handle missing files with a specific exception;
+    \item read and write CSV rows; and
+    \item save and restore dictionaries with JSON.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{A path identifies a location}
+
+A path describes where a file or folder is located. The \c{pathlib} module
+builds paths without requiring you to type operating-system-specific separators.
+
+\code{c10_first_path}{python}{
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    file_path = data_folder / "rooms.txt"
+
+    print(data_folder)
+    print(file_path)
+    print(file_path.name)
+    print(file_path.suffix)
+}{Build and inspect a path}
+
+The slash operator joins path parts. It does not open or create the file.
+
+\hh{Create a folder when needed}
+
+Use \c{mkdir()} before writing to a folder that may not exist.
+
+\code{c10_create_folder}{python}{
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+
+    print(data_folder.exists())
+    print(data_folder.is_dir())
+}{Create a study data folder safely}
+
+The option \c{exist_ok=True} prevents an error when the folder already exists.
+
+\hh{Write a small text file}
+
+For short text, \c{Path.write_text()} is concise. Opening in write mode replaces
+any existing content at that path.
+
+\code{c10_write_text}{python}{
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    file_path = data_folder / "rooms.txt"
+
+    content = "Lobby,24.0\nOffice,18.0\nCafe,31.0\n"
+    file_path.write_text(content, encoding="utf-8")
+
+    print(f"Wrote: {file_path}")
+}{Write three lines of UTF-8 text}
+
+The sequence \c{"\textbackslash n"} represents a line break.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} What happens to the earlier content if
+\c{write_text()} is called again with different text?
+\end{NoteBox}
+
+\hh{Read a small text file}
+
+The matching \c{read_text()} method returns the entire file as one string.
+
+\code{c10_read_text}{python}{
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    file_path = data_folder / "rooms.txt"
+    file_path.write_text("Lobby,24.0\nOffice,18.0\n", encoding="utf-8")
+
+    content = file_path.read_text(encoding="utf-8")
+    print(content)
+}{Create and read a small text file}
+
+Reading the entire file is convenient for small data. Large files should be
+processed one line at a time.
+
+\hh{Use with and open}
+
+The \c{open()} function provides more control. A \c{with} block closes the file
+automatically, even if an exception occurs.
+
+\code{c10_with_open_write}{python}{
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    file_path = data_folder / "notes.txt"
+
+    with open(file_path, "w", encoding="utf-8") as file:
+        file.write("First note\n")
+        file.write("Second note\n")
+
+    print(file_path.read_text(encoding="utf-8"))
+}{Write text with a context manager}
+
+The name \c{file} is available inside the block. After the block, the file has
+been closed.
+
+\hh{Choose a file mode}
+
+The mode states what the program intends to do.
+
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Mode} & \textbf{Meaning} \\
+\c{"r"} & Read an existing file \\
+\c{"w"} & Write and replace existing content \\
+\c{"a"} & Append new content at the end \\
+\c{"x"} & Create a new file and fail if it exists \\
+\c{"rb"}, \c{"wb"} & Read or write binary data \\
+\end{tabular}
+\end{center}
+
+This chapter focuses on text modes. Images and PDFs are binary files and need
+binary mode when their bytes are processed directly.
+
+\hh{Append without replacing}
+
+Append mode preserves existing content and adds new text at the end.
+
+\code{c10_append_text}{python}{
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    log_path = data_folder / "study_log.txt"
+    log_path.write_text("Chapter 9 complete\n", encoding="utf-8")
+
+    with open(log_path, "a", encoding="utf-8") as file:
+        file.write("Chapter 10 started\n")
+
+    print(log_path.read_text(encoding="utf-8"))
+}{Append one line to an existing file}
+
+Remember to include a line break if each entry should appear on its own line.
+
+\hh{Process one line at a time}
+
+Iterating over a file avoids loading all of it into memory.
+
+\code{c10_line_iteration}{python}{
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    file_path = data_folder / "areas.txt"
+    file_path.write_text("24.0\n35.5\n18.0\n", encoding="utf-8")
+
+    total_m2 = 0.0
+    count = 0
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        for line in file:
+            area_m2 = float(line.strip())
+            total_m2 += area_m2
+            count += 1
+
+    print(f"Count: {count}")
+    print(f"Total: {total_m2:.1f} m2")
+}{Read and process one line at a time}
+
+The \c{strip()} method removes the line break and surrounding whitespace before
+conversion.
+
+\hh{Split simple delimited text}
+
+The \c{split()} method is suitable for controlled data with a simple delimiter.
+
+\code{c10_split_lines}{python}{
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    file_path = data_folder / "room_areas.txt"
+    file_path.write_text("Lobby|24.0\nOffice|18.0\n", encoding="utf-8")
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        for line in file:
+            room_name, area_text = line.strip().split("|")
+            area_m2 = float(area_text)
+            print(f"{room_name}: {area_m2:.1f} m2")
+}{Split two fields on a controlled delimiter}
+
+Do not parse general CSV files with \c{split(",")}. Quoted fields may contain
+commas. Use the \c{csv} module instead.
+
+\hh{Handle a missing file}
+
+Reading a path that does not exist raises \c{FileNotFoundError}.
+
+\code{c10_missing_file}{python}{
+    from pathlib import Path
+
+    file_path = Path("study_data") / "missing.txt"
+
+    try:
+        content = file_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        print(f"Could not find: {file_path}")
+    else:
+        print(content)
+}{Handle a missing text file}
+
+Catch the specific problem and include the path in the message. Other errors
+remain visible for diagnosis.
+
+\hh{Check a path before an optional action}
+
+An existence check is appropriate when either state is a normal possibility.
+
+\code{c10_path_check}{python}{
+    from pathlib import Path
+
+    file_path = Path("study_data") / "optional_notes.txt"
+
+    if file_path.exists():
+        print(file_path.read_text(encoding="utf-8"))
+    else:
+        print("No optional notes were saved.")
+}{Choose based on whether an optional file exists}
+
+For a required file, trying the operation and handling
+\c{FileNotFoundError} often provides a clearer result.
+
+\hh{Write CSV data}
+
+CSV stores rows and columns as text. Use \c{csv.writer()} so commas and
+quotation marks are handled correctly.
+
+\code{c10_csv_write}{python}{
+    import csv
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    csv_path = data_folder / "rooms.csv"
+
+    rows = [
+        ["name", "area_m2"],
+        ["Lobby", 24.0],
+        ["Studio, North", 35.5],
+        ["Office", 18.0]
+    ]
+
+    with open(csv_path, "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerows(rows)
+
+    print(csv_path.read_text(encoding="utf-8"))
+}{Write rows with the csv module}
+
+The \c{newline=""} argument prevents extra blank rows on some systems.
+
+\hh{Read CSV rows as dictionaries}
+
+\c{csv.DictReader()} uses the header row as dictionary keys.
+
+\code{c10_csv_read}{python}{
+    import csv
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    csv_path = data_folder / "rooms.csv"
+
+    csv_path.write_text(
+        "name,area_m2\nLobby,24.0\nOffice,18.0\n",
+        encoding="utf-8"
+    )
+
+    total_m2 = 0.0
+    with open(csv_path, "r", newline="", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            total_m2 += float(row["area_m2"])
+
+    print(f"Total: {total_m2:.1f} m2")
+}{Read named CSV columns}
+
+Values read from CSV are strings. Convert numeric fields explicitly.
+
+\hh{Save nested data with JSON}
+
+JSON represents dictionaries, lists, strings, numbers, booleans, and null
+values in a text format.
+
+\code{c10_json_write}{python}{
+    import json
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    json_path = data_folder / "settings.json"
+
+    settings = {
+        "units": "metric",
+        "rounding_digits": 2,
+        "visible_layers": ["walls", "doors", "rooms"]
+    }
+
+    with open(json_path, "w", encoding="utf-8") as file:
+        json.dump(settings, file, indent=2)
+
+    print(json_path.read_text(encoding="utf-8"))
+}{Write a dictionary as formatted JSON}
+
+The \c{indent=2} option makes the file easier for people to read.
+
+\hh{Restore JSON data}
+
+Use \c{json.load()} to convert JSON text back into Python values.
+
+\code{c10_json_read}{python}{
+    import json
+    from pathlib import Path
+
+    data_folder = Path("study_data")
+    data_folder.mkdir(exist_ok=True)
+    json_path = data_folder / "settings.json"
+    json_path.write_text(
+        '{"units": "metric", "rounding_digits": 2}',
+        encoding="utf-8"
+    )
+
+    with open(json_path, "r", encoding="utf-8") as file:
+        settings = json.load(file)
+
+    print(settings["units"])
+    print(settings["rounding_digits"])
+}{Read JSON into a dictionary}
+
+Invalid JSON raises \c{json.JSONDecodeError}. Handle it when a file may be
+edited manually or come from an uncertain source.
+
+\hh{Put file operations in focused functions}
+
+Small functions separate file access from the rest of the program.
+
+\code{c10_file_functions}{python}{
+    from pathlib import Path
+
+    def save_lines(file_path, lines):
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        text = "\n".join(lines) + "\n"
+        file_path.write_text(text, encoding="utf-8")
+
+    def load_lines(file_path):
+        text = file_path.read_text(encoding="utf-8")
+        return text.splitlines()
+
+    path = Path("study_data") / "room_names.txt"
+    save_lines(path, ["Lobby", "Office", "Cafe"])
+    room_names = load_lines(path)
+
+    print(room_names)
+}{Separate saving and loading into functions}
+
+The caller chooses the path and data. Each function performs one clear task.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Using write mode unintentionally}: \c{"w"} replaces prior content.
+    \item \textbf{Forgetting encoding}: specify \c{encoding="utf-8"} for text.
+    \item \textbf{Forgetting line breaks}: \c{write()} does not add them automatically.
+    \item \textbf{Building paths by joining strings}: prefer \c{Path} and the slash operator.
+    \item \textbf{Reading a large file all at once}: iterate over its lines.
+    \item \textbf{Parsing CSV with split()}: use the \c{csv} module.
+    \item \textbf{Forgetting numeric conversion}: CSV values are read as strings.
+    \item \textbf{Catching every exception}: handle only expected file problems.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+\code{c10_practice_level0}{python}{
+    from pathlib import Path
+
+    path = Path("study_data") / "notes.txt"
+    print(path.name)
+    print(path.suffix)
+}{Predict two path properties}
+
+\hhh{Level 1 -- Modify}
+
+Change the folder and filename. Display the parent folder, filename, stem, and
+suffix.
+
+\hhh{Level 2 -- Complete}
+
+Create a folder, write three lines, read them back, and display the text.
+
+\code{c10_practice_level2}{python}{
+    from pathlib import Path
+
+    folder = Path("study_data")
+    folder.mkdir(exist_ok=True)
+    path = folder / "materials.txt"
+
+    path.write_text("Wood\nSteel\nConcrete\n", encoding="utf-8")
+    print(path.read_text(encoding="utf-8"))
+}{Write and read three lines}
+
+\hhh{Level 3 -- Apply}
+
+Write a CSV file with columns \c{name} and \c{area_m2}. Add three data rows.
+Read it with \c{csv.DictReader()} and display the total area.
+
+\textbf{Hints}
+\begin{itemize}
+    \item \textbf{Hint 1}: Open the file with \c{newline=""}.
+    \item \textbf{Hint 2}: Write the header before the data rows.
+    \item \textbf{Hint 3}: Convert \c{row["area_m2"]} with \c{float()}.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Write \c{save_settings(path, settings)} and \c{load_settings(path)} using JSON.
+Handle a missing file in the caller and display a helpful message.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The outputs are \c{notes.txt} and \c{.txt}.
+
+\textbf{Level 2:} The three material names appear on separate lines.
+
+\textbf{Level 3}
+
+\code{c10_solution_level3}{python}{
+    import csv
+    from pathlib import Path
+
+    folder = Path("study_data")
+    folder.mkdir(exist_ok=True)
+    path = folder / "practice_rooms.csv"
+
+    with open(path, "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(["name", "area_m2"])
+        writer.writerow(["Lobby", 24.0])
+        writer.writerow(["Office", 18.0])
+        writer.writerow(["Cafe", 31.0])
+
+    total_m2 = 0.0
+    with open(path, "r", newline="", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            total_m2 += float(row["area_m2"])
+
+    print(f"Total: {total_m2:.1f} m2")
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c10_solution_level4}{python}{
+    import json
+    from pathlib import Path
+
+    def save_settings(path, settings):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as file:
+            json.dump(settings, file, indent=2)
+
+    def load_settings(path):
+        with open(path, "r", encoding="utf-8") as file:
+            return json.load(file)
+
+    path = Path("study_data") / "practice_settings.json"
+    settings = {"units": "metric", "digits": 2}
+    save_settings(path, settings)
+
+    try:
+        restored = load_settings(path)
+    except FileNotFoundError:
+        print(f"Could not find: {path}")
+    else:
+        print(restored)
+}{One solution to Level 4}
+
+\hh{Part III checkpoint}
+
+\begin{enumerate}
+    \item What does a path represent?
+    \item Does creating a \c{Path} object create the file?
+    \item What does write mode do to existing content?
+    \item Why use a \c{with} block for an open file?
+    \item Which mode appends content?
+    \item Why process a large file line by line?
+    \item Which exception reports a missing file?
+    \item Why should general CSV data be handled by the \c{csv} module?
+    \item What Python structures map naturally to JSON?
+    \item Why specify UTF-8 encoding?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item A file or folder location.
+    \item No. It only represents the location.
+    \item It replaces the existing content.
+    \item The file closes automatically when the block ends.
+    \item \c{"a"}.
+    \item It limits memory use.
+    \item \c{FileNotFoundError}.
+    \item It correctly handles quoted commas and other CSV rules.
+    \item Dictionaries, lists, strings, numbers, booleans, and null values.
+    \item It gives text a consistent character encoding across systems.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Part III summary,colframe=orange,colback=white,arc=2mm]
+You can organize code with functions, select useful built-ins, handle expected
+errors, copy mutable data intentionally, and store information in text, CSV,
+and JSON files. These skills support the numerical and data-analysis chapters
+that follow.
+\end{tcolorbox}
+

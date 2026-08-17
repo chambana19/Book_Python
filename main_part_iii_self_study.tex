@@ -1,0 +1,37 @@
+\documentclass{textbook}
+
+% Safe fallbacks. The LiX-based preamble may define these commands already.
+\providecommand{\toc}{\tableofcontents}
+\providecommand{\h}[1]{\chapter{#1}}
+\providecommand{\hh}[1]{\section{#1}}
+\providecommand{\hhh}[1]{\subsection{#1}}
+\providecommand{\hhhh}[1]{\subsubsection{#1}}
+
+\title{Introduction to Programming with Python}
+\input{preamble}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{0.22\textheight}
+    {\Huge\bfseries Introduction to Programming with Python\par}
+    \vspace{1.2em}
+    {\Large Revised Part III\par}
+    \vspace{0.8em}
+    {\large Independent Study Edition\par}
+    \vfill
+\end{titlepage}
+
+\toc
+\clearpage
+
+\part{Part III: Reusable and Reliable Programs}
+\input{Chapters/06_Functions_and_Reusable_Code}
+\input{Chapters/07_Useful_Built_in_Functions}
+\input{Chapters/08_Errors_and_Exceptions}
+\input{Chapters/09_Copying_Data_Safely}
+\input{Chapters/10_Files_and_Paths}
+
+\end{document}
+
