@@ -348,17 +348,17 @@ Add two names to the list and change the message inside the loop.
 
 \hhh{Level 2 -- Complete}
 
-Complete the accumulator so the program displays the total.
+Replace \c{...} with the value that must be added during each repetition.
 
 \code{c05_practice_level2}{python}{
     areas_m2 = [20.0, 32.5, 18.0, 29.5]
     total_area_m2 = 0.0
 
     for area_m2 in areas_m2:
-        total_area_m2 += area_m2
+        total_area_m2 += ...
 
     print(f"Total: {total_area_m2:.1f} m2")
-}{A completed accumulator}
+}{Complete an accumulator update}
 
 \hhh{Level 3 -- Apply}
 
@@ -382,6 +382,16 @@ count after the loop.
 \textbf{Level 0:} The output is \c{A}, \c{B}, \c{C}, and then \c{Done}.
 
 \textbf{Level 2:} The total is \c{100.0 m2}.
+
+\code{c05_solution_level2}{python}{
+    areas_m2 = [20.0, 32.5, 18.0, 29.5]
+    total_area_m2 = 0.0
+
+    for area_m2 in areas_m2:
+        total_area_m2 += area_m2
+
+    print(f"Total: {total_area_m2:.1f} m2")
+}{One solution to Level 2}
 
 \textbf{Level 3}
 
@@ -411,7 +421,7 @@ count after the loop.
     print(f"Large room count: {large_count}")
 }{One solution to Level 4}
 
-\hh{Part II checkpoint}
+\hh{Chapter checkpoint}
 
 \begin{enumerate}
     \item What does the loop variable represent during one repetition?

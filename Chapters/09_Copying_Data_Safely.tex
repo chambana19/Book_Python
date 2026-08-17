@@ -294,16 +294,17 @@ Change the assignment to \c{second = first.copy()}. Predict both outputs again.
 
 \hhh{Level 2 -- Complete}
 
-Create an independent copy of a flat dictionary and change only the copy.
+Replace \c{...} with an expression that creates an independent copy of the flat
+dictionary. Then change only the copy.
 
 \code{c09_practice_level2}{python}{
     original = {"name": "Lobby", "area_m2": 24.0}
-    revised = original.copy()
+    revised = ...
     revised["area_m2"] = 26.0
 
     print(original)
     print(revised)
-}{Copy and revise a flat dictionary}
+}{Complete a flat dictionary copy}
 
 \hhh{Level 3 -- Apply}
 
@@ -326,7 +327,16 @@ dictionary with the revised width while preserving all original data.
 
 \textbf{Level 0:} The outputs are \c{[1, 2, 3]} and \c{True}.
 
-\textbf{Level 2:} Only \c{revised} contains the area \c{26.0}.
+\textbf{Level 2}
+
+\code{c09_solution_level2}{python}{
+    original = {"name": "Lobby", "area_m2": 24.0}
+    revised = original.copy()
+    revised["area_m2"] = 26.0
+
+    print(original)
+    print(revised)
+}{One solution to Level 2; only revised contains the area 26.0}
 
 \textbf{Level 3}
 

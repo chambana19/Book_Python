@@ -36,6 +36,10 @@ environment by running this command in a terminal.
 python -m pip install matplotlib
 \end{verbatim}
 
+Use the same Python command that runs your scripts. Replace \texttt{python}
+with \texttt{py} or \texttt{python3} if that is the working command on your
+computer.
+
 Most introductory plotting uses the \c{pyplot} interface with the conventional
 name \c{plt}.
 
@@ -587,9 +591,9 @@ same numerical values with a histogram.
 
 \textbf{Hints}
 \begin{itemize}
-    \item Create the Figure with \c{plt.subplots(1, 2)}.
-    \item Select DataFrame columns by name.
-    \item Give each Axes its own title and labels.
+    \item \textbf{Hint 1}: Create the Figure with \c{plt.subplots(1, 2)}.
+    \item \textbf{Hint 2}: Select DataFrame columns by name.
+    \item \textbf{Hint 3}: Give each Axes its own title and labels.
 \end{itemize}
 
 \hhh{Level 4 -- Challenge}
@@ -703,7 +707,7 @@ the y-axis.
     plt.close(figure)
 }{One solution to Level 4}
 
-\hh{Part IV checkpoint continued}
+\hh{Chapter checkpoint}
 
 \begin{enumerate}
     \item What is the difference between a Figure and an Axes?
@@ -739,3 +743,4 @@ Matplotlib communicates selected patterns. Begin with a question, prepare the
 data visibly, choose a plot whose structure matches the variables, and label
 the result so another reader can understand it without seeing the code.
 \end{tcolorbox}
+

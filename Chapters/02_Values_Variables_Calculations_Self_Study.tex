@@ -228,7 +228,7 @@ You can combine reading and conversion when the shorter form remains clear.
 }{Read two dimensions and calculate area}
 
 If the user types text that cannot be converted, Python reports a
-\c{ValueError}. Chapter 7 will show how to handle that error. For now, enter a
+\c{ValueError}. Chapter 8 will show how to handle that error. For now, enter a
 valid number when a prompt requests one.
 
 \hh{Format output with f-strings}
@@ -328,15 +328,16 @@ the result by hand, then run the code again.
 
 \hhh{Level 2 -- Complete}
 
-Complete the missing expressions so the program calculates perimeter.
+Replace \c{...} with the missing expression so the program calculates
+perimeter. Complete the line before you run the program.
 
 \code{c02_practice_level2}{python}{
     width_m = 5.0
     length_m = 9.0
-    perimeter_m = 2 * (width_m + length_m)
+    perimeter_m = ...  # Replace ... with the perimeter calculation.
 
     print(f"Perimeter: {perimeter_m:.1f} m")
-}{A completed perimeter calculation}
+}{Complete one missing expression}
 
 \hhh{Level 3 -- Apply}
 
@@ -359,6 +360,16 @@ Display a clear sentence describing the difference.
 
 \textbf{Level 0:} The output is \c{24.0}.
 
+\textbf{Level 2}
+
+\code{c02_solution_level2}{python}{
+    width_m = 5.0
+    length_m = 9.0
+    perimeter_m = 2 * (width_m + length_m)
+
+    print(f"Perimeter: {perimeter_m:.1f} m")
+}{One solution to Level 2}
+
 \textbf{Level 3}
 
 \code{c02_solution_level3}{python}{
@@ -378,10 +389,16 @@ Display a clear sentence describing the difference.
 \code{c02_solution_level4}{python}{
     width_m = float(input("Width in meters: "))
     length_m = float(input("Length in meters: "))
+    height_m = float(input("Height in meters: "))
 
+    area_m2 = width_m * length_m
+    volume_m3 = area_m2 * height_m
     difference_m = length_m - width_m
+
+    print(f"Area: {area_m2:.2f} m2")
+    print(f"Volume: {volume_m3:.2f} m3")
     print(f"Length minus width: {difference_m:.2f} m")
-}{One self-contained solution to Level 4}
+}{One solution that extends Level 3}
 
 \hh{Chapter checkpoint}
 
@@ -419,6 +436,5 @@ calculations with numeric variables, read responses with \c{input()}, convert
 text to numbers, and insert results into f-strings. Chapter 3 shows how to
 organize several related values in collections.
 \end{tcolorbox}
-
 
 

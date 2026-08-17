@@ -307,17 +307,20 @@ Run the following code, then try values below, inside, and above the range.
 
 \hhh{Level 2 -- Complete}
 
-Complete a decision that displays \c{Pass} when both dimensions are positive.
+Replace \c{...} with a condition that is true only when both dimensions are
+positive.
 
 \code{c04_practice_level2}{python}{
     width_m = 4.0
     length_m = 7.0
 
-    if width_m > 0 and length_m > 0:
+    dimensions_are_positive = ...
+
+    if dimensions_are_positive:
         print("Pass")
     else:
         print("Review")
-}{A completed two-condition decision}
+}{Complete a two-condition decision}
 
 \hhh{Level 3 -- Apply}
 
@@ -340,6 +343,19 @@ instead of a size category.
 \hh{Practice solutions}
 
 \textbf{Level 0:} The results are \c{True} and \c{False}.
+
+\textbf{Level 2}
+
+\code{c04_solution_level2}{python}{
+    width_m = 4.0
+    length_m = 7.0
+    dimensions_are_positive = width_m > 0 and length_m > 0
+
+    if dimensions_are_positive:
+        print("Pass")
+    else:
+        print("Review")
+}{One solution to Level 2}
 
 \textbf{Level 3}
 

@@ -255,7 +255,7 @@ Use \c{help(celsius_to_fahrenheit)} in the REPL to display the docstring.
     \item \textbf{Printing instead of returning}: the caller receives \c{None}.
     \item \textbf{Using an unclear name}: prefer a verb such as
           \c{calculate_area} over a vague name such as \c{do_it}.
-    \item \textbf{Writing one very long function}: divide it into focused steps.
+    \item \textbf{Writing one long function}: divide it into focused steps.
 \end{itemize}
 
 \hh{Practice ladder}
@@ -277,14 +277,14 @@ Change \c{double} to \c{triple}. Update the name, calculation, and calls.
 
 \hhh{Level 2 -- Complete}
 
-Complete a function that returns the perimeter of a rectangle.
+Replace \c{...} with the expression that returns the perimeter of a rectangle.
 
 \code{c06_practice_level2}{python}{
     def rectangle_perimeter_m(width_m, length_m):
-        return 2 * (width_m + length_m)
+        return ...
 
     print(rectangle_perimeter_m(5.0, 8.0))
-}{A completed perimeter function}
+}{Complete a perimeter function}
 
 \hhh{Level 3 -- Apply}
 
@@ -307,7 +307,14 @@ function and return one formatted sentence containing the name and area.
 
 \textbf{Level 0:} The output is \c{16}.
 
-\textbf{Level 2:} The output is \c{26.0}.
+\textbf{Level 2}
+
+\code{c06_solution_level2}{python}{
+    def rectangle_perimeter_m(width_m, length_m):
+        return 2 * (width_m + length_m)
+
+    print(rectangle_perimeter_m(5.0, 8.0))
+}{One solution to Level 2; the output is 26.0}
 
 \textbf{Level 3}
 

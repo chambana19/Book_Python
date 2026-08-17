@@ -63,19 +63,22 @@ action will use. The quotation marks identify text.
 
 Python 3 is the form of the language used in this book.
 
-\hhh*{Windows}
+\hhh{Windows}
 \begin{enumerate}
     \item Visit \url{https://www.python.org/downloads/}.
-    \item Download the current Python 3 installer.
-    \item Start the installer.
-    \item Select \textbf{Add Python to PATH} before choosing Install.
+    \item Download and open the current Python Install Manager.
+    \item Choose \textbf{Install}, then open a new terminal.
+    \item Enter \texttt{python}. If prompted, allow the manager to install the
+          current Python 3 release.
 \end{enumerate}
 
-\hhh*{macOS}
+\hhh{macOS}
 \begin{enumerate}
     \item Visit \url{https://www.python.org/downloads/}.
     \item Download and run the current macOS installer.
     \item Complete the installation using the default options.
+    \item In the new \texttt{Python 3.x} folder in Applications, run
+          \texttt{Install Certificates.command}.
 \end{enumerate}
 
 \hh{Verify the installation}
@@ -224,8 +227,9 @@ or other symbol.
 \hh{Common mistakes}
 
 \begin{itemize}
-    \item \textbf{Command not found}: try \texttt{py} or \texttt{python3}. If none
-          works, reinstall Python and ensure it is added to PATH.
+    \item \textbf{Command not found}: open a new terminal and try \texttt{py} or
+          \texttt{python3}. On Windows, also check that the Python app execution
+          aliases are enabled.
     \item \textbf{The file does not run}: confirm that the terminal is open in
           the folder containing the file.
     \item \textbf{Old output appears}: save the file before running it.
@@ -357,7 +361,7 @@ Answer without looking back, then check your answers.
     \item A missing quotation mark or parenthesis is one possible cause.
 \end{enumerate}
 
-\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+\begin{tcolorbox}[title=Part I summary,colframe=orange,colback=white,arc=2mm]
 You installed Python and VS Code, created and ran a Python file, displayed text
 and calculations, used the REPL, and corrected a basic syntax mistake. Chapter
 2 introduces values, variables, and calculations.

@@ -288,7 +288,8 @@ block executes.
 
 \hhh{Level 2 -- Complete}
 
-Catch division by zero and display a useful message.
+Complete the handler by replacing \c{...} with a statement that displays a
+useful message.
 
 \code{c08_practice_level2}{python}{
     numerator = 20
@@ -297,8 +298,8 @@ Catch division by zero and display a useful message.
     try:
         print(numerator / denominator)
     except ZeroDivisionError:
-        print("Denominator must not be zero.")
-}{A completed division handler}
+        ...
+}{Complete a division handler}
 
 \hhh{Level 3 -- Apply}
 
@@ -321,7 +322,17 @@ valid value. Display the reason after each rejected entry.
 
 \textbf{Level 0:} The output is \c{13}.
 
-\textbf{Level 2:} The handler displays \c{Denominator must not be zero.}
+\textbf{Level 2}
+
+\code{c08_solution_level2}{python}{
+    numerator = 20
+    denominator = 0
+
+    try:
+        print(numerator / denominator)
+    except ZeroDivisionError:
+        print("Denominator must not be zero.")
+}{One solution to Level 2}
 
 \textbf{Level 3}
 

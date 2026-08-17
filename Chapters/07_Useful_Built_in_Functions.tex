@@ -267,18 +267,18 @@ Add two values to the list. Then display the average using \c{sum()} and
 
 \hhh{Level 2 -- Complete}
 
-Create ascending and descending versions of a list while preserving the
-original.
+Replace the two \c{...} placeholders to create ascending and descending
+versions of the list while preserving the original.
 
 \code{c07_practice_level2}{python}{
     levels = [4, 1, 3, 2]
-    ascending = sorted(levels)
-    descending = sorted(levels, reverse=True)
+    ascending = ...
+    descending = ...
 
     print(levels)
     print(ascending)
     print(descending)
-}{Preserve the original order}
+}{Complete two sorting expressions}
 
 \hhh{Level 3 -- Apply}
 
@@ -301,7 +301,17 @@ smallest. Hint: pair the data with \c{zip()}, then use \c{sorted()}.
 
 \textbf{Level 0:} The outputs are \c{2}, \c{9}, and \c{21}.
 
-\textbf{Level 2:} The original remains \c{[4, 1, 3, 2]}.
+\textbf{Level 2}
+
+\code{c07_solution_level2}{python}{
+    levels = [4, 1, 3, 2]
+    ascending = sorted(levels)
+    descending = sorted(levels, reverse=True)
+
+    print(levels)
+    print(ascending)
+    print(descending)
+}{One solution to Level 2; the original order is preserved}
 
 \textbf{Level 3}
 
@@ -326,14 +336,17 @@ smallest. Hint: pair the data with \c{zip()}, then use \c{sorted()}.
     areas_m2 = [24.0, 18.0, 31.0]
 
     room_areas = list(zip(room_names, areas_m2))
-    largest_first = sorted(room_areas, key=lambda pair: pair[1], reverse=True)
+    def area_from_pair(pair):
+        return pair[1]
+
+    largest_first = sorted(room_areas, key=area_from_pair, reverse=True)
 
     for room_name, area_m2 in largest_first:
         print(f"{room_name}: {area_m2:.1f} m2")
 }{One solution to Level 4}
 
-The short \c{lambda} supplies a sort key. It is optional vocabulary; a named
-function is better when the rule needs more explanation.
+The small \c{area_from_pair()} function supplies the sort key. Its name makes
+the sorting rule visible without introducing new syntax.
 
 \hh{Chapter checkpoint}
 

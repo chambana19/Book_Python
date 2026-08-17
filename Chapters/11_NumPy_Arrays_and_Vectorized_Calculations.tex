@@ -35,6 +35,10 @@ Python. The command below belongs in a terminal, not inside a Python file.
 python -m pip install numpy
 \end{verbatim}
 
+Use the same Python command that runs your scripts. Replace \texttt{python}
+with \texttt{py} or \texttt{python3} if that is the working command on your
+computer.
+
 Import NumPy in every program that uses it. The short name \c{np} is the
 standard convention.
 
@@ -174,8 +178,8 @@ value before assuming what an operator will do.
 
 \hh{Filter with a boolean mask}
 
-A comparison against an array produces one Boolean value per element. Use that
-Boolean array as a mask to keep matching values.
+A comparison against an array produces one boolean value per element. Use the
+resulting boolean array as a mask to keep matching values.
 
 \code{c11_boolean_mask}{python}{
     import numpy as np
@@ -200,7 +204,7 @@ and, \c{|} for element-wise or, and \c{\~} for element-wise not.
 }{Combine two array conditions}
 
 Do not use Python's \c{and} or \c{or} to combine array comparisons. Those
-operators expect one Boolean result, not one result per element.
+operators expect one boolean result, not one result per element.
 
 \hh{Summarize numerical data}
 
@@ -375,9 +379,9 @@ them.
     print("Original:", original)
 }{Make selected array data independent}
 
-Boolean indexing creates a copy, but relying on memorized exceptions is risky.
-If independent data is part of your intention, make that intention visible with
-\c{copy()}.
+Indexing with a boolean mask creates a copy, but relying on memorized exceptions
+is risky. If independent data is part of your intention, make that intention
+visible with \c{copy()}.
 
 \hh{Common mistakes}
 
@@ -431,7 +435,7 @@ of each row, and the maximum value in the whole array.
 \hhh{Level 3 -- Apply}
 
 The array below contains four widths and four lengths. Calculate every area,
-select areas of at least \c{20.0} square metres, and print their mean.
+select areas of at least \c{20.0} square meters, and print their mean.
 
 \begin{verbatim}
 widths_m = np.array([3.0, 4.5, 5.0, 2.5])
@@ -440,9 +444,9 @@ lengths_m = np.array([6.0, 5.0, 4.5, 7.0])
 
 \textbf{Hints}
 \begin{itemize}
-    \item Multiply the two arrays element by element.
-    \item Build a Boolean mask from the calculated areas.
-    \item Apply the mask before calling \c{mean()}.
+    \item \textbf{Hint 1}: Multiply the two arrays element by element.
+    \item \textbf{Hint 2}: Build a boolean mask from the calculated areas.
+    \item \textbf{Hint 3}: Apply the mask before calling \c{mean()}.
 \end{itemize}
 
 \hhh{Level 4 -- Challenge}
@@ -507,14 +511,14 @@ the minimum, mean, and maximum of each column. Test it with a three-row array.
     print("Maximum:", maximum)
 }{One solution to Level 4}
 
-\hh{Part IV checkpoint}
+\hh{Chapter checkpoint}
 
 \begin{enumerate}
     \item Why are NumPy arrays useful for numerical collections?
     \item What does an array's \c{shape} describe?
     \item How does \c{size} differ from \c{ndim}?
     \item What does vectorized arithmetic do?
-    \item What is a Boolean mask?
+    \item What is a boolean mask?
     \item In a two-dimensional array, which index is written first?
     \item What does \c{sum(axis=0)} return for a table?
     \item When can two shapes broadcast together?
@@ -529,7 +533,7 @@ the minimum, mean, and maximum of each column. Test it with a three-row array.
     \item The number of positions along each axis.
     \item \c{size} counts all elements; \c{ndim} counts axes.
     \item It applies an operation across array elements without an explicit Python loop.
-    \item A Boolean array used to select positions where a condition is true.
+    \item A boolean array used to select positions where a condition is true.
     \item The row index, followed by the column index.
     \item One total for each column.
     \item Corresponding dimensions, compared from the right, must be equal or one must be 1.
@@ -537,10 +541,11 @@ the minimum, mean, and maximum of each column. Test it with a three-row array.
     \item A basic slice may share data with the original array.
 \end{enumerate}
 
-\begin{tcolorbox}[title=Chapter 11 summary,colframe=orange,colback=white,arc=2mm]
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
 NumPy arrays give numerical data a clear shape and support element-wise
 calculations, filtering, and aggregation. Inspect shapes before combining
 arrays, connect axis choices to the output you expect, and copy selected data
 when it must be independent. The next chapter adds row and column labels with
 pandas.
 \end{tcolorbox}
+

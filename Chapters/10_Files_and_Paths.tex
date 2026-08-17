@@ -419,7 +419,8 @@ suffix.
 
 \hhh{Level 2 -- Complete}
 
-Create a folder, write three lines, read them back, and display the text.
+Use the starter code to create a folder. Then add statements that write the
+three material names on separate lines, read them back, and display the text.
 
 \code{c10_practice_level2}{python}{
     from pathlib import Path
@@ -428,9 +429,8 @@ Create a folder, write three lines, read them back, and display the text.
     folder.mkdir(exist_ok=True)
     path = folder / "materials.txt"
 
-    path.write_text("Wood\nSteel\nConcrete\n", encoding="utf-8")
-    print(path.read_text(encoding="utf-8"))
-}{Write and read three lines}
+    # Add one write statement and one read statement here.
+}{Starter code for writing and reading three lines}
 
 \hhh{Level 3 -- Apply}
 
@@ -453,7 +453,19 @@ Handle a missing file in the caller and display a helpful message.
 
 \textbf{Level 0:} The outputs are \c{notes.txt} and \c{.txt}.
 
-\textbf{Level 2:} The three material names appear on separate lines.
+\textbf{Level 2}
+
+\code{c10_solution_level2}{python}{
+    from pathlib import Path
+
+    folder = Path("study_data")
+    folder.mkdir(exist_ok=True)
+    path = folder / "materials.txt"
+
+    path.write_text("Wood\nSteel\nConcrete\n", encoding="utf-8")
+    text = path.read_text(encoding="utf-8")
+    print(text)
+}{One solution to Level 2}
 
 \textbf{Level 3}
 
@@ -508,7 +520,7 @@ Handle a missing file in the caller and display a helpful message.
         print(restored)
 }{One solution to Level 4}
 
-\hh{Part III checkpoint}
+\hh{Chapter checkpoint}
 
 \begin{enumerate}
     \item What does a path represent?

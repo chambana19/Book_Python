@@ -11,8 +11,7 @@ summary.
 
 \begin{NoteBox}
 \textbf{Prerequisites.} You should understand dictionaries, lists, paths, CSV
-files, Boolean conditions, functions, and the NumPy ideas of vectorized
-calculation and missing numerical values.
+files, boolean conditions, functions, and NumPy vectorized calculations.
 \end{NoteBox}
 
 \begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
@@ -20,7 +19,7 @@ After completing this chapter, you should be able to:
 \begin{itemize}
     \item create and inspect a pandas \c{Series} and \c{DataFrame};
     \item select columns and rows with brackets, \c{loc}, and \c{iloc};
-    \item filter rows with one or more Boolean conditions;
+    \item filter rows with one or more boolean conditions;
     \item create calculated columns without writing a row-by-row loop;
     \item detect and handle missing values deliberately;
     \item sort, summarize, and group tabular data; and
@@ -36,6 +35,10 @@ environment by running this command in a terminal.
 \begin{verbatim}
 python -m pip install pandas
 \end{verbatim}
+
+Use the same Python command that runs your scripts. Replace \texttt{python}
+with \texttt{py} or \texttt{python3} if that is the working command on your
+computer.
 
 The conventional import name is \c{pd}.
 
@@ -170,7 +173,7 @@ returned by \c{df.iloc[0:2]}?
 
 \hh{Filter rows with conditions}
 
-Build a Boolean Series, then place it inside brackets to keep matching rows.
+Build a boolean Series, then place it inside brackets to keep matching rows.
 
 \code{c12_filter_rows}{python}{
     import pandas as pd
@@ -347,16 +350,18 @@ and combine the results.
         "area_m2": [24.0, 18.0, 31.0, 26.0, 20.0],
     })
 
-    area_by_zone = (
-        rooms.groupby("zone", as_index=False)["area_m2"]
-        .agg(["count", "sum", "mean"])
+    area_by_zone = rooms.groupby("zone", as_index=False).agg(
+        room_count=("room", "count"),
+        total_area_m2=("area_m2", "sum"),
+        mean_area_m2=("area_m2", "mean"),
     )
 
     print(area_by_zone)
 }{Count and summarize areas by category}
 
-Read the chain from left to right: group by \c{zone}, select \c{area_m2}, then
-calculate three summaries. Short line breaks make each step visible.
+Read the expression from left to right: group by \c{zone}, then calculate three
+named summaries. Each pair states an output column name, a source column, and
+an aggregation operation.
 
 \hh{Read and write CSV data}
 
@@ -458,7 +463,7 @@ Predict the type names and the number of rows in \c{selected}.
 \hhh{Level 1 -- Modify}
 
 Change the filter to keep rows from the \c{"South"} zone with an area of at
-least \c{20.0} square metres.
+least \c{20.0} square meters.
 
 \code{c12_practice_level1}{python}{
     import pandas as pd
@@ -485,9 +490,9 @@ by floor and report the room count and total area for each floor.
 
 \textbf{Hints}
 \begin{itemize}
-    \item Use one integer floor value per row.
-    \item Group with \c{groupby("floor", as_index=False)}.
-    \item Named aggregation can create clear output column names.
+    \item \textbf{Hint 1}: Use one integer floor value per row.
+    \item \textbf{Hint 2}: Group with \c{groupby("floor", as_index=False)}.
+    \item \textbf{Hint 3}: Named aggregation can create clear output column names.
 \end{itemize}
 
 \hhh{Level 4 -- Challenge}
@@ -554,7 +559,7 @@ with missing \c{area_m2}, keeps only positive areas, and adds
     print("Original columns:", raw.columns.tolist())
 }{One solution to Level 4}
 
-\hh{Part IV checkpoint continued}
+\hh{Chapter checkpoint}
 
 \begin{enumerate}
     \item What does a DataFrame row usually represent?
@@ -584,9 +589,10 @@ with missing \c{area_m2}, keeps only positive areas, and adds
     \item The stages remain inspectable, and the source data is preserved.
 \end{enumerate}
 
-\begin{tcolorbox}[title=Chapter 12 summary,colframe=orange,colback=white,arc=2mm]
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
 pandas adds row and column labels to tabular data. Inspect a DataFrame before
 analysis, select rows and columns explicitly, handle missing values according
 to a stated rule, and keep analysis stages visible. The resulting summaries
 are ready to communicate through well-chosen charts.
 \end{tcolorbox}
+
