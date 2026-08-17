@@ -1,0 +1,741 @@
+% Part IV -- Numerical Data, Tables, and Visualization
+% Chapter 13: Visualizing data with Matplotlib
+
+\h{Visualizing Data with Matplotlib}
+
+A chart should make one question easier to answer. Matplotlib supplies many
+plot types, but a beginner needs only a small, reliable set: line plots for
+ordered change, bar charts for category comparisons, scatter plots for
+relationships, and histograms for distributions. This chapter builds those
+charts through one consistent object-based pattern.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand lists, NumPy arrays, pandas
+DataFrames, column selection, and basic numerical summaries.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item create a Matplotlib Figure and Axes with \c{plt.subplots()};
+    \item choose a line, bar, scatter, or histogram from the question and data;
+    \item add a clear title, axis labels, units, legend, and restrained grid;
+    \item use a consistent palette without depending on color alone;
+    \item plot selected NumPy or pandas data;
+    \item arrange two related charts as subplots; and
+    \item save a figure with an appropriate file name and bounding box.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Install once and import when needed}
+
+Matplotlib is an external library. Install it once in the active Python
+environment by running this command in a terminal.
+
+\begin{verbatim}
+python -m pip install matplotlib
+\end{verbatim}
+
+Most introductory plotting uses the \c{pyplot} interface with the conventional
+name \c{plt}.
+
+\code{c13_import_matplotlib}{python}{
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    print(type(fig).__name__)
+    print(type(ax).__name__)
+    plt.close(fig)
+}{Create and close an empty figure}
+
+Closing a finished figure releases its resources. This matters when a program
+creates many figures in one run.
+
+\hh{Understand Figure and Axes}
+
+A \c{Figure} is the complete output area. An \c{Axes} is one plotting region
+inside that Figure. Most visible chart elements are added through an Axes.
+
+\code{c13_first_plot}{python}{
+    import matplotlib.pyplot as plt
+
+    days = [1, 2, 3, 4, 5]
+    temperatures_c = [19.0, 20.5, 22.0, 21.0, 23.5]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.plot(days, temperatures_c)
+
+    plt.show()
+    plt.close(fig)
+}{Draw a first line plot}
+
+The call to \c{plt.subplots()} creates both objects. The call to \c{ax.plot()}
+adds data to the Axes. In a standalone script, \c{plt.show()} displays the
+Figure in a window when the active backend supports one.
+
+\hh{Add the information a reader needs}
+
+An unlabeled line has little meaning. Name the subject, both variables, and
+their units.
+
+\code{c13_labeled_line}{python}{
+    import matplotlib.pyplot as plt
+
+    days = [1, 2, 3, 4, 5]
+    temperatures_c = [19.0, 20.5, 22.0, 21.0, 23.5]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.plot(days, temperatures_c, color="tab:blue", marker="o")
+    ax.set_title("Indoor temperature over five days")
+    ax.set_xlabel("Day")
+    ax.set_ylabel("Temperature (degrees C)")
+    ax.grid(axis="y", alpha=0.25)
+
+    plt.show()
+    plt.close(fig)
+}{Label a line plot clearly}
+
+The grid is light and appears only on the value axis. It supports reading
+values without competing with the data.
+
+\hh{Choose a plot from the question}
+
+Start with the relationship you want to show.
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Question} & \textbf{Typical data} & \textbf{Plot} \\
+How does a value change in order? & Time or distance sequence & Line \\
+How do categories compare? & Names and values & Bar \\
+Do two numerical variables relate? & Paired measurements & Scatter \\
+How are values distributed? & One numerical collection & Histogram \\
+\end{tabular}
+\end{center}
+
+Do not select a chart because it looks impressive. Select it because its visual
+structure matches the question.
+
+\hh{Use a line plot for ordered change}
+
+A line connects observations in sequence. That connection implies meaningful
+order, such as time, distance, or iteration.
+
+\code{c13_line_plot}{python}{
+    import matplotlib.pyplot as plt
+
+    hours = [8, 10, 12, 14, 16, 18]
+    daylight_percent = [18, 35, 52, 61, 43, 20]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.plot(
+        hours,
+        daylight_percent,
+        color="tab:blue",
+        marker="o",
+        linewidth=2,
+        label="Measured",
+    )
+    ax.set(
+        title="Daylight through the day",
+        xlabel="Hour",
+        ylabel="Daylight level (percent)",
+    )
+    ax.legend()
+    ax.grid(axis="y", alpha=0.25)
+
+    plt.show()
+    plt.close(fig)
+}{Show ordered change with a line}
+
+Markers reveal the actual observations. The connecting line helps the eye
+follow their order but does not create new measurements between them.
+
+\hh{Compare two ordered series}
+
+Give each series both a label and a visual pattern. Color alone should not be
+the only way to tell them apart.
+
+\code{c13_two_lines}{python}{
+    import matplotlib.pyplot as plt
+
+    hours = [8, 10, 12, 14, 16, 18]
+    north_c = [19.0, 20.0, 21.0, 21.5, 21.0, 20.0]
+    south_c = [19.5, 21.0, 23.0, 24.0, 22.5, 21.0]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.plot(
+        hours,
+        north_c,
+        color="tab:blue",
+        marker="o",
+        linestyle="-",
+        label="North room",
+    )
+    ax.plot(
+        hours,
+        south_c,
+        color="tab:orange",
+        marker="s",
+        linestyle="--",
+        label="South room",
+    )
+    ax.set(
+        title="Room temperature comparison",
+        xlabel="Hour",
+        ylabel="Temperature (degrees C)",
+    )
+    ax.legend()
+    ax.grid(axis="y", alpha=0.25)
+
+    plt.show()
+    plt.close(fig)
+}{Compare two series with redundant visual cues}
+
+The names in the legend carry the meaning. Marker shape and line style keep the
+series distinguishable when color is hard to perceive or the page is printed
+in grayscale.
+
+\hh{Use a bar chart for categories}
+
+Bars compare values attached to separate categories. Their lengths share a
+common baseline, which makes differences easy to judge.
+
+\code{c13_bar_chart}{python}{
+    import matplotlib.pyplot as plt
+
+    room_names = ["Lobby", "Office", "Cafe", "Studio"]
+    areas_m2 = [24.0, 18.0, 31.0, 26.0]
+
+    fig, ax = plt.subplots(layout="constrained")
+    bars = ax.bar(room_names, areas_m2, color="tab:blue")
+    ax.bar_label(bars, fmt="%.1f", padding=3)
+    ax.set(
+        title="Area by room",
+        xlabel="Room",
+        ylabel="Area (m2)",
+    )
+    ax.set_ylim(0, 36)
+    ax.grid(axis="y", alpha=0.25)
+    ax.set_axisbelow(True)
+
+    plt.show()
+    plt.close(fig)
+}{Compare category values with bars}
+
+A zero baseline keeps bar lengths honest. Direct value labels are useful when
+the exact values matter and the chart has only a few bars.
+
+\hh{Use horizontal bars for long labels}
+
+Horizontal bars give long category names more room.
+
+\code{c13_horizontal_bar}{python}{
+    import matplotlib.pyplot as plt
+
+    materials = [
+        "Reinforced concrete",
+        "Cross-laminated timber",
+        "Structural steel",
+    ]
+    quantities_m3 = [42.0, 28.0, 16.0]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.barh(materials, quantities_m3, color="tab:orange")
+    ax.set(
+        title="Material quantities",
+        xlabel="Quantity (m3)",
+        ylabel="Material",
+    )
+    ax.grid(axis="x", alpha=0.25)
+    ax.set_axisbelow(True)
+
+    plt.show()
+    plt.close(fig)
+}{Use horizontal bars for readable category labels}
+
+Long labels remain horizontal, so the reader does not need to rotate the page
+or decode abbreviations.
+
+\hh{Use a scatter plot for paired measurements}
+
+A scatter plot represents each observation as one point with an x-value and a
+y-value. It can reveal direction, spread, clusters, and unusual observations.
+
+\code{c13_scatter_plot}{python}{
+    import matplotlib.pyplot as plt
+
+    window_percent = [18, 22, 28, 35, 41, 48, 55]
+    daylight_percent = [24, 29, 37, 45, 53, 58, 66]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.scatter(
+        window_percent,
+        daylight_percent,
+        color="tab:blue",
+        edgecolor="black",
+        alpha=0.8,
+    )
+    ax.set(
+        title="Window area and daylight",
+        xlabel="Window area (percent of wall)",
+        ylabel="Daylight level (percent)",
+    )
+    ax.grid(alpha=0.2)
+
+    plt.show()
+    plt.close(fig)
+}{Show a relationship between two numerical variables}
+
+The pattern suggests an association, not proof that one variable causes the
+other. Other variables may explain part of the relationship.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} What would a point far above the other points mean
+in this example? Describe it using both variables before explaining a possible
+cause.
+\end{NoteBox}
+
+\hh{Use a histogram for a distribution}
+
+A histogram groups a numerical collection into intervals called bins. It shows
+where values concentrate and how broadly they spread.
+
+\code{c13_histogram}{python}{
+    import matplotlib.pyplot as plt
+
+    room_areas_m2 = [
+        15, 18, 18, 20, 21, 22, 22, 23, 24, 24,
+        25, 26, 27, 28, 30, 31, 33, 35, 38, 42,
+    ]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.hist(
+        room_areas_m2,
+        bins=[10, 20, 30, 40, 50],
+        color="tab:blue",
+        edgecolor="black",
+    )
+    ax.set(
+        title="Distribution of room areas",
+        xlabel="Area (m2)",
+        ylabel="Number of rooms",
+    )
+    ax.grid(axis="y", alpha=0.25)
+    ax.set_axisbelow(True)
+
+    plt.show()
+    plt.close(fig)
+}{Group numerical values into histogram bins}
+
+Different bins can change the visible pattern. State or inspect bin boundaries
+when the conclusion depends on them.
+
+\hh{Use color consistently}
+
+This book uses orange, black, and white for instructional page elements. Chart
+colors serve a different purpose: they distinguish data while remaining
+restrained.
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Matplotlib color} & \textbf{Typical role} & \textbf{Additional cue} \\
+\c{tab:blue} & Primary series & Solid line or circle marker \\
+\c{tab:orange} & Comparison series & Dashed line or square marker \\
+\c{tab:green} & Optional third series & Dotted line or triangle marker \\
+\end{tabular}
+\end{center}
+
+Keep the same meaning for a color within one figure. Use text labels, a legend,
+marker shapes, or line styles as well. Avoid adding colors that carry no
+information.
+
+\hh{Plot data from a pandas DataFrame}
+
+Select columns by name, then pass those Series to an Axes method. This keeps
+data preparation separate from chart formatting.
+
+\code{c13_plot_dataframe}{python}{
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio"],
+        "area_m2": [24.0, 18.0, 31.0, 26.0],
+    })
+    ordered = rooms.sort_values("area_m2")
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.barh(
+        ordered["room"],
+        ordered["area_m2"],
+        color="tab:blue",
+    )
+    ax.set(
+        title="Room areas from a DataFrame",
+        xlabel="Area (m2)",
+        ylabel="Room",
+    )
+    ax.grid(axis="x", alpha=0.25)
+    ax.set_axisbelow(True)
+
+    plt.show()
+    plt.close(fig)
+}{Prepare pandas data before plotting}
+
+Sorting is part of the data-preparation stage. The plotting stage receives the
+rows in the intended visual order.
+
+\hh{Create two related subplots}
+
+Subplots help readers compare related views that should share one Figure. Keep
+the number small and give each Axes a distinct question.
+
+\code{c13_two_subplots}{python}{
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    data = pd.DataFrame({
+        "month": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        "energy_kwh": [820, 760, 690, 610, 540, 500],
+        "temperature_c": [2, 4, 8, 13, 18, 22],
+    })
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4), layout="constrained")
+
+    axes[0].plot(
+        data["month"],
+        data["energy_kwh"],
+        color="tab:blue",
+        marker="o",
+    )
+    axes[0].set(
+        title="Monthly energy",
+        xlabel="Month",
+        ylabel="Energy (kWh)",
+    )
+
+    axes[1].scatter(
+        data["temperature_c"],
+        data["energy_kwh"],
+        color="tab:orange",
+        marker="s",
+        edgecolor="black",
+    )
+    axes[1].set(
+        title="Energy and temperature",
+        xlabel="Outdoor temperature (degrees C)",
+        ylabel="Energy (kWh)",
+    )
+
+    for ax in axes:
+        ax.grid(alpha=0.2)
+
+    plt.show()
+    plt.close(fig)
+}{Place two related questions in one Figure}
+
+The first chart preserves time order. The second removes that ordering to focus
+on the relationship between two numerical variables.
+
+\hh{Annotate one important observation}
+
+An annotation should direct attention to a value relevant to the chart's
+question. Too many annotations become clutter.
+
+\code{c13_annotation}{python}{
+    import matplotlib.pyplot as plt
+
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    energy_kwh = [820, 760, 690, 610, 540, 500]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.plot(months, energy_kwh, color="tab:blue", marker="o")
+    ax.annotate(
+        "Lowest value",
+        xy=("Jun", 500),
+        xytext=("Apr", 700),
+        arrowprops={"arrowstyle": "->", "color": "black"},
+    )
+    ax.set(
+        title="Monthly energy use",
+        xlabel="Month",
+        ylabel="Energy (kWh)",
+    )
+    ax.grid(axis="y", alpha=0.25)
+
+    plt.show()
+    plt.close(fig)
+}{Annotate one observation without crowding the plot}
+
+The annotation text states the interpretation. Its arrow identifies the
+specific observation.
+
+\hh{Save a figure}
+
+Call \c{savefig()} on the Figure. The file extension selects the output format.
+PNG is convenient for screens; PDF and SVG preserve vector lines and text.
+
+\code{c13_save_figure}{python}{
+    from pathlib import Path
+    import matplotlib.pyplot as plt
+
+    output_folder = Path("study_figures")
+    output_folder.mkdir(exist_ok=True)
+    output_path = output_folder / "area_by_room.png"
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.bar(
+        ["Lobby", "Office", "Cafe"],
+        [24.0, 18.0, 31.0],
+        color="tab:blue",
+    )
+    ax.set(
+        title="Area by room",
+        xlabel="Room",
+        ylabel="Area (m2)",
+    )
+
+    fig.savefig(output_path, dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
+    print(f"Saved: {output_path}")
+}{Save a labeled figure to a folder}
+
+The \c{bbox_inches="tight"} option trims unnecessary outer whitespace while
+keeping labels in the output. Always open the saved file and inspect it before
+sharing or printing it.
+
+\hh{Use a repeatable chart workflow}
+
+A simple order prevents formatting from hiding a data problem.
+
+\begin{enumerate}
+    \item State the question in one sentence.
+    \item Inspect and prepare the data.
+    \item Choose the plot type from the variable relationship.
+    \item Create the Figure and Axes.
+    \item Plot the data.
+    \item Add title, labels, units, and a legend when needed.
+    \item Reduce clutter and check accessibility.
+    \item Save or show the Figure, then inspect the result.
+\end{enumerate}
+
+This order is short enough to use every time.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Choosing by appearance}: match the plot type to the question
+    and variable types.
+    \item \textbf{Omitting units}: include units in axis labels whenever values
+    represent measurements.
+    \item \textbf{Using a line for unordered categories}: lines imply a
+    meaningful sequence; use bars for separate categories.
+    \item \textbf{Starting a bar axis above zero}: a truncated baseline can
+    exaggerate differences in bar length.
+    \item \textbf{Depending on color alone}: add labels, markers, or line
+    styles.
+    \item \textbf{Adding heavy decoration}: use light grids and remove elements
+    that do not help answer the question.
+    \item \textbf{Forgetting to inspect the saved file}: rendering and cropping
+    can differ from the interactive window.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+Which plot type is produced? Which variable appears on each axis?
+
+\code{c13_practice_level0}{python}{
+    import matplotlib.pyplot as plt
+
+    widths_m = [3.0, 4.0, 5.0]
+    areas_m2 = [18.0, 24.0, 32.0]
+
+    fig, ax = plt.subplots()
+    ax.scatter(widths_m, areas_m2)
+    plt.close(fig)
+}{Identify a plot type and its variables}
+
+\hhh{Level 1 -- Modify}
+
+Add a title, both axis labels with units, and value labels above the bars.
+
+\code{c13_practice_level1}{python}{
+    import matplotlib.pyplot as plt
+
+    rooms = ["A", "B", "C"]
+    areas_m2 = [18.0, 24.0, 31.0]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.bar(rooms, areas_m2, color="tab:blue")
+    plt.show()
+    plt.close(fig)
+}{Complete the communication around a bar chart}
+
+\hhh{Level 2 -- Complete}
+
+Create a line plot for six ordered temperature readings. Use circle markers,
+a solid \c{tab:blue} line, a light horizontal grid, and labels with units.
+
+\hhh{Level 3 -- Apply}
+
+Create a two-panel Figure from a pandas DataFrame. The left Axes should compare
+category values with bars. The right Axes should show the distribution of the
+same numerical values with a histogram.
+
+\textbf{Hints}
+\begin{itemize}
+    \item Create the Figure with \c{plt.subplots(1, 2)}.
+    \item Select DataFrame columns by name.
+    \item Give each Axes its own title and labels.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Write \c{plot_two_series(x, first, second, labels)}. It should return a Figure
+with two labeled lines. Use different colors, markers, and line styles; include
+axis labels, units, a legend, and a light grid. Test the function and close the
+returned Figure.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} It is a scatter plot. Width is on the x-axis and area is on
+the y-axis.
+
+\textbf{Level 2}
+
+\code{c13_solution_level2}{python}{
+    import matplotlib.pyplot as plt
+
+    hours = [8, 10, 12, 14, 16, 18]
+    temperatures_c = [19.0, 20.5, 22.0, 23.0, 22.0, 20.5]
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.plot(hours, temperatures_c, color="tab:blue", marker="o")
+    ax.set(
+        title="Temperature through the day",
+        xlabel="Hour",
+        ylabel="Temperature (degrees C)",
+    )
+    ax.grid(axis="y", alpha=0.25)
+
+    plt.show()
+    plt.close(fig)
+}{One solution to Level 2}
+
+\textbf{Level 3}
+
+\code{c13_solution_level3}{python}{
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["A", "B", "C", "D", "E"],
+        "area_m2": [18.0, 24.0, 31.0, 26.0, 21.0],
+    })
+
+    fig, axes = plt.subplots(1, 2, figsize=(9, 4), layout="constrained")
+    axes[0].bar(rooms["room"], rooms["area_m2"], color="tab:blue")
+    axes[0].set(
+        title="Area by room",
+        xlabel="Room",
+        ylabel="Area (m2)",
+    )
+
+    axes[1].hist(rooms["area_m2"], bins=4, color="tab:orange", edgecolor="black")
+    axes[1].set(
+        title="Area distribution",
+        xlabel="Area (m2)",
+        ylabel="Number of rooms",
+    )
+
+    for ax in axes:
+        ax.grid(axis="y", alpha=0.25)
+        ax.set_axisbelow(True)
+
+    plt.show()
+    plt.close(fig)
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c13_solution_level4}{python}{
+    import matplotlib.pyplot as plt
+
+    def plot_two_series(x, first, second, labels):
+        fig, ax = plt.subplots(layout="constrained")
+        ax.plot(
+            x,
+            first,
+            color="tab:blue",
+            marker="o",
+            linestyle="-",
+            label=labels[0],
+        )
+        ax.plot(
+            x,
+            second,
+            color="tab:orange",
+            marker="s",
+            linestyle="--",
+            label=labels[1],
+        )
+        ax.set(
+            title="Temperature comparison",
+            xlabel="Hour",
+            ylabel="Temperature (degrees C)",
+        )
+        ax.legend()
+        ax.grid(axis="y", alpha=0.25)
+        return fig
+
+    hours = [8, 10, 12, 14]
+    north_c = [19.0, 20.0, 21.0, 21.5]
+    south_c = [19.5, 21.0, 23.0, 24.0]
+    figure = plot_two_series(
+        hours,
+        north_c,
+        south_c,
+        labels=("North room", "South room"),
+    )
+    plt.close(figure)
+}{One solution to Level 4}
+
+\hh{Part IV checkpoint continued}
+
+\begin{enumerate}
+    \item What is the difference between a Figure and an Axes?
+    \item Which plot suits change through an ordered sequence?
+    \item Which plot suits comparison among separate categories?
+    \item Which plot shows a relationship between paired numerical variables?
+    \item What does a histogram bin represent?
+    \item Why should a bar chart usually begin at zero?
+    \item Why add markers or line styles when colors already differ?
+    \item What does \c{layout="constrained"} help prevent?
+    \item Which object should call \c{savefig()} in this chapter's pattern?
+    \item What should you do after saving a figure?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item The Figure is the complete output; an Axes is one plotting region within it.
+    \item A line plot.
+    \item A bar chart.
+    \item A scatter plot.
+    \item An interval used to count numerical observations.
+    \item Bar length encodes value, so a nonzero baseline can exaggerate differences.
+    \item They preserve distinctions when color is difficult to perceive or unavailable.
+    \item Overlap among titles, labels, and plotting regions.
+    \item The Figure object.
+    \item Open and inspect the saved file for labels, cropping, and readability.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Part IV summary,colframe=orange,colback=white,arc=2mm]
+NumPy organizes numerical arrays, pandas adds labels and table operations, and
+Matplotlib communicates selected patterns. Begin with a question, prepare the
+data visibly, choose a plot whose structure matches the variables, and label
+the result so another reader can understand it without seeing the code.
+\end{tcolorbox}

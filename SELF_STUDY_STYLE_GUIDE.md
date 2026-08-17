@@ -10,6 +10,10 @@
 - Code examples use the existing `\code{label}{language}{body}{caption}`
   command. Labels begin with the two-digit chapter number.
 - Tables use the existing document typography and avoid additional accent colors.
+- Charts use a restrained Matplotlib palette: `tab:blue` for the primary
+  series, `tab:orange` for a comparison, and `tab:green` only when a third
+  series is needed. Labels, markers, or line styles repeat the distinction so
+  meaning never depends on color alone.
 
 The restrained orange, black, and white palette keeps the pages readable and
 matches the established cover accent without assigning a different color to
@@ -56,4 +60,5 @@ Numbering and typography remain controlled by the textbook class.
 - An advanced shortcut appears only after the ordinary form is understood.
 - Practice levels remain: Read, Modify, Complete, Apply, Challenge.
 - Hints support Apply and Challenge work without giving away the full solution.
-
+- Plotting examples use the Figure/Axes pattern, label measurement units, keep
+  grids light, and close completed figures.

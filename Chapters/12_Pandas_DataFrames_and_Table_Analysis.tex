@@ -1,0 +1,592 @@
+% Part IV -- Numerical Data, Tables, and Visualization
+% Chapter 12: pandas DataFrames and table analysis
+
+\h{pandas DataFrames and Table Analysis}
+
+NumPy arrays organize values by numerical position. Many real tables also need
+names for columns and rows. The pandas library provides those labels through a
+two-dimensional structure called a \c{DataFrame}. This chapter follows one
+small table from creation through selection, cleaning, calculation, and
+summary.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand dictionaries, lists, paths, CSV
+files, Boolean conditions, functions, and the NumPy ideas of vectorized
+calculation and missing numerical values.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item create and inspect a pandas \c{Series} and \c{DataFrame};
+    \item select columns and rows with brackets, \c{loc}, and \c{iloc};
+    \item filter rows with one or more Boolean conditions;
+    \item create calculated columns without writing a row-by-row loop;
+    \item detect and handle missing values deliberately;
+    \item sort, summarize, and group tabular data; and
+    \item read and write a CSV file with a clear index decision.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Install once and import when needed}
+
+pandas is an external library. Install it once in the active Python
+environment by running this command in a terminal.
+
+\begin{verbatim}
+python -m pip install pandas
+\end{verbatim}
+
+The conventional import name is \c{pd}.
+
+\code{c12_import_pandas}{python}{
+    import pandas as pd
+
+    values = pd.Series([18.0, 24.0, 31.0])
+    print(values)
+}{Import pandas and create a Series}
+
+\hh{Begin with a Series}
+
+A \c{Series} is a one-dimensional sequence with labels. The values appear on
+the right and the index labels appear on the left.
+
+\code{c12_labeled_series}{python}{
+    import pandas as pd
+
+    area_by_room = pd.Series(
+        [24.0, 18.0, 31.0],
+        index=["Lobby", "Office", "Cafe"],
+        name="area_m2",
+    )
+
+    print(area_by_room)
+    print("Cafe area:", area_by_room.loc["Cafe"])
+}{Create a Series with meaningful labels}
+
+Labels can communicate meaning more clearly than positions alone. A Series
+also keeps a name for the values it stores.
+
+\hh{Create a DataFrame from a dictionary}
+
+A dictionary of equal-length lists is a direct way to build a small table.
+Each dictionary key becomes a column name.
+
+\code{c12_create_dataframe}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio"],
+        "zone": ["Public", "Work", "Public", "Work"],
+        "area_m2": [24.0, 18.0, 31.0, 26.0],
+        "height_m": [4.2, 3.0, 3.6, 3.2],
+    })
+
+    print(rooms)
+}{Create a four-row DataFrame}
+
+Each row is one observation. Each column is one variable measured or recorded
+for those observations. Keeping this structure tidy makes later operations
+predictable.
+
+\hh{Inspect before analyzing}
+
+Do not assume that a loaded table has the expected size or data types. Begin
+with a few focused checks.
+
+\code{c12_inspect_dataframe}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio"],
+        "zone": ["Public", "Work", "Public", "Work"],
+        "area_m2": [24.0, 18.0, 31.0, 26.0],
+        "height_m": [4.2, 3.0, 3.6, 3.2],
+    })
+
+    print("Shape:", rooms.shape)
+    print("Columns:", rooms.columns.tolist())
+    print("Data types:\n", rooms.dtypes)
+    print("First rows:\n", rooms.head(2))
+}{Inspect structure and a small sample}
+
+The shape reports rows first and columns second. \c{head()} displays a sample;
+it does not prove that the rest of a large table is clean.
+
+\hh{Select one or several columns}
+
+Single brackets with one column name return a Series. Double brackets with a
+list of names return a DataFrame.
+
+\code{c12_select_columns}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe"],
+        "area_m2": [24.0, 18.0, 31.0],
+        "height_m": [4.2, 3.0, 3.6],
+    })
+
+    areas = rooms["area_m2"]
+    labels_and_areas = rooms[["room", "area_m2"]]
+
+    print(type(areas).__name__)
+    print(labels_and_areas)
+}{Distinguish Series and DataFrame column selections}
+
+Choose the form based on the result you need. Do not add extra brackets only
+because both versions happen to print like tables.
+
+\hh{Select rows by label or position}
+
+Use \c{loc} for labels and \c{iloc} for integer positions. Making that choice
+explicit prevents confusion when an index is not a simple sequence.
+
+\code{c12_loc_and_iloc}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame(
+        {
+            "area_m2": [24.0, 18.0, 31.0],
+            "height_m": [4.2, 3.0, 3.6],
+        },
+        index=["Lobby", "Office", "Cafe"],
+    )
+
+    print("By label:\n", rooms.loc["Office"])
+    print("By position:\n", rooms.iloc[1])
+    print("Selected cells:\n", rooms.loc[["Lobby", "Cafe"], ["area_m2"]])
+}{Select rows and cells with loc and iloc}
+
+Unlike an ordinary Python slice, a label slice used with \c{loc} includes its
+ending label. Position slices used with \c{iloc} stop before the ending
+position.
+
+\begin{NoteBox}
+\textbf{Stop and predict.} If the index labels are \c{"A"}, \c{"B"}, and
+\c{"C"}, which rows are returned by \c{df.loc["A":"B"]}? Which positions are
+returned by \c{df.iloc[0:2]}?
+\end{NoteBox}
+
+\hh{Filter rows with conditions}
+
+Build a Boolean Series, then place it inside brackets to keep matching rows.
+
+\code{c12_filter_rows}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio"],
+        "zone": ["Public", "Work", "Public", "Work"],
+        "area_m2": [24.0, 18.0, 31.0, 26.0],
+    })
+
+    large_rooms = rooms[rooms["area_m2"] >= 25.0]
+    print(large_rooms)
+}{Filter a DataFrame with one condition}
+
+Combine conditions with \c{\&} or \c{|}, and put each comparison in
+parentheses.
+
+\code{c12_filter_multiple_conditions}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio"],
+        "zone": ["Public", "Work", "Public", "Work"],
+        "area_m2": [24.0, 18.0, 31.0, 26.0],
+    })
+
+    selected = rooms[
+        (rooms["zone"] == "Public") & (rooms["area_m2"] >= 25.0)
+    ]
+    print(selected)
+}{Filter with two conditions}
+
+\hh{Create a calculated column}
+
+Column arithmetic is vectorized. The calculation aligns values by row.
+
+\code{c12_calculated_column}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe"],
+        "area_m2": [24.0, 18.0, 31.0],
+        "height_m": [4.2, 3.0, 3.6],
+    })
+
+    rooms["volume_m3"] = rooms["area_m2"] * rooms["height_m"]
+    print(rooms)
+}{Add a volume column from two existing columns}
+
+The new column name includes the unit. That small naming choice prevents
+mistakes when several measurement systems appear in one table.
+
+\hh{Update selected rows with loc}
+
+Use \c{loc[row condition, column name]} when changing only part of a column.
+
+\code{c12_assign_with_loc}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe"],
+        "zone": ["Public", "Work", "Public"],
+        "status": ["Review", "Review", "Review"],
+    })
+
+    public_mask = rooms["zone"] == "Public"
+    rooms.loc[public_mask, "status"] = "Checked"
+
+    print(rooms)
+}{Assign values to selected rows explicitly}
+
+Avoid changing a temporary filtered object with chained brackets. One \c{loc}
+operation clearly states both the rows and the column to update.
+
+\hh{Find missing values}
+
+Missing values require a decision. First count them; then decide whether to
+fill, remove, or investigate them.
+
+\code{c12_detect_missing_values}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio"],
+        "area_m2": [24.0, None, 31.0, None],
+        "zone": ["Public", "Work", "Public", "Work"],
+    })
+
+    print(rooms.isna())
+    print("Missing by column:\n", rooms.isna().sum())
+}{Detect and count missing values}
+
+Do not test missing values with \c{== None} or \c{== np.nan}. Use \c{isna()}
+or \c{notna()} so pandas handles its missing-value representations correctly.
+
+\hh{Handle missing values deliberately}
+
+Filling and removing answer different questions. Filling preserves the row but
+introduces an assumed value. Removing avoids that assumption but loses data.
+
+\code{c12_fill_missing_values}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio"],
+        "area_m2": [24.0, None, 31.0, None],
+    })
+
+    median_area = rooms["area_m2"].median()
+    filled = rooms.copy()
+    filled["area_m2"] = filled["area_m2"].fillna(median_area)
+
+    complete = rooms.dropna(subset=["area_m2"])
+
+    print("Filled:\n", filled)
+    print("Complete rows:\n", complete)
+}{Compare filling with dropping incomplete rows}
+
+Keep the original DataFrame unchanged while comparing cleaning choices. Record
+the rule used to fill values so a reader can evaluate the assumption.
+
+\hh{Sort without losing the original order}
+
+\c{sort_values()} returns a sorted DataFrame unless you explicitly request an
+in-place change. Assign the result to a descriptive name.
+
+\code{c12_sort_values}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio"],
+        "area_m2": [24.0, 18.0, 31.0, 26.0],
+    })
+
+    largest_first = rooms.sort_values("area_m2", ascending=False)
+    print(largest_first)
+}{Sort rows by a numerical column}
+
+The index stays attached to its row during sorting. Use \c{reset_index()} only
+when a new sequential index is actually useful.
+
+\hh{Calculate column summaries}
+
+Series methods calculate focused statistics. \c{describe()} gives a compact
+overview of numerical columns.
+
+\code{c12_summary_statistics}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "area_m2": [24.0, 18.0, 31.0, 26.0],
+        "height_m": [4.2, 3.0, 3.6, 3.2],
+    })
+
+    print("Total area:", rooms["area_m2"].sum())
+    print("Mean area:", rooms["area_m2"].mean())
+    print(rooms.describe())
+}{Summarize numerical columns}
+
+Summary statistics support inspection; they do not explain why a value is
+unusual. Return to the relevant rows when a minimum or maximum needs context.
+
+\hh{Group rows and aggregate}
+
+Grouping follows three steps: split rows into categories, apply a calculation,
+and combine the results.
+
+\code{c12_groupby_summary}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio", "Meeting"],
+        "zone": ["Public", "Work", "Public", "Work", "Work"],
+        "area_m2": [24.0, 18.0, 31.0, 26.0, 20.0],
+    })
+
+    area_by_zone = (
+        rooms.groupby("zone", as_index=False)["area_m2"]
+        .agg(["count", "sum", "mean"])
+    )
+
+    print(area_by_zone)
+}{Count and summarize areas by category}
+
+Read the chain from left to right: group by \c{zone}, select \c{area_m2}, then
+calculate three summaries. Short line breaks make each step visible.
+
+\hh{Read and write CSV data}
+
+Use \c{to_csv()} to save a DataFrame and \c{read_csv()} to restore it. Decide
+whether the DataFrame index is data that belongs in the file.
+
+\code{c12_csv_round_trip}{python}{
+    from pathlib import Path
+    import pandas as pd
+
+    folder = Path("study_data")
+    folder.mkdir(exist_ok=True)
+    csv_path = folder / "rooms_pandas.csv"
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe"],
+        "area_m2": [24.0, 18.0, 31.0],
+    })
+
+    rooms.to_csv(csv_path, index=False)
+    restored = pd.read_csv(csv_path)
+
+    print(restored)
+    print(restored.dtypes)
+}{Write and read a small CSV file}
+
+Here the default row index is only an internal counter, so \c{index=False}
+keeps it out of the CSV. A meaningful index may deserve its own named column.
+
+\hh{Build a readable analysis sequence}
+
+Keep inspection, cleaning, calculation, and summary as visible stages. Separate
+names let you compare stages and locate a mistake.
+
+\code{c12_analysis_sequence}{python}{
+    import pandas as pd
+
+    raw = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio", "Meeting"],
+        "zone": ["Public", "Work", "Public", "Work", "Work"],
+        "area_m2": [24.0, None, 31.0, 26.0, 20.0],
+        "height_m": [4.2, 3.0, 3.6, 3.2, 3.0],
+    })
+
+    clean = raw.dropna(subset=["area_m2"]).copy()
+    clean["volume_m3"] = clean["area_m2"] * clean["height_m"]
+    summary = clean.groupby("zone", as_index=False).agg(
+        room_count=("room", "count"),
+        total_area_m2=("area_m2", "sum"),
+        mean_volume_m3=("volume_m3", "mean"),
+    )
+
+    print(summary)
+}{Move through clear analysis stages}
+
+Named aggregation gives the result descriptive column names. The cleaning rule
+is also visible: only rows missing \c{area_m2} are removed.
+
+\hh{Common mistakes}
+
+\begin{itemize}
+    \item \textbf{Skipping inspection}: check shape, columns, data types, and a
+    small sample before analysis.
+    \item \textbf{Confusing a Series with a DataFrame}: one column name returns
+    a Series; a list of column names returns a DataFrame.
+    \item \textbf{Mixing \c{loc} and \c{iloc}}: use labels with \c{loc} and
+    positions with \c{iloc}.
+    \item \textbf{Combining conditions without parentheses}: parenthesize each
+    comparison before \c{\&} or \c{|}.
+    \item \textbf{Using chained assignment}: select rows and the destination
+    column together with \c{loc}.
+    \item \textbf{Filling missing data automatically}: state and examine the
+    assumption behind any replacement value.
+    \item \textbf{Saving an unwanted index}: use \c{index=False} when the index
+    is not part of the data.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read and predict}
+
+Predict the type names and the number of rows in \c{selected}.
+
+\code{c12_practice_level0}{python}{
+    import pandas as pd
+
+    data = pd.DataFrame({
+        "name": ["A", "B", "C"],
+        "value": [10, 25, 18],
+    })
+    one_column = data["value"]
+    selected = data[data["value"] >= 18]
+
+    print(type(one_column).__name__)
+    print(type(selected).__name__)
+    print(len(selected))
+}{Predict selection types and size}
+
+\hhh{Level 1 -- Modify}
+
+Change the filter to keep rows from the \c{"South"} zone with an area of at
+least \c{20.0} square metres.
+
+\code{c12_practice_level1}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["A", "B", "C", "D"],
+        "zone": ["North", "South", "South", "North"],
+        "area_m2": [18.0, 24.0, 19.0, 28.0],
+    })
+
+    selected = rooms[rooms["area_m2"] >= 18.0]
+    print(selected)
+}{Modify a row filter}
+
+\hhh{Level 2 -- Complete}
+
+Create a DataFrame with columns \c{item}, \c{quantity}, and \c{unit_cost}.
+Add a \c{total_cost} column, then print only \c{item} and \c{total_cost}.
+
+\hhh{Level 3 -- Apply}
+
+Create a five-row table containing \c{room}, \c{floor}, and \c{area_m2}. Group
+by floor and report the room count and total area for each floor.
+
+\textbf{Hints}
+\begin{itemize}
+    \item Use one integer floor value per row.
+    \item Group with \c{groupby("floor", as_index=False)}.
+    \item Named aggregation can create clear output column names.
+\end{itemize}
+
+\hhh{Level 4 -- Challenge}
+
+Write \c{clean_area_table(data)}. It should return a copy that removes rows
+with missing \c{area_m2}, keeps only positive areas, and adds
+\c{area_ft2 = area_m2 * 10.7639}. Do not change the input DataFrame.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The types are \c{Series} and \c{DataFrame}; two rows remain.
+
+\textbf{Level 2}
+
+\code{c12_solution_level2}{python}{
+    import pandas as pd
+
+    costs = pd.DataFrame({
+        "item": ["Panel", "Fastener", "Sealant"],
+        "quantity": [12, 80, 6],
+        "unit_cost": [45.0, 0.75, 18.0],
+    })
+    costs["total_cost"] = costs["quantity"] * costs["unit_cost"]
+
+    print(costs[["item", "total_cost"]])
+}{One solution to Level 2}
+
+\textbf{Level 3}
+
+\code{c12_solution_level3}{python}{
+    import pandas as pd
+
+    rooms = pd.DataFrame({
+        "room": ["Lobby", "Office", "Cafe", "Studio", "Meeting"],
+        "floor": [1, 1, 1, 2, 2],
+        "area_m2": [24.0, 18.0, 31.0, 26.0, 20.0],
+    })
+
+    summary = rooms.groupby("floor", as_index=False).agg(
+        room_count=("room", "count"),
+        total_area_m2=("area_m2", "sum"),
+    )
+    print(summary)
+}{One solution to Level 3}
+
+\textbf{Level 4}
+
+\code{c12_solution_level4}{python}{
+    import pandas as pd
+
+    def clean_area_table(data):
+        clean = data.dropna(subset=["area_m2"]).copy()
+        clean = clean[clean["area_m2"] > 0].copy()
+        clean["area_ft2"] = clean["area_m2"] * 10.7639
+        return clean
+
+    raw = pd.DataFrame({
+        "room": ["A", "B", "C", "D"],
+        "area_m2": [18.0, None, -4.0, 25.0],
+    })
+
+    cleaned = clean_area_table(raw)
+    print(cleaned)
+    print("Original columns:", raw.columns.tolist())
+}{One solution to Level 4}
+
+\hh{Part IV checkpoint continued}
+
+\begin{enumerate}
+    \item What does a DataFrame row usually represent?
+    \item What is the result of selecting one column with one name?
+    \item When should you use \c{loc} rather than \c{iloc}?
+    \item Why must combined pandas conditions be parenthesized?
+    \item How can you assign to selected rows and one column clearly?
+    \item Which method detects missing values?
+    \item Why is filling a missing value a substantive decision?
+    \item What three ideas describe a grouped aggregation?
+    \item Why might \c{to_csv()} use \c{index=False}?
+    \item Why keep raw, clean, and summary tables in separate variables?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item One observation, such as one room or one measurement.
+    \item A Series.
+    \item Use \c{loc} when selecting by labels; use \c{iloc} for positions.
+    \item Parentheses define each comparison before element-wise \c{\&} or \c{|} joins them.
+    \item Use \c{df.loc[row_condition, "column"] = value}.
+    \item \c{isna()}.
+    \item The replacement introduces an assumption about unknown data.
+    \item Split rows into groups, apply a calculation, and combine the results.
+    \item To avoid writing an index that is only an internal row counter.
+    \item The stages remain inspectable, and the source data is preserved.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter 12 summary,colframe=orange,colback=white,arc=2mm]
+pandas adds row and column labels to tabular data. Inspect a DataFrame before
+analysis, select rows and columns explicitly, handle missing values according
+to a stated rule, and keep analysis stages visible. The resulting summaries
+are ready to communicate through well-chosen charts.
+\end{tcolorbox}
