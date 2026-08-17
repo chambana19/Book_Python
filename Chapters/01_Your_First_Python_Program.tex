@@ -47,9 +47,15 @@ Python to do.
 Python is a programming language. A Python program is a text file containing
 instructions. Python reads those instructions and performs them in order.
 
-\code{c01_first_print}{python}{
-    print("Hello, Python!")
-}{A single Python instruction}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A single Python instruction},
+    label={c01_first_print},
+    captionpos=b
+]
+print("Hello, Python!")
+\end{lstlisting}
 
 The word \c{print} names an action. The parentheses contain the information the
 action will use. The quotation marks identify text.
@@ -86,17 +92,29 @@ Python 3 is the form of the language used in this book.
 Open a terminal and enter one of the following commands. Run the commands one
 at a time. You only need one of them to work.
 
-\code{c01_verify_python}{bash}{
-    python --version
-    py --version
-    python3 --version
-}{Terminal commands for checking the Python version}
+\begin{lstlisting}[
+    language=bash,
+    style=block,
+    caption={Terminal commands for checking the Python version},
+    label={c01_verify_python},
+    captionpos=b
+]
+python --version
+py --version
+python3 --version
+\end{lstlisting}
 
 A successful response will be similar to:
 
-\code{c01_version_output}{text}{
-    Python 3.x.x
-}{Example version output; the numbers may differ}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Example version output; the numbers may differ},
+    label={c01_version_output},
+    captionpos=b
+]
+Python 3.x.x
+\end{lstlisting}
 
 These are terminal commands. Do not type them into a Python file.
 
@@ -141,27 +159,45 @@ The terminal and editor are not interchangeable. A command such as
 
 In the VS Code Explorer, create a file named \texttt{hello.py}. Type and save:
 
-\code{c01_hello_script}{python}{
-    print("Hello, ARC500!")
-    print("This is my first Python script.")
-}{The complete hello.py script}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The complete hello.py script},
+    label={c01_hello_script},
+    captionpos=b
+]
+print("Hello, ARC500!")
+print("This is my first Python script.")
+\end{lstlisting}
 
 Open the VS Code terminal with \textbf{Terminal $\rightarrow$ New Terminal}.
 Run the script with the command that works on your computer:
 
-\code{c01_run_script}{bash}{
-    python hello.py
-}{Run a Python script from the terminal}
+\begin{lstlisting}[
+    language=bash,
+    style=block,
+    caption={Run a Python script from the terminal},
+    label={c01_run_script},
+    captionpos=b
+]
+python hello.py
+\end{lstlisting}
 
 On some Windows computers, use \texttt{py hello.py}. On some macOS computers,
 use \texttt{python3 hello.py}.
 
 Expected output:
 
-\code{c01_hello_output}{text}{
-    Hello, ARC500!
-    This is my first Python script.
-}{Expected output from hello.py}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Expected output from hello.py},
+    label={c01_hello_output},
+    captionpos=b
+]
+Hello, ARC500!
+This is my first Python script.
+\end{lstlisting}
 
 Python runs the first instruction and then the second. The output appears in
 the same order as the instructions.
@@ -175,19 +211,31 @@ appear first when you run it again?
 
 The \c{print()} function can display a calculation as well as text.
 
-\code{c01_print_calculations}{python}{
-    print(6 + 4)
-    print(6 * 4)
-    print(24 / 6)
-}{Display three calculation results}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Display three calculation results},
+    label={c01_print_calculations},
+    captionpos=b
+]
+print(6 + 4)
+print(6 * 4)
+print(24 / 6)
+\end{lstlisting}
 
 Expected output:
 
-\code{c01_calculation_output}{text}{
-    10
-    24
-    4.0
-}{Output from the calculations}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Output from the calculations},
+    label={c01_calculation_output},
+    captionpos=b
+]
+10
+24
+4.0
+\end{lstlisting}
 
 Python uses \c{*} for multiplication and \c{/} for division. Chapter 2
 explains numbers and arithmetic in more detail.
@@ -198,12 +246,18 @@ The REPL is useful when you want to try one instruction without creating a
 file. In the terminal, enter \texttt{python}, \texttt{py}, or
 \texttt{python3}. A prompt similar to \c{>>>} will appear.
 
-\code{c01_repl_session}{text}{
-    >>> print("Testing one instruction")
-    Testing one instruction
-    >>> 8 * 5
-    40
-}{A short REPL session}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={A short REPL session},
+    label={c01_repl_session},
+    captionpos=b
+]
+>>> print("Testing one instruction")
+Testing one instruction
+>>> 8 * 5
+40
+\end{lstlisting}
 
 The \c{>>>} symbol is the prompt. Do not include it in a Python script. Enter
 \c{exit()} to leave the REPL.
@@ -212,17 +266,29 @@ The \c{>>>} symbol is the prompt. Do not include it in a Python script. Enter
 
 Suppose you accidentally omit a closing quotation mark:
 
-\code{c01_syntax_error}{python}{
-    print("Hello)
-}{An intentionally incorrect instruction}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={An intentionally incorrect instruction},
+    label={c01_syntax_error},
+    captionpos=b
+]
+print("Hello)
+\end{lstlisting}
 
 Python reports a \c{SyntaxError}. The last line of the message gives the error
 type. Look near the indicated line for a missing quotation mark, parenthesis,
 or other symbol.
 
-\code{c01_syntax_fixed}{python}{
-    print("Hello")
-}{The corrected instruction}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The corrected instruction},
+    label={c01_syntax_fixed},
+    captionpos=b
+]
+print("Hello")
+\end{lstlisting}
 
 \hh{Common mistakes}
 
@@ -245,31 +311,49 @@ or other symbol.
 
 Write down the expected output before running this code:
 
-\code{c01_practice_level0}{python}{
-    print("Start")
-    print(3 + 2)
-    print("Finish")
-}{Predict the output before running the code}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict the output before running the code},
+    label={c01_practice_level0},
+    captionpos=b
+]
+print("Start")
+print(3 + 2)
+print("Finish")
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
 Copy the code into \texttt{practice1.py}. Replace the text with your own
 subject and learning goal.
 
-\code{c01_practice_level1}{python}{
-    print("Subject: Python")
-    print("Goal: Run a program successfully")
-}{Modify two text values}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Modify two text values},
+    label={c01_practice_level1},
+    captionpos=b
+]
+print("Subject: Python")
+print("Goal: Run a program successfully")
+\end{lstlisting}
 
 \hhh{Level 2 -- Complete}
 
 Write three \c{print()} instructions that produce:
 
-\code{c01_practice_level2_output}{text}{
-    ARC500
-    20
-    Complete
-}{Target output for Level 2}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Target output for Level 2},
+    label={c01_practice_level2_output},
+    captionpos=b
+]
+ARC500
+20
+Complete
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -287,47 +371,77 @@ Create \texttt{practice3.py}. It should display your name, the text
 
 Use four \c{print()} instructions to produce:
 
-\code{c01_practice_level4_output}{text}{
-    Python Study Record
-    -------------------
-    Chapter: 1
-    Status: Complete
-}{Target output for the optional challenge}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Target output for the optional challenge},
+    label={c01_practice_level4_output},
+    captionpos=b
+]
+Python Study Record
+-------------------
+Chapter: 1
+Status: Complete
+\end{lstlisting}
 
 \hh{Practice solutions}
 
 \textbf{Level 0}
 
-\code{c01_solution_level0}{text}{
-    Start
-    5
-    Finish
-}{Level 0 solution}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Level 0 solution},
+    label={c01_solution_level0},
+    captionpos=b
+]
+Start
+5
+Finish
+\end{lstlisting}
 
 \textbf{Level 2}
 
-\code{c01_solution_level2}{python}{
-    print("ARC500")
-    print(12 + 8)
-    print("Complete")
-}{One solution to Level 2}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c01_solution_level2},
+    captionpos=b
+]
+print("ARC500")
+print(12 + 8)
+print("Complete")
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c01_solution_level3}{python}{
-    print("Your Name")
-    print("Chapter 1 complete")
-    print(9 * 7)
-}{One solution to Level 3}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c01_solution_level3},
+    captionpos=b
+]
+print("Your Name")
+print("Chapter 1 complete")
+print(9 * 7)
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c01_solution_level4}{python}{
-    print("Python Study Record")
-    print("-------------------")
-    print("Chapter: 1")
-    print("Status: Complete")
-}{Solution to Level 4}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Solution to Level 4},
+    label={c01_solution_level4},
+    captionpos=b
+]
+print("Python Study Record")
+print("-------------------")
+print("Chapter: 1")
+print("Status: Complete")
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

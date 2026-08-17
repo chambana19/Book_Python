@@ -42,12 +42,18 @@ computer.
 Import NumPy in every program that uses it. The short name \c{np} is the
 standard convention.
 
-\code{c11_import_numpy}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Import NumPy and create a first array},
+    label={c11_import_numpy},
+    captionpos=b
+]
+import numpy as np
 
-    values = np.array([12.0, 15.5, 18.0])
-    print(values)
-}{Import NumPy and create a first array}
+values = np.array([12.0, 15.5, 18.0])
+print(values)
+\end{lstlisting}
 
 If the import fails, check that NumPy was installed for the same Python
 environment that runs the file.
@@ -57,14 +63,20 @@ environment that runs the file.
 The \c{np.array()} function converts a sequence into an array. A one-dimensional
 array behaves like one ordered row of values.
 
-\code{c11_array_from_list}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create a one-dimensional array},
+    label={c11_array_from_list},
+    captionpos=b
+]
+import numpy as np
 
-    room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5])
+room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5])
 
-    print(room_areas_m2)
-    print(type(room_areas_m2))
-}{Create a one-dimensional array}
+print(room_areas_m2)
+print(type(room_areas_m2))
+\end{lstlisting}
 
 An array normally uses one data type for all its elements. This regular
 structure is one reason NumPy can process numerical data efficiently.
@@ -83,16 +95,22 @@ Four attributes answer different questions about an array.
 \end{tabular}
 \end{center}
 
-\code{c11_array_attributes}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Inspect a one-dimensional array},
+    label={c11_array_attributes},
+    captionpos=b
+]
+import numpy as np
 
-    room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5])
+room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5])
 
-    print("Dimensions:", room_areas_m2.ndim)
-    print("Shape:", room_areas_m2.shape)
-    print("Size:", room_areas_m2.size)
-    print("Data type:", room_areas_m2.dtype)
-}{Inspect a one-dimensional array}
+print("Dimensions:", room_areas_m2.ndim)
+print("Shape:", room_areas_m2.shape)
+print("Size:", room_areas_m2.size)
+print("Data type:", room_areas_m2.dtype)
+\end{lstlisting}
 
 For this array, \c{shape} is \c{(4,)}. The comma matters: it marks a tuple with
 one item, so the array has one axis containing four positions.
@@ -101,17 +119,23 @@ one item, so the array has one axis containing four positions.
 
 NumPy can create evenly spaced values without typing every number.
 
-\code{c11_create_sequences}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create ranges, sample points, and zeros},
+    label={c11_create_sequences},
+    captionpos=b
+]
+import numpy as np
 
-    floor_numbers = np.arange(1, 6)
-    sample_points_m = np.linspace(0.0, 10.0, num=5)
-    blank_loads_kn = np.zeros(4)
+floor_numbers = np.arange(1, 6)
+sample_points_m = np.linspace(0.0, 10.0, num=5)
+blank_loads_kn = np.zeros(4)
 
-    print(floor_numbers)
-    print(sample_points_m)
-    print(blank_loads_kn)
-}{Create ranges, sample points, and zeros}
+print(floor_numbers)
+print(sample_points_m)
+print(blank_loads_kn)
+\end{lstlisting}
 
 Use \c{arange()} when the step is the natural description. Use
 \c{linspace()} when the number of samples, including both endpoints, is the
@@ -122,15 +146,21 @@ natural description.
 Array indices start at zero. Slices stop before the ending index, just as list
 slices do.
 
-\code{c11_index_and_slice}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Index and slice a one-dimensional array},
+    label={c11_index_and_slice},
+    captionpos=b
+]
+import numpy as np
 
-    temperatures_c = np.array([19.5, 20.0, 21.5, 23.0, 22.0])
+temperatures_c = np.array([19.5, 20.0, 21.5, 23.0, 22.0])
 
-    print("First:", temperatures_c[0])
-    print("Last:", temperatures_c[-1])
-    print("Middle three:", temperatures_c[1:4])
-}{Index and slice a one-dimensional array}
+print("First:", temperatures_c[0])
+print("Last:", temperatures_c[-1])
+print("Middle three:", temperatures_c[1:4])
+\end{lstlisting}
 
 \begin{NoteBox}
 \textbf{Stop and predict.} What values will \c{temperatures_c[::2]} select?
@@ -143,18 +173,24 @@ Arithmetic operators work element by element. This is called a
 \emph{vectorized calculation}. It expresses what should happen to the whole
 collection without writing the loop yourself.
 
-\code{c11_vectorized_arithmetic}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Multiply matching arrays element by element},
+    label={c11_vectorized_arithmetic},
+    captionpos=b
+]
+import numpy as np
 
-    widths_m = np.array([3.0, 4.0, 5.0, 3.5])
-    lengths_m = np.array([6.0, 5.0, 4.0, 8.0])
+widths_m = np.array([3.0, 4.0, 5.0, 3.5])
+lengths_m = np.array([6.0, 5.0, 4.0, 8.0])
 
-    areas_m2 = widths_m * lengths_m
-    adjusted_m2 = areas_m2 * 1.10
+areas_m2 = widths_m * lengths_m
+adjusted_m2 = areas_m2 * 1.10
 
-    print("Areas:", areas_m2)
-    print("With 10 percent allowance:", adjusted_m2)
-}{Multiply matching arrays element by element}
+print("Areas:", areas_m2)
+print("With 10 percent allowance:", adjusted_m2)
+\end{lstlisting}
 
 The arrays must have compatible shapes. Here each width is paired with the
 length at the same position.
@@ -163,15 +199,21 @@ length at the same position.
 
 The multiplication operator has different meanings for lists and arrays.
 
-\code{c11_list_array_difference}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={See why data type matters during multiplication},
+    label={c11_list_array_difference},
+    captionpos=b
+]
+import numpy as np
 
-    list_values = [2, 4, 6]
-    array_values = np.array([2, 4, 6])
+list_values = [2, 4, 6]
+array_values = np.array([2, 4, 6])
 
-    print(list_values * 2)
-    print(array_values * 2)
-}{See why data type matters during multiplication}
+print(list_values * 2)
+print(array_values * 2)
+\end{lstlisting}
 
 The list is repeated. Each array value is multiplied. Inspect the type of a
 value before assuming what an operator will do.
@@ -181,27 +223,39 @@ value before assuming what an operator will do.
 A comparison against an array produces one boolean value per element. Use the
 resulting boolean array as a mask to keep matching values.
 
-\code{c11_boolean_mask}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Build and apply a boolean mask},
+    label={c11_boolean_mask},
+    captionpos=b
+]
+import numpy as np
 
-    room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5, 35.0])
-    large_mask = room_areas_m2 >= 25.0
+room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5, 35.0])
+large_mask = room_areas_m2 >= 25.0
 
-    print("Mask:", large_mask)
-    print("Matching areas:", room_areas_m2[large_mask])
-}{Build and apply a boolean mask}
+print("Mask:", large_mask)
+print("Matching areas:", room_areas_m2[large_mask])
+\end{lstlisting}
 
 Parentheses keep combined conditions readable. Use \c{\&} for element-wise
 and, \c{|} for element-wise or, and \c{\~} for element-wise not.
 
-\code{c11_combined_mask}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Combine two array conditions},
+    label={c11_combined_mask},
+    captionpos=b
+]
+import numpy as np
 
-    room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5, 35.0])
-    middle_mask = (room_areas_m2 >= 20.0) & (room_areas_m2 <= 30.0)
+room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5, 35.0])
+middle_mask = (room_areas_m2 >= 20.0) & (room_areas_m2 <= 30.0)
 
-    print(room_areas_m2[middle_mask])
-}{Combine two array conditions}
+print(room_areas_m2[middle_mask])
+\end{lstlisting}
 
 Do not use Python's \c{and} or \c{or} to combine array comparisons. Those
 operators expect one boolean result, not one result per element.
@@ -210,17 +264,23 @@ operators expect one boolean result, not one result per element.
 
 Aggregation methods reduce many values to a smaller result.
 
-\code{c11_basic_aggregates}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Calculate common summaries},
+    label={c11_basic_aggregates},
+    captionpos=b
+]
+import numpy as np
 
-    room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5, 35.0])
+room_areas_m2 = np.array([24.0, 18.5, 31.0, 22.5, 35.0])
 
-    print("Count:", room_areas_m2.size)
-    print("Total:", room_areas_m2.sum())
-    print("Mean:", room_areas_m2.mean())
-    print("Minimum:", room_areas_m2.min())
-    print("Maximum:", room_areas_m2.max())
-}{Calculate common summaries}
+print("Count:", room_areas_m2.size)
+print("Total:", room_areas_m2.sum())
+print("Mean:", room_areas_m2.mean())
+print("Minimum:", room_areas_m2.min())
+print("Maximum:", room_areas_m2.max())
+\end{lstlisting}
 
 Choose the summary that answers the question. A mean is not a replacement for
 looking at the minimum, maximum, and number of observations.
@@ -230,18 +290,24 @@ looking at the minimum, maximum, and number of observations.
 A nested list creates a two-dimensional array. The first axis identifies rows;
 the second identifies columns.
 
-\code{c11_two_dimensional_array}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create a three-row by three-column array},
+    label={c11_two_dimensional_array},
+    captionpos=b
+]
+import numpy as np
 
-    floor_areas_m2 = np.array([
-        [24.0, 18.0, 30.0],
-        [25.0, 19.0, 31.0],
-        [23.0, 20.0, 32.0],
-    ])
+floor_areas_m2 = np.array([
+    [24.0, 18.0, 30.0],
+    [25.0, 19.0, 31.0],
+    [23.0, 20.0, 32.0],
+])
 
-    print(floor_areas_m2)
-    print("Shape:", floor_areas_m2.shape)
-}{Create a three-row by three-column array}
+print(floor_areas_m2)
+print("Shape:", floor_areas_m2.shape)
+\end{lstlisting}
 
 The shape \c{(3, 3)} means three rows and three columns. NumPy arrays must be
 rectangular: every row needs the same number of values.
@@ -251,20 +317,26 @@ rectangular: every row needs the same number of values.
 For a two-dimensional array, write the row selection first and the column
 selection second.
 
-\code{c11_select_2d}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Select from a two-dimensional array},
+    label={c11_select_2d},
+    captionpos=b
+]
+import numpy as np
 
-    data = np.array([
-        [24.0, 18.0, 30.0],
-        [25.0, 19.0, 31.0],
-        [23.0, 20.0, 32.0],
-    ])
+data = np.array([
+    [24.0, 18.0, 30.0],
+    [25.0, 19.0, 31.0],
+    [23.0, 20.0, 32.0],
+])
 
-    print("One cell:", data[1, 2])
-    print("First row:", data[0, :])
-    print("Second column:", data[:, 1])
-    print("Upper-left block:\n", data[:2, :2])
-}{Select from a two-dimensional array}
+print("One cell:", data[1, 2])
+print("First row:", data[0, :])
+print("Second column:", data[:, 1])
+print("Upper-left block:\n", data[:2, :2])
+\end{lstlisting}
 
 The colon means all positions on that axis. Thus \c{data[:, 1]} selects every
 row from column 1.
@@ -274,21 +346,27 @@ row from column 1.
 Without an \c{axis} argument, an aggregation uses every value. With an axis,
 the aggregation removes that axis and keeps the other one.
 
-\code{c11_axis_aggregates}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Compare column and row summaries},
+    label={c11_axis_aggregates},
+    captionpos=b
+]
+import numpy as np
 
-    floor_areas_m2 = np.array([
-        [24.0, 18.0, 30.0],
-        [25.0, 19.0, 31.0],
-        [23.0, 20.0, 32.0],
-    ])
+floor_areas_m2 = np.array([
+    [24.0, 18.0, 30.0],
+    [25.0, 19.0, 31.0],
+    [23.0, 20.0, 32.0],
+])
 
-    totals_by_column = floor_areas_m2.sum(axis=0)
-    totals_by_row = floor_areas_m2.sum(axis=1)
+totals_by_column = floor_areas_m2.sum(axis=0)
+totals_by_row = floor_areas_m2.sum(axis=1)
 
-    print("Column totals:", totals_by_column)
-    print("Row totals:", totals_by_row)
-}{Compare column and row summaries}
+print("Column totals:", totals_by_column)
+print("Row totals:", totals_by_row)
+\end{lstlisting}
 
 A useful check is the result's length: \c{axis=0} produces one result per
 column, while \c{axis=1} produces one result per row.
@@ -304,27 +382,39 @@ Broadcasting lets NumPy combine compatible shapes. A single number can apply
 to every element. A one-dimensional array can also apply across matching
 columns of a two-dimensional array.
 
-\code{c11_broadcast_scalar}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Broadcast one conversion factor across an array},
+    label={c11_broadcast_scalar},
+    captionpos=b
+]
+import numpy as np
 
-    lengths_m = np.array([2.0, 3.5, 5.0])
-    lengths_mm = lengths_m * 1000
+lengths_m = np.array([2.0, 3.5, 5.0])
+lengths_mm = lengths_m * 1000
 
-    print(lengths_mm)
-}{Broadcast one conversion factor across an array}
+print(lengths_mm)
+\end{lstlisting}
 
-\code{c11_broadcast_columns}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Broadcast three offsets across matching columns},
+    label={c11_broadcast_columns},
+    captionpos=b
+]
+import numpy as np
 
-    base_values = np.array([
-        [10.0, 20.0, 30.0],
-        [12.0, 22.0, 32.0],
-    ])
-    column_offsets = np.array([0.5, 1.0, 1.5])
+base_values = np.array([
+    [10.0, 20.0, 30.0],
+    [12.0, 22.0, 32.0],
+])
+column_offsets = np.array([0.5, 1.0, 1.5])
 
-    adjusted = base_values + column_offsets
-    print(adjusted)
-}{Broadcast three offsets across matching columns}
+adjusted = base_values + column_offsets
+print(adjusted)
+\end{lstlisting}
 
 Compare shapes from right to left. Dimensions are compatible when they are
 equal or one of them is 1. Begin with scalar broadcasting and matching columns;
@@ -334,16 +424,22 @@ more complex shape changes can wait until these cases feel natural.
 
 Reshaping changes the arrangement, not the total number of elements.
 
-\code{c11_reshape_array}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Reshape twelve values into three rows},
+    label={c11_reshape_array},
+    captionpos=b
+]
+import numpy as np
 
-    readings = np.arange(1, 13)
-    table = readings.reshape(3, 4)
+readings = np.arange(1, 13)
+table = readings.reshape(3, 4)
 
-    print(table)
-    print("Original size:", readings.size)
-    print("New shape:", table.shape)
-}{Reshape twelve values into three rows}
+print(table)
+print("Original size:", readings.size)
+print("New shape:", table.shape)
+\end{lstlisting}
 
 The requested dimensions must multiply to the original size. Twelve values can
 form a \c{3} by \c{4} array, but not a \c{5} by \c{3} array.
@@ -354,30 +450,42 @@ Basic NumPy slices usually return a \emph{view}. A view and the original array
 share underlying data. This differs from a list slice, which creates a new
 list.
 
-\code{c11_slice_view}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Observe how a NumPy slice can change its source},
+    label={c11_slice_view},
+    captionpos=b
+]
+import numpy as np
 
-    original = np.array([10.0, 20.0, 30.0, 40.0])
-    selected = original[1:3]
-    selected[0] = 99.0
+original = np.array([10.0, 20.0, 30.0, 40.0])
+selected = original[1:3]
+selected[0] = 99.0
 
-    print("Selected:", selected)
-    print("Original:", original)
-}{Observe how a NumPy slice can change its source}
+print("Selected:", selected)
+print("Original:", original)
+\end{lstlisting}
 
 When the selected values must be independent, call \c{copy()} before changing
 them.
 
-\code{c11_safe_copy}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Make selected array data independent},
+    label={c11_safe_copy},
+    captionpos=b
+]
+import numpy as np
 
-    original = np.array([10.0, 20.0, 30.0, 40.0])
-    selected = original[1:3].copy()
-    selected[0] = 99.0
+original = np.array([10.0, 20.0, 30.0, 40.0])
+selected = original[1:3].copy()
+selected[0] = 99.0
 
-    print("Selected copy:", selected)
-    print("Original:", original)
-}{Make selected array data independent}
+print("Selected copy:", selected)
+print("Original:", original)
+\end{lstlisting}
 
 Indexing with a boolean mask creates a copy, but relying on memorized exceptions
 is risky. If independent data is part of your intention, make that intention
@@ -406,26 +514,38 @@ visible with \c{copy()}.
 
 Without running the code, predict the two printed arrays.
 
-\code{c11_practice_level0}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict vectorized addition and slicing},
+    label={c11_practice_level0},
+    captionpos=b
+]
+import numpy as np
 
-    values = np.array([2, 4, 6, 8])
-    print(values + 1)
-    print(values[1:3])
-}{Predict vectorized addition and slicing}
+values = np.array([2, 4, 6, 8])
+print(values + 1)
+print(values[1:3])
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
 Change \c{threshold} to \c{25.0}. Then change the comparison so values equal to
 the threshold are included.
 
-\code{c11_practice_level1}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Modify a filtering condition},
+    label={c11_practice_level1},
+    captionpos=b
+]
+import numpy as np
 
-    areas_m2 = np.array([18.0, 24.0, 25.0, 31.0])
-    threshold = 20.0
-    print(areas_m2[areas_m2 > threshold])
-}{Modify a filtering condition}
+areas_m2 = np.array([18.0, 24.0, 25.0, 31.0])
+threshold = 20.0
+print(areas_m2[areas_m2 > threshold])
+\end{lstlisting}
 
 \hhh{Level 2 -- Complete}
 
@@ -460,56 +580,74 @@ the minimum, mean, and maximum of each column. Test it with a three-row array.
 
 \textbf{Level 2}
 
-\code{c11_solution_level2}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c11_solution_level2},
+    captionpos=b
+]
+import numpy as np
 
-    loads_kn = np.array([
-        [12.0, 15.0, 11.0],
-        [14.0, 13.0, 16.0],
-    ])
+loads_kn = np.array([
+    [12.0, 15.0, 11.0],
+    [14.0, 13.0, 16.0],
+])
 
-    print("Shape:", loads_kn.shape)
-    print("Row totals:", loads_kn.sum(axis=1))
-    print("Maximum:", loads_kn.max())
-}{One solution to Level 2}
+print("Shape:", loads_kn.shape)
+print("Row totals:", loads_kn.sum(axis=1))
+print("Maximum:", loads_kn.max())
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c11_solution_level3}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c11_solution_level3},
+    captionpos=b
+]
+import numpy as np
 
-    widths_m = np.array([3.0, 4.5, 5.0, 2.5])
-    lengths_m = np.array([6.0, 5.0, 4.5, 7.0])
-    areas_m2 = widths_m * lengths_m
-    selected_m2 = areas_m2[areas_m2 >= 20.0]
+widths_m = np.array([3.0, 4.5, 5.0, 2.5])
+lengths_m = np.array([6.0, 5.0, 4.5, 7.0])
+areas_m2 = widths_m * lengths_m
+selected_m2 = areas_m2[areas_m2 >= 20.0]
 
-    print("Areas:", areas_m2)
-    print("Selected:", selected_m2)
-    print("Selected mean:", selected_m2.mean())
-}{One solution to Level 3}
+print("Areas:", areas_m2)
+print("Selected:", selected_m2)
+print("Selected mean:", selected_m2.mean())
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c11_solution_level4}{python}{
-    import numpy as np
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c11_solution_level4},
+    captionpos=b
+]
+import numpy as np
 
-    def column_summary(data):
-        minimum = data.min(axis=0)
-        mean = data.mean(axis=0)
-        maximum = data.max(axis=0)
-        return minimum, mean, maximum
+def column_summary(data):
+    minimum = data.min(axis=0)
+    mean = data.mean(axis=0)
+    maximum = data.max(axis=0)
+    return minimum, mean, maximum
 
-    readings = np.array([
-        [18.0, 24.0, 30.0],
-        [20.0, 22.0, 34.0],
-        [19.0, 26.0, 32.0],
-    ])
+readings = np.array([
+    [18.0, 24.0, 30.0],
+    [20.0, 22.0, 34.0],
+    [19.0, 26.0, 32.0],
+])
 
-    minimum, mean, maximum = column_summary(readings)
-    print("Minimum:", minimum)
-    print("Mean:", mean)
-    print("Maximum:", maximum)
-}{One solution to Level 4}
+minimum, mean, maximum = column_summary(readings)
+print("Minimum:", minimum)
+print("Mean:", mean)
+print("Maximum:", maximum)
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

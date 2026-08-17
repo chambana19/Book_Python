@@ -30,13 +30,19 @@ After completing this chapter, you should be able to:
 The \c{==} operator asks whether two values are equal. The \c{is} operator asks
 whether two names refer to the same object.
 
-\code{c09_equality_identity}{python}{
-    first = ["Lobby", "Office"]
-    second = ["Lobby", "Office"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Compare equal values stored in separate lists},
+    label={c09_equality_identity},
+    captionpos=b
+]
+first = ["Lobby", "Office"]
+second = ["Lobby", "Office"]
 
-    print(first == second)
-    print(first is second)
-}{Compare equal values stored in separate lists}
+print(first == second)
+print(first is second)
+\end{lstlisting}
 
 The lists contain equal values, so \c{==} returns \c{True}. They are separate
 list objects, so \c{is} returns \c{False}.
@@ -48,16 +54,22 @@ especially \c{value is None}.
 
 Assigning a list to another variable does not create a new list.
 
-\code{c09_assignment_alias}{python}{
-    original_rooms = ["Lobby", "Office"]
-    shared_rooms = original_rooms
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Two names refer to one list},
+    label={c09_assignment_alias},
+    captionpos=b
+]
+original_rooms = ["Lobby", "Office"]
+shared_rooms = original_rooms
 
-    shared_rooms.append("Cafe")
+shared_rooms.append("Cafe")
 
-    print(original_rooms)
-    print(shared_rooms)
-    print(original_rooms is shared_rooms)
-}{Two names refer to one list}
+print(original_rooms)
+print(shared_rooms)
+print(original_rooms is shared_rooms)
+\end{lstlisting}
 
 Both names point to the same mutable object. Appending through either name
 changes that one list.
@@ -72,15 +84,21 @@ what will \c{shared_rooms} contain?
 Numbers and strings cannot be changed in place. Reassignment connects a name to
 a different value; it does not change the earlier value.
 
-\code{c09_immutable_reassignment}{python}{
-    first_count = 3
-    second_count = first_count
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Reassign one name bound to an integer},
+    label={c09_immutable_reassignment},
+    captionpos=b
+]
+first_count = 3
+second_count = first_count
 
-    second_count = 4
+second_count = 4
 
-    print(first_count)
-    print(second_count)
-}{Reassign one name bound to an integer}
+print(first_count)
+print(second_count)
+\end{lstlisting}
 
 The output is 3 and 4. No integer object was mutated.
 
@@ -89,16 +107,22 @@ The output is 3 and 4. No integer object was mutated.
 For a flat list, \c{.copy()}, a full slice, and \c{list()} each create a new
 outer list.
 
-\code{c09_flat_list_copy}{python}{
-    original_rooms = ["Lobby", "Office"]
-    copied_rooms = original_rooms.copy()
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Copy a flat list},
+    label={c09_flat_list_copy},
+    captionpos=b
+]
+original_rooms = ["Lobby", "Office"]
+copied_rooms = original_rooms.copy()
 
-    copied_rooms.append("Cafe")
+copied_rooms.append("Cafe")
 
-    print(original_rooms)
-    print(copied_rooms)
-    print(original_rooms is copied_rooms)
-}{Copy a flat list}
+print(original_rooms)
+print(copied_rooms)
+print(original_rooms is copied_rooms)
+\end{lstlisting}
 
 The copied list is independent because the contained strings are immutable.
 
@@ -106,20 +130,26 @@ The copied list is independent because the contained strings are immutable.
 
 The \c{.copy()} method also creates new dictionary and set containers.
 
-\code{c09_dict_set_copy}{python}{
-    original_room = {"name": "Lobby", "area_m2": 24.0}
-    copied_room = original_room.copy()
-    copied_room["area_m2"] = 25.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Copy flat dictionaries and sets},
+    label={c09_dict_set_copy},
+    captionpos=b
+]
+original_room = {"name": "Lobby", "area_m2": 24.0}
+copied_room = original_room.copy()
+copied_room["area_m2"] = 25.0
 
-    original_levels = {1, 2, 3}
-    copied_levels = original_levels.copy()
-    copied_levels.add(4)
+original_levels = {1, 2, 3}
+copied_levels = original_levels.copy()
+copied_levels.add(4)
 
-    print(original_room)
-    print(copied_room)
-    print(original_levels)
-    print(copied_levels)
-}{Copy flat dictionaries and sets}
+print(original_room)
+print(copied_room)
+print(original_levels)
+print(copied_levels)
+\end{lstlisting}
 
 These examples are flat. Their values do not contain mutable collections.
 
@@ -127,19 +157,25 @@ These examples are flat. Their values do not contain mutable collections.
 
 A shallow copy creates a new outer container but reuses the objects inside it.
 
-\code{c09_shallow_nested}{python}{
-    original = {
-        "name": "Lobby",
-        "tags": ["public", "entry"]
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A shallow dictionary copy shares its inner list},
+    label={c09_shallow_nested},
+    captionpos=b
+]
+original = {
+    "name": "Lobby",
+    "tags": ["public", "entry"]
+}
 
-    shallow = original.copy()
-    shallow["tags"].append("display")
+shallow = original.copy()
+shallow["tags"].append("display")
 
-    print(original["tags"])
-    print(shallow["tags"])
-    print(original["tags"] is shallow["tags"])
-}{A shallow dictionary copy shares its inner list}
+print(original["tags"])
+print(shallow["tags"])
+print(original["tags"] is shallow["tags"])
+\end{lstlisting}
 
 The dictionaries are separate, but their \c{"tags"} values point to the same
 list. That is the meaning of \emph{shallow}.
@@ -148,19 +184,25 @@ list. That is the meaning of \emph{shallow}.
 
 Sometimes a targeted copy is clearer than copying the entire structure.
 
-\code{c09_targeted_nested_copy}{python}{
-    original = {
-        "name": "Lobby",
-        "tags": ["public", "entry"]
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Copy the outer dictionary and one inner list},
+    label={c09_targeted_nested_copy},
+    captionpos=b
+]
+original = {
+    "name": "Lobby",
+    "tags": ["public", "entry"]
+}
 
-    revised = original.copy()
-    revised["tags"] = original["tags"].copy()
-    revised["tags"].append("display")
+revised = original.copy()
+revised["tags"] = original["tags"].copy()
+revised["tags"].append("display")
 
-    print(original["tags"])
-    print(revised["tags"])
-}{Copy the outer dictionary and one inner list}
+print(original["tags"])
+print(revised["tags"])
+\end{lstlisting}
 
 This approach states exactly which nested value must become independent.
 
@@ -169,22 +211,28 @@ This approach states exactly which nested value must become independent.
 The standard-library \c{copy} module can recursively duplicate nested mutable
 objects.
 
-\code{c09_deep_copy}{python}{
-    import copy
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Deep-copy nested data before independent editing},
+    label={c09_deep_copy},
+    captionpos=b
+]
+import copy
 
-    original = {
-        "name": "Lobby",
-        "tags": ["public", "entry"],
-        "dimensions_m": {"width": 6.0, "length": 8.0}
-    }
+original = {
+    "name": "Lobby",
+    "tags": ["public", "entry"],
+    "dimensions_m": {"width": 6.0, "length": 8.0}
+}
 
-    independent = copy.deepcopy(original)
-    independent["tags"].append("display")
-    independent["dimensions_m"]["width"] = 7.0
+independent = copy.deepcopy(original)
+independent["tags"].append("display")
+independent["dimensions_m"]["width"] = 7.0
 
-    print(original)
-    print(independent)
-}{Deep-copy nested data before independent editing}
+print(original)
+print(independent)
+\end{lstlisting}
 
 Deep copying is convenient, but it may copy more than necessary. Prefer a
 targeted copy when the structure is large and only one part will change.
@@ -194,24 +242,36 @@ targeted copy when the structure is large and only one part will change.
 Multiplying a list that contains another list repeats references to the same
 inner object.
 
-\code{c09_grid_alias_problem}{python}{
-    grid = [[0, 0, 0]] * 3
-    grid[0][0] = 1
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A replicated row is shared three times},
+    label={c09_grid_alias_problem},
+    captionpos=b
+]
+grid = [[0, 0, 0]] * 3
+grid[0][0] = 1
 
-    print(grid)
-}{A replicated row is shared three times}
+print(grid)
+\end{lstlisting}
 
 Create each row separately instead.
 
-\code{c09_grid_independent_rows}{python}{
-    grid = []
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Build independent rows with an ordinary loop},
+    label={c09_grid_independent_rows},
+    captionpos=b
+]
+grid = []
 
-    for _ in range(3):
-        grid.append([0, 0, 0])
+for _ in range(3):
+    grid.append([0, 0, 0])
 
-    grid[0][0] = 1
-    print(grid)
-}{Build independent rows with an ordinary loop}
+grid[0][0] = 1
+print(grid)
+\end{lstlisting}
 
 The underscore is a conventional loop variable when its value is not used.
 
@@ -220,31 +280,43 @@ The underscore is a conventional loop variable when its value is not used.
 A function receives a reference to the supplied list. A method such as
 \c{append()} therefore changes the caller's list.
 
-\code{c09_function_mutation}{python}{
-    def add_room_in_place(room_names, new_name):
-        room_names.append(new_name)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A function intentionally mutates its input list},
+    label={c09_function_mutation},
+    captionpos=b
+]
+def add_room_in_place(room_names, new_name):
+    room_names.append(new_name)
 
-    rooms = ["Lobby", "Office"]
-    add_room_in_place(rooms, "Cafe")
+rooms = ["Lobby", "Office"]
+add_room_in_place(rooms, "Cafe")
 
-    print(rooms)
-}{A function intentionally mutates its input list}
+print(rooms)
+\end{lstlisting}
 
 The function name includes \c{in_place} to make the mutation visible. When the
 caller should keep its data, copy before changing it.
 
-\code{c09_function_copy}{python}{
-    def with_added_room(room_names, new_name):
-        revised_names = room_names.copy()
-        revised_names.append(new_name)
-        return revised_names
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Return a revised copy and preserve the input},
+    label={c09_function_copy},
+    captionpos=b
+]
+def with_added_room(room_names, new_name):
+    revised_names = room_names.copy()
+    revised_names.append(new_name)
+    return revised_names
 
-    rooms = ["Lobby", "Office"]
-    expanded_rooms = with_added_room(rooms, "Cafe")
+rooms = ["Lobby", "Office"]
+expanded_rooms = with_added_room(rooms, "Cafe")
 
-    print(rooms)
-    print(expanded_rooms)
-}{Return a revised copy and preserve the input}
+print(rooms)
+print(expanded_rooms)
+\end{lstlisting}
 
 Neither approach is automatically correct. The important point is to make the
 behavior intentional and clear.
@@ -279,14 +351,20 @@ Inspect the structure and planned changes before choosing.
 
 \hhh{Level 0 -- Read and predict}
 
-\code{c09_practice_level0}{python}{
-    first = [1, 2]
-    second = first
-    second.append(3)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict shared-list output},
+    label={c09_practice_level0},
+    captionpos=b
+]
+first = [1, 2]
+second = first
+second.append(3)
 
-    print(first)
-    print(first is second)
-}{Predict shared-list output}
+print(first)
+print(first is second)
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
@@ -297,14 +375,20 @@ Change the assignment to \c{second = first.copy()}. Predict both outputs again.
 Replace \c{...} with an expression that creates an independent copy of the flat
 dictionary. Then change only the copy.
 
-\code{c09_practice_level2}{python}{
-    original = {"name": "Lobby", "area_m2": 24.0}
-    revised = ...
-    revised["area_m2"] = 26.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Complete a flat dictionary copy},
+    label={c09_practice_level2},
+    captionpos=b
+]
+original = {"name": "Lobby", "area_m2": 24.0}
+revised = ...
+revised["area_m2"] = 26.0
 
-    print(original)
-    print(revised)
-}{Complete a flat dictionary copy}
+print(original)
+print(revised)
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -329,50 +413,68 @@ dictionary with the revised width while preserving all original data.
 
 \textbf{Level 2}
 
-\code{c09_solution_level2}{python}{
-    original = {"name": "Lobby", "area_m2": 24.0}
-    revised = original.copy()
-    revised["area_m2"] = 26.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2; only revised contains the area 26.0},
+    label={c09_solution_level2},
+    captionpos=b
+]
+original = {"name": "Lobby", "area_m2": 24.0}
+revised = original.copy()
+revised["area_m2"] = 26.0
 
-    print(original)
-    print(revised)
-}{One solution to Level 2; only revised contains the area 26.0}
+print(original)
+print(revised)
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c09_solution_level3}{python}{
-    original = {
-        "name": "Lobby",
-        "tags": ["public", "entry"]
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c09_solution_level3},
+    captionpos=b
+]
+original = {
+    "name": "Lobby",
+    "tags": ["public", "entry"]
+}
 
-    revised = original.copy()
-    revised["tags"] = original["tags"].copy()
-    revised["tags"].append("display")
+revised = original.copy()
+revised["tags"] = original["tags"].copy()
+revised["tags"].append("display")
 
-    print(original)
-    print(revised)
-}{One solution to Level 3}
+print(original)
+print(revised)
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c09_solution_level4}{python}{
-    import copy
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c09_solution_level4},
+    captionpos=b
+]
+import copy
 
-    def with_updated_width(room, width_m):
-        revised = copy.deepcopy(room)
-        revised["dimensions_m"]["width"] = width_m
-        return revised
+def with_updated_width(room, width_m):
+    revised = copy.deepcopy(room)
+    revised["dimensions_m"]["width"] = width_m
+    return revised
 
-    original = {
-        "name": "Lobby",
-        "dimensions_m": {"width": 6.0, "length": 8.0}
-    }
+original = {
+    "name": "Lobby",
+    "dimensions_m": {"width": 6.0, "length": 8.0}
+}
 
-    revised = with_updated_width(original, 7.0)
-    print(original)
-    print(revised)
-}{One solution to Level 4}
+revised = with_updated_width(original, 7.0)
+print(original)
+print(revised)
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

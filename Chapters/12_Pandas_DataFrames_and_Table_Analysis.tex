@@ -42,30 +42,42 @@ computer.
 
 The conventional import name is \c{pd}.
 
-\code{c12_import_pandas}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Import pandas and create a Series},
+    label={c12_import_pandas},
+    captionpos=b
+]
+import pandas as pd
 
-    values = pd.Series([18.0, 24.0, 31.0])
-    print(values)
-}{Import pandas and create a Series}
+values = pd.Series([18.0, 24.0, 31.0])
+print(values)
+\end{lstlisting}
 
 \hh{Begin with a Series}
 
 A \c{Series} is a one-dimensional sequence with labels. The values appear on
 the right and the index labels appear on the left.
 
-\code{c12_labeled_series}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create a Series with meaningful labels},
+    label={c12_labeled_series},
+    captionpos=b
+]
+import pandas as pd
 
-    area_by_room = pd.Series(
-        [24.0, 18.0, 31.0],
-        index=["Lobby", "Office", "Cafe"],
-        name="area_m2",
-    )
+area_by_room = pd.Series(
+    [24.0, 18.0, 31.0],
+    index=["Lobby", "Office", "Cafe"],
+    name="area_m2",
+)
 
-    print(area_by_room)
-    print("Cafe area:", area_by_room.loc["Cafe"])
-}{Create a Series with meaningful labels}
+print(area_by_room)
+print("Cafe area:", area_by_room.loc["Cafe"])
+\end{lstlisting}
 
 Labels can communicate meaning more clearly than positions alone. A Series
 also keeps a name for the values it stores.
@@ -75,18 +87,24 @@ also keeps a name for the values it stores.
 A dictionary of equal-length lists is a direct way to build a small table.
 Each dictionary key becomes a column name.
 
-\code{c12_create_dataframe}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create a four-row DataFrame},
+    label={c12_create_dataframe},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio"],
-        "zone": ["Public", "Work", "Public", "Work"],
-        "area_m2": [24.0, 18.0, 31.0, 26.0],
-        "height_m": [4.2, 3.0, 3.6, 3.2],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio"],
+    "zone": ["Public", "Work", "Public", "Work"],
+    "area_m2": [24.0, 18.0, 31.0, 26.0],
+    "height_m": [4.2, 3.0, 3.6, 3.2],
+})
 
-    print(rooms)
-}{Create a four-row DataFrame}
+print(rooms)
+\end{lstlisting}
 
 Each row is one observation. Each column is one variable measured or recorded
 for those observations. Keeping this structure tidy makes later operations
@@ -97,21 +115,27 @@ predictable.
 Do not assume that a loaded table has the expected size or data types. Begin
 with a few focused checks.
 
-\code{c12_inspect_dataframe}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Inspect structure and a small sample},
+    label={c12_inspect_dataframe},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio"],
-        "zone": ["Public", "Work", "Public", "Work"],
-        "area_m2": [24.0, 18.0, 31.0, 26.0],
-        "height_m": [4.2, 3.0, 3.6, 3.2],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio"],
+    "zone": ["Public", "Work", "Public", "Work"],
+    "area_m2": [24.0, 18.0, 31.0, 26.0],
+    "height_m": [4.2, 3.0, 3.6, 3.2],
+})
 
-    print("Shape:", rooms.shape)
-    print("Columns:", rooms.columns.tolist())
-    print("Data types:\n", rooms.dtypes)
-    print("First rows:\n", rooms.head(2))
-}{Inspect structure and a small sample}
+print("Shape:", rooms.shape)
+print("Columns:", rooms.columns.tolist())
+print("Data types:\n", rooms.dtypes)
+print("First rows:\n", rooms.head(2))
+\end{lstlisting}
 
 The shape reports rows first and columns second. \c{head()} displays a sample;
 it does not prove that the rest of a large table is clean.
@@ -121,21 +145,27 @@ it does not prove that the rest of a large table is clean.
 Single brackets with one column name return a Series. Double brackets with a
 list of names return a DataFrame.
 
-\code{c12_select_columns}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Distinguish Series and DataFrame column selections},
+    label={c12_select_columns},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe"],
-        "area_m2": [24.0, 18.0, 31.0],
-        "height_m": [4.2, 3.0, 3.6],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe"],
+    "area_m2": [24.0, 18.0, 31.0],
+    "height_m": [4.2, 3.0, 3.6],
+})
 
-    areas = rooms["area_m2"]
-    labels_and_areas = rooms[["room", "area_m2"]]
+areas = rooms["area_m2"]
+labels_and_areas = rooms[["room", "area_m2"]]
 
-    print(type(areas).__name__)
-    print(labels_and_areas)
-}{Distinguish Series and DataFrame column selections}
+print(type(areas).__name__)
+print(labels_and_areas)
+\end{lstlisting}
 
 Choose the form based on the result you need. Do not add extra brackets only
 because both versions happen to print like tables.
@@ -145,21 +175,27 @@ because both versions happen to print like tables.
 Use \c{loc} for labels and \c{iloc} for integer positions. Making that choice
 explicit prevents confusion when an index is not a simple sequence.
 
-\code{c12_loc_and_iloc}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Select rows and cells with loc and iloc},
+    label={c12_loc_and_iloc},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame(
-        {
-            "area_m2": [24.0, 18.0, 31.0],
-            "height_m": [4.2, 3.0, 3.6],
-        },
-        index=["Lobby", "Office", "Cafe"],
-    )
+rooms = pd.DataFrame(
+    {
+        "area_m2": [24.0, 18.0, 31.0],
+        "height_m": [4.2, 3.0, 3.6],
+    },
+    index=["Lobby", "Office", "Cafe"],
+)
 
-    print("By label:\n", rooms.loc["Office"])
-    print("By position:\n", rooms.iloc[1])
-    print("Selected cells:\n", rooms.loc[["Lobby", "Cafe"], ["area_m2"]])
-}{Select rows and cells with loc and iloc}
+print("By label:\n", rooms.loc["Office"])
+print("By position:\n", rooms.iloc[1])
+print("Selected cells:\n", rooms.loc[["Lobby", "Cafe"], ["area_m2"]])
+\end{lstlisting}
 
 Unlike an ordinary Python slice, a label slice used with \c{loc} includes its
 ending label. Position slices used with \c{iloc} stop before the ending
@@ -175,53 +211,71 @@ returned by \c{df.iloc[0:2]}?
 
 Build a boolean Series, then place it inside brackets to keep matching rows.
 
-\code{c12_filter_rows}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Filter a DataFrame with one condition},
+    label={c12_filter_rows},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio"],
-        "zone": ["Public", "Work", "Public", "Work"],
-        "area_m2": [24.0, 18.0, 31.0, 26.0],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio"],
+    "zone": ["Public", "Work", "Public", "Work"],
+    "area_m2": [24.0, 18.0, 31.0, 26.0],
+})
 
-    large_rooms = rooms[rooms["area_m2"] >= 25.0]
-    print(large_rooms)
-}{Filter a DataFrame with one condition}
+large_rooms = rooms[rooms["area_m2"] >= 25.0]
+print(large_rooms)
+\end{lstlisting}
 
 Combine conditions with \c{\&} or \c{|}, and put each comparison in
 parentheses.
 
-\code{c12_filter_multiple_conditions}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Filter with two conditions},
+    label={c12_filter_multiple_conditions},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio"],
-        "zone": ["Public", "Work", "Public", "Work"],
-        "area_m2": [24.0, 18.0, 31.0, 26.0],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio"],
+    "zone": ["Public", "Work", "Public", "Work"],
+    "area_m2": [24.0, 18.0, 31.0, 26.0],
+})
 
-    selected = rooms[
-        (rooms["zone"] == "Public") & (rooms["area_m2"] >= 25.0)
-    ]
-    print(selected)
-}{Filter with two conditions}
+selected = rooms[
+    (rooms["zone"] == "Public") & (rooms["area_m2"] >= 25.0)
+]
+print(selected)
+\end{lstlisting}
 
 \hh{Create a calculated column}
 
 Column arithmetic is vectorized. The calculation aligns values by row.
 
-\code{c12_calculated_column}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Add a volume column from two existing columns},
+    label={c12_calculated_column},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe"],
-        "area_m2": [24.0, 18.0, 31.0],
-        "height_m": [4.2, 3.0, 3.6],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe"],
+    "area_m2": [24.0, 18.0, 31.0],
+    "height_m": [4.2, 3.0, 3.6],
+})
 
-    rooms["volume_m3"] = rooms["area_m2"] * rooms["height_m"]
-    print(rooms)
-}{Add a volume column from two existing columns}
+rooms["volume_m3"] = rooms["area_m2"] * rooms["height_m"]
+print(rooms)
+\end{lstlisting}
 
 The new column name includes the unit. That small naming choice prevents
 mistakes when several measurement systems appear in one table.
@@ -230,20 +284,26 @@ mistakes when several measurement systems appear in one table.
 
 Use \c{loc[row condition, column name]} when changing only part of a column.
 
-\code{c12_assign_with_loc}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Assign values to selected rows explicitly},
+    label={c12_assign_with_loc},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe"],
-        "zone": ["Public", "Work", "Public"],
-        "status": ["Review", "Review", "Review"],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe"],
+    "zone": ["Public", "Work", "Public"],
+    "status": ["Review", "Review", "Review"],
+})
 
-    public_mask = rooms["zone"] == "Public"
-    rooms.loc[public_mask, "status"] = "Checked"
+public_mask = rooms["zone"] == "Public"
+rooms.loc[public_mask, "status"] = "Checked"
 
-    print(rooms)
-}{Assign values to selected rows explicitly}
+print(rooms)
+\end{lstlisting}
 
 Avoid changing a temporary filtered object with chained brackets. One \c{loc}
 operation clearly states both the rows and the column to update.
@@ -253,18 +313,24 @@ operation clearly states both the rows and the column to update.
 Missing values require a decision. First count them; then decide whether to
 fill, remove, or investigate them.
 
-\code{c12_detect_missing_values}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Detect and count missing values},
+    label={c12_detect_missing_values},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio"],
-        "area_m2": [24.0, None, 31.0, None],
-        "zone": ["Public", "Work", "Public", "Work"],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio"],
+    "area_m2": [24.0, None, 31.0, None],
+    "zone": ["Public", "Work", "Public", "Work"],
+})
 
-    print(rooms.isna())
-    print("Missing by column:\n", rooms.isna().sum())
-}{Detect and count missing values}
+print(rooms.isna())
+print("Missing by column:\n", rooms.isna().sum())
+\end{lstlisting}
 
 Do not test missing values with \c{== None} or \c{== np.nan}. Use \c{isna()}
 or \c{notna()} so pandas handles its missing-value representations correctly.
@@ -274,23 +340,29 @@ or \c{notna()} so pandas handles its missing-value representations correctly.
 Filling and removing answer different questions. Filling preserves the row but
 introduces an assumed value. Removing avoids that assumption but loses data.
 
-\code{c12_fill_missing_values}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Compare filling with dropping incomplete rows},
+    label={c12_fill_missing_values},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio"],
-        "area_m2": [24.0, None, 31.0, None],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio"],
+    "area_m2": [24.0, None, 31.0, None],
+})
 
-    median_area = rooms["area_m2"].median()
-    filled = rooms.copy()
-    filled["area_m2"] = filled["area_m2"].fillna(median_area)
+median_area = rooms["area_m2"].median()
+filled = rooms.copy()
+filled["area_m2"] = filled["area_m2"].fillna(median_area)
 
-    complete = rooms.dropna(subset=["area_m2"])
+complete = rooms.dropna(subset=["area_m2"])
 
-    print("Filled:\n", filled)
-    print("Complete rows:\n", complete)
-}{Compare filling with dropping incomplete rows}
+print("Filled:\n", filled)
+print("Complete rows:\n", complete)
+\end{lstlisting}
 
 Keep the original DataFrame unchanged while comparing cleaning choices. Record
 the rule used to fill values so a reader can evaluate the assumption.
@@ -300,17 +372,23 @@ the rule used to fill values so a reader can evaluate the assumption.
 \c{sort_values()} returns a sorted DataFrame unless you explicitly request an
 in-place change. Assign the result to a descriptive name.
 
-\code{c12_sort_values}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Sort rows by a numerical column},
+    label={c12_sort_values},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio"],
-        "area_m2": [24.0, 18.0, 31.0, 26.0],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio"],
+    "area_m2": [24.0, 18.0, 31.0, 26.0],
+})
 
-    largest_first = rooms.sort_values("area_m2", ascending=False)
-    print(largest_first)
-}{Sort rows by a numerical column}
+largest_first = rooms.sort_values("area_m2", ascending=False)
+print(largest_first)
+\end{lstlisting}
 
 The index stays attached to its row during sorting. Use \c{reset_index()} only
 when a new sequential index is actually useful.
@@ -320,18 +398,24 @@ when a new sequential index is actually useful.
 Series methods calculate focused statistics. \c{describe()} gives a compact
 overview of numerical columns.
 
-\code{c12_summary_statistics}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Summarize numerical columns},
+    label={c12_summary_statistics},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "area_m2": [24.0, 18.0, 31.0, 26.0],
-        "height_m": [4.2, 3.0, 3.6, 3.2],
-    })
+rooms = pd.DataFrame({
+    "area_m2": [24.0, 18.0, 31.0, 26.0],
+    "height_m": [4.2, 3.0, 3.6, 3.2],
+})
 
-    print("Total area:", rooms["area_m2"].sum())
-    print("Mean area:", rooms["area_m2"].mean())
-    print(rooms.describe())
-}{Summarize numerical columns}
+print("Total area:", rooms["area_m2"].sum())
+print("Mean area:", rooms["area_m2"].mean())
+print(rooms.describe())
+\end{lstlisting}
 
 Summary statistics support inspection; they do not explain why a value is
 unusual. Return to the relevant rows when a minimum or maximum needs context.
@@ -341,23 +425,29 @@ unusual. Return to the relevant rows when a minimum or maximum needs context.
 Grouping follows three steps: split rows into categories, apply a calculation,
 and combine the results.
 
-\code{c12_groupby_summary}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Count and summarize areas by category},
+    label={c12_groupby_summary},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio", "Meeting"],
-        "zone": ["Public", "Work", "Public", "Work", "Work"],
-        "area_m2": [24.0, 18.0, 31.0, 26.0, 20.0],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio", "Meeting"],
+    "zone": ["Public", "Work", "Public", "Work", "Work"],
+    "area_m2": [24.0, 18.0, 31.0, 26.0, 20.0],
+})
 
-    area_by_zone = rooms.groupby("zone", as_index=False).agg(
-        room_count=("room", "count"),
-        total_area_m2=("area_m2", "sum"),
-        mean_area_m2=("area_m2", "mean"),
-    )
+area_by_zone = rooms.groupby("zone", as_index=False).agg(
+    room_count=("room", "count"),
+    total_area_m2=("area_m2", "sum"),
+    mean_area_m2=("area_m2", "mean"),
+)
 
-    print(area_by_zone)
-}{Count and summarize areas by category}
+print(area_by_zone)
+\end{lstlisting}
 
 Read the expression from left to right: group by \c{zone}, then calculate three
 named summaries. Each pair states an output column name, a source column, and
@@ -368,25 +458,31 @@ an aggregation operation.
 Use \c{to_csv()} to save a DataFrame and \c{read_csv()} to restore it. Decide
 whether the DataFrame index is data that belongs in the file.
 
-\code{c12_csv_round_trip}{python}{
-    from pathlib import Path
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Write and read a small CSV file},
+    label={c12_csv_round_trip},
+    captionpos=b
+]
+from pathlib import Path
+import pandas as pd
 
-    folder = Path("study_data")
-    folder.mkdir(exist_ok=True)
-    csv_path = folder / "rooms_pandas.csv"
+folder = Path("study_data")
+folder.mkdir(exist_ok=True)
+csv_path = folder / "rooms_pandas.csv"
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe"],
-        "area_m2": [24.0, 18.0, 31.0],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe"],
+    "area_m2": [24.0, 18.0, 31.0],
+})
 
-    rooms.to_csv(csv_path, index=False)
-    restored = pd.read_csv(csv_path)
+rooms.to_csv(csv_path, index=False)
+restored = pd.read_csv(csv_path)
 
-    print(restored)
-    print(restored.dtypes)
-}{Write and read a small CSV file}
+print(restored)
+print(restored.dtypes)
+\end{lstlisting}
 
 Here the default row index is only an internal counter, so \c{index=False}
 keeps it out of the CSV. A meaningful index may deserve its own named column.
@@ -396,26 +492,32 @@ keeps it out of the CSV. A meaningful index may deserve its own named column.
 Keep inspection, cleaning, calculation, and summary as visible stages. Separate
 names let you compare stages and locate a mistake.
 
-\code{c12_analysis_sequence}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Move through clear analysis stages},
+    label={c12_analysis_sequence},
+    captionpos=b
+]
+import pandas as pd
 
-    raw = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio", "Meeting"],
-        "zone": ["Public", "Work", "Public", "Work", "Work"],
-        "area_m2": [24.0, None, 31.0, 26.0, 20.0],
-        "height_m": [4.2, 3.0, 3.6, 3.2, 3.0],
-    })
+raw = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio", "Meeting"],
+    "zone": ["Public", "Work", "Public", "Work", "Work"],
+    "area_m2": [24.0, None, 31.0, 26.0, 20.0],
+    "height_m": [4.2, 3.0, 3.6, 3.2, 3.0],
+})
 
-    clean = raw.dropna(subset=["area_m2"]).copy()
-    clean["volume_m3"] = clean["area_m2"] * clean["height_m"]
-    summary = clean.groupby("zone", as_index=False).agg(
-        room_count=("room", "count"),
-        total_area_m2=("area_m2", "sum"),
-        mean_volume_m3=("volume_m3", "mean"),
-    )
+clean = raw.dropna(subset=["area_m2"]).copy()
+clean["volume_m3"] = clean["area_m2"] * clean["height_m"]
+summary = clean.groupby("zone", as_index=False).agg(
+    room_count=("room", "count"),
+    total_area_m2=("area_m2", "sum"),
+    mean_volume_m3=("volume_m3", "mean"),
+)
 
-    print(summary)
-}{Move through clear analysis stages}
+print(summary)
+\end{lstlisting}
 
 Named aggregation gives the result descriptive column names. The cleaning rule
 is also visible: only rows missing \c{area_m2} are removed.
@@ -445,38 +547,50 @@ is also visible: only rows missing \c{area_m2} are removed.
 
 Predict the type names and the number of rows in \c{selected}.
 
-\code{c12_practice_level0}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict selection types and size},
+    label={c12_practice_level0},
+    captionpos=b
+]
+import pandas as pd
 
-    data = pd.DataFrame({
-        "name": ["A", "B", "C"],
-        "value": [10, 25, 18],
-    })
-    one_column = data["value"]
-    selected = data[data["value"] >= 18]
+data = pd.DataFrame({
+    "name": ["A", "B", "C"],
+    "value": [10, 25, 18],
+})
+one_column = data["value"]
+selected = data[data["value"] >= 18]
 
-    print(type(one_column).__name__)
-    print(type(selected).__name__)
-    print(len(selected))
-}{Predict selection types and size}
+print(type(one_column).__name__)
+print(type(selected).__name__)
+print(len(selected))
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
 Change the filter to keep rows from the \c{"South"} zone with an area of at
 least \c{20.0} square meters.
 
-\code{c12_practice_level1}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Modify a row filter},
+    label={c12_practice_level1},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["A", "B", "C", "D"],
-        "zone": ["North", "South", "South", "North"],
-        "area_m2": [18.0, 24.0, 19.0, 28.0],
-    })
+rooms = pd.DataFrame({
+    "room": ["A", "B", "C", "D"],
+    "zone": ["North", "South", "South", "North"],
+    "area_m2": [18.0, 24.0, 19.0, 28.0],
+})
 
-    selected = rooms[rooms["area_m2"] >= 18.0]
-    print(selected)
-}{Modify a row filter}
+selected = rooms[rooms["area_m2"] >= 18.0]
+print(selected)
+\end{lstlisting}
 
 \hhh{Level 2 -- Complete}
 
@@ -507,57 +621,75 @@ with missing \c{area_m2}, keeps only positive areas, and adds
 
 \textbf{Level 2}
 
-\code{c12_solution_level2}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c12_solution_level2},
+    captionpos=b
+]
+import pandas as pd
 
-    costs = pd.DataFrame({
-        "item": ["Panel", "Fastener", "Sealant"],
-        "quantity": [12, 80, 6],
-        "unit_cost": [45.0, 0.75, 18.0],
-    })
-    costs["total_cost"] = costs["quantity"] * costs["unit_cost"]
+costs = pd.DataFrame({
+    "item": ["Panel", "Fastener", "Sealant"],
+    "quantity": [12, 80, 6],
+    "unit_cost": [45.0, 0.75, 18.0],
+})
+costs["total_cost"] = costs["quantity"] * costs["unit_cost"]
 
-    print(costs[["item", "total_cost"]])
-}{One solution to Level 2}
+print(costs[["item", "total_cost"]])
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c12_solution_level3}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c12_solution_level3},
+    captionpos=b
+]
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio", "Meeting"],
-        "floor": [1, 1, 1, 2, 2],
-        "area_m2": [24.0, 18.0, 31.0, 26.0, 20.0],
-    })
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio", "Meeting"],
+    "floor": [1, 1, 1, 2, 2],
+    "area_m2": [24.0, 18.0, 31.0, 26.0, 20.0],
+})
 
-    summary = rooms.groupby("floor", as_index=False).agg(
-        room_count=("room", "count"),
-        total_area_m2=("area_m2", "sum"),
-    )
-    print(summary)
-}{One solution to Level 3}
+summary = rooms.groupby("floor", as_index=False).agg(
+    room_count=("room", "count"),
+    total_area_m2=("area_m2", "sum"),
+)
+print(summary)
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c12_solution_level4}{python}{
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c12_solution_level4},
+    captionpos=b
+]
+import pandas as pd
 
-    def clean_area_table(data):
-        clean = data.dropna(subset=["area_m2"]).copy()
-        clean = clean[clean["area_m2"] > 0].copy()
-        clean["area_ft2"] = clean["area_m2"] * 10.7639
-        return clean
+def clean_area_table(data):
+    clean = data.dropna(subset=["area_m2"]).copy()
+    clean = clean[clean["area_m2"] > 0].copy()
+    clean["area_ft2"] = clean["area_m2"] * 10.7639
+    return clean
 
-    raw = pd.DataFrame({
-        "room": ["A", "B", "C", "D"],
-        "area_m2": [18.0, None, -4.0, 25.0],
-    })
+raw = pd.DataFrame({
+    "room": ["A", "B", "C", "D"],
+    "area_m2": [18.0, None, -4.0, 25.0],
+})
 
-    cleaned = clean_area_table(raw)
-    print(cleaned)
-    print("Original columns:", raw.columns.tolist())
-}{One solution to Level 4}
+cleaned = clean_area_table(raw)
+print(cleaned)
+print("Original columns:", raw.columns.tolist())
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

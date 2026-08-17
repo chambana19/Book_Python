@@ -30,17 +30,23 @@ After completing this chapter, you should be able to:
 A path describes where a file or folder is located. The \c{pathlib} module
 builds paths without requiring you to type operating-system-specific separators.
 
-\code{c10_first_path}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Build and inspect a path},
+    label={c10_first_path},
+    captionpos=b
+]
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    file_path = data_folder / "rooms.txt"
+data_folder = Path("study_data")
+file_path = data_folder / "rooms.txt"
 
-    print(data_folder)
-    print(file_path)
-    print(file_path.name)
-    print(file_path.suffix)
-}{Build and inspect a path}
+print(data_folder)
+print(file_path)
+print(file_path.name)
+print(file_path.suffix)
+\end{lstlisting}
 
 The slash operator joins path parts. It does not open or create the file.
 
@@ -48,15 +54,21 @@ The slash operator joins path parts. It does not open or create the file.
 
 Use \c{mkdir()} before writing to a folder that may not exist.
 
-\code{c10_create_folder}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create a study data folder safely},
+    label={c10_create_folder},
+    captionpos=b
+]
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
 
-    print(data_folder.exists())
-    print(data_folder.is_dir())
-}{Create a study data folder safely}
+print(data_folder.exists())
+print(data_folder.is_dir())
+\end{lstlisting}
 
 The option \c{exist_ok=True} prevents an error when the folder already exists.
 
@@ -65,18 +77,24 @@ The option \c{exist_ok=True} prevents an error when the folder already exists.
 For short text, \c{Path.write_text()} is concise. Opening in write mode replaces
 any existing content at that path.
 
-\code{c10_write_text}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Write three lines of UTF-8 text},
+    label={c10_write_text},
+    captionpos=b
+]
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    file_path = data_folder / "rooms.txt"
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+file_path = data_folder / "rooms.txt"
 
-    content = "Lobby,24.0\nOffice,18.0\nCafe,31.0\n"
-    file_path.write_text(content, encoding="utf-8")
+content = "Lobby,24.0\nOffice,18.0\nCafe,31.0\n"
+file_path.write_text(content, encoding="utf-8")
 
-    print(f"Wrote: {file_path}")
-}{Write three lines of UTF-8 text}
+print(f"Wrote: {file_path}")
+\end{lstlisting}
 
 The sequence \c{"\textbackslash n"} represents a line break.
 
@@ -89,17 +107,23 @@ The sequence \c{"\textbackslash n"} represents a line break.
 
 The matching \c{read_text()} method returns the entire file as one string.
 
-\code{c10_read_text}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create and read a small text file},
+    label={c10_read_text},
+    captionpos=b
+]
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    file_path = data_folder / "rooms.txt"
-    file_path.write_text("Lobby,24.0\nOffice,18.0\n", encoding="utf-8")
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+file_path = data_folder / "rooms.txt"
+file_path.write_text("Lobby,24.0\nOffice,18.0\n", encoding="utf-8")
 
-    content = file_path.read_text(encoding="utf-8")
-    print(content)
-}{Create and read a small text file}
+content = file_path.read_text(encoding="utf-8")
+print(content)
+\end{lstlisting}
 
 Reading the entire file is convenient for small data. Large files should be
 processed one line at a time.
@@ -109,19 +133,25 @@ processed one line at a time.
 The \c{open()} function provides more control. A \c{with} block closes the file
 automatically, even if an exception occurs.
 
-\code{c10_with_open_write}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Write text with a context manager},
+    label={c10_with_open_write},
+    captionpos=b
+]
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    file_path = data_folder / "notes.txt"
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+file_path = data_folder / "notes.txt"
 
-    with open(file_path, "w", encoding="utf-8") as file:
-        file.write("First note\n")
-        file.write("Second note\n")
+with open(file_path, "w", encoding="utf-8") as file:
+    file.write("First note\n")
+    file.write("Second note\n")
 
-    print(file_path.read_text(encoding="utf-8"))
-}{Write text with a context manager}
+print(file_path.read_text(encoding="utf-8"))
+\end{lstlisting}
 
 The name \c{file} is available inside the block. After the block, the file has
 been closed.
@@ -148,19 +178,25 @@ binary mode when their bytes are processed directly.
 
 Append mode preserves existing content and adds new text at the end.
 
-\code{c10_append_text}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Append one line to an existing file},
+    label={c10_append_text},
+    captionpos=b
+]
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    log_path = data_folder / "study_log.txt"
-    log_path.write_text("Chapter 9 complete\n", encoding="utf-8")
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+log_path = data_folder / "study_log.txt"
+log_path.write_text("Chapter 9 complete\n", encoding="utf-8")
 
-    with open(log_path, "a", encoding="utf-8") as file:
-        file.write("Chapter 10 started\n")
+with open(log_path, "a", encoding="utf-8") as file:
+    file.write("Chapter 10 started\n")
 
-    print(log_path.read_text(encoding="utf-8"))
-}{Append one line to an existing file}
+print(log_path.read_text(encoding="utf-8"))
+\end{lstlisting}
 
 Remember to include a line break if each entry should appear on its own line.
 
@@ -168,26 +204,32 @@ Remember to include a line break if each entry should appear on its own line.
 
 Iterating over a file avoids loading all of it into memory.
 
-\code{c10_line_iteration}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Read and process one line at a time},
+    label={c10_line_iteration},
+    captionpos=b
+]
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    file_path = data_folder / "areas.txt"
-    file_path.write_text("24.0\n35.5\n18.0\n", encoding="utf-8")
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+file_path = data_folder / "areas.txt"
+file_path.write_text("24.0\n35.5\n18.0\n", encoding="utf-8")
 
-    total_m2 = 0.0
-    count = 0
+total_m2 = 0.0
+count = 0
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        for line in file:
-            area_m2 = float(line.strip())
-            total_m2 += area_m2
-            count += 1
+with open(file_path, "r", encoding="utf-8") as file:
+    for line in file:
+        area_m2 = float(line.strip())
+        total_m2 += area_m2
+        count += 1
 
-    print(f"Count: {count}")
-    print(f"Total: {total_m2:.1f} m2")
-}{Read and process one line at a time}
+print(f"Count: {count}")
+print(f"Total: {total_m2:.1f} m2")
+\end{lstlisting}
 
 The \c{strip()} method removes the line break and surrounding whitespace before
 conversion.
@@ -196,20 +238,26 @@ conversion.
 
 The \c{split()} method is suitable for controlled data with a simple delimiter.
 
-\code{c10_split_lines}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Split two fields on a controlled delimiter},
+    label={c10_split_lines},
+    captionpos=b
+]
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    file_path = data_folder / "room_areas.txt"
-    file_path.write_text("Lobby|24.0\nOffice|18.0\n", encoding="utf-8")
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+file_path = data_folder / "room_areas.txt"
+file_path.write_text("Lobby|24.0\nOffice|18.0\n", encoding="utf-8")
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        for line in file:
-            room_name, area_text = line.strip().split("|")
-            area_m2 = float(area_text)
-            print(f"{room_name}: {area_m2:.1f} m2")
-}{Split two fields on a controlled delimiter}
+with open(file_path, "r", encoding="utf-8") as file:
+    for line in file:
+        room_name, area_text = line.strip().split("|")
+        area_m2 = float(area_text)
+        print(f"{room_name}: {area_m2:.1f} m2")
+\end{lstlisting}
 
 Do not parse general CSV files with \c{split(",")}. Quoted fields may contain
 commas. Use the \c{csv} module instead.
@@ -218,18 +266,24 @@ commas. Use the \c{csv} module instead.
 
 Reading a path that does not exist raises \c{FileNotFoundError}.
 
-\code{c10_missing_file}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Handle a missing text file},
+    label={c10_missing_file},
+    captionpos=b
+]
+from pathlib import Path
 
-    file_path = Path("study_data") / "missing.txt"
+file_path = Path("study_data") / "missing.txt"
 
-    try:
-        content = file_path.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        print(f"Could not find: {file_path}")
-    else:
-        print(content)
-}{Handle a missing text file}
+try:
+    content = file_path.read_text(encoding="utf-8")
+except FileNotFoundError:
+    print(f"Could not find: {file_path}")
+else:
+    print(content)
+\end{lstlisting}
 
 Catch the specific problem and include the path in the message. Other errors
 remain visible for diagnosis.
@@ -238,16 +292,22 @@ remain visible for diagnosis.
 
 An existence check is appropriate when either state is a normal possibility.
 
-\code{c10_path_check}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Choose based on whether an optional file exists},
+    label={c10_path_check},
+    captionpos=b
+]
+from pathlib import Path
 
-    file_path = Path("study_data") / "optional_notes.txt"
+file_path = Path("study_data") / "optional_notes.txt"
 
-    if file_path.exists():
-        print(file_path.read_text(encoding="utf-8"))
-    else:
-        print("No optional notes were saved.")
-}{Choose based on whether an optional file exists}
+if file_path.exists():
+    print(file_path.read_text(encoding="utf-8"))
+else:
+    print("No optional notes were saved.")
+\end{lstlisting}
 
 For a required file, trying the operation and handling
 \c{FileNotFoundError} often provides a clearer result.
@@ -257,27 +317,33 @@ For a required file, trying the operation and handling
 CSV stores rows and columns as text. Use \c{csv.writer()} so commas and
 quotation marks are handled correctly.
 
-\code{c10_csv_write}{python}{
-    import csv
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Write rows with the csv module},
+    label={c10_csv_write},
+    captionpos=b
+]
+import csv
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    csv_path = data_folder / "rooms.csv"
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+csv_path = data_folder / "rooms.csv"
 
-    rows = [
-        ["name", "area_m2"],
-        ["Lobby", 24.0],
-        ["Studio, North", 35.5],
-        ["Office", 18.0]
-    ]
+rows = [
+    ["name", "area_m2"],
+    ["Lobby", 24.0],
+    ["Studio, North", 35.5],
+    ["Office", 18.0]
+]
 
-    with open(csv_path, "w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
+with open(csv_path, "w", newline="", encoding="utf-8") as file:
+    writer = csv.writer(file)
+    writer.writerows(rows)
 
-    print(csv_path.read_text(encoding="utf-8"))
-}{Write rows with the csv module}
+print(csv_path.read_text(encoding="utf-8"))
+\end{lstlisting}
 
 The \c{newline=""} argument prevents extra blank rows on some systems.
 
@@ -285,27 +351,33 @@ The \c{newline=""} argument prevents extra blank rows on some systems.
 
 \c{csv.DictReader()} uses the header row as dictionary keys.
 
-\code{c10_csv_read}{python}{
-    import csv
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Read named CSV columns},
+    label={c10_csv_read},
+    captionpos=b
+]
+import csv
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    csv_path = data_folder / "rooms.csv"
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+csv_path = data_folder / "rooms.csv"
 
-    csv_path.write_text(
-        "name,area_m2\nLobby,24.0\nOffice,18.0\n",
-        encoding="utf-8"
-    )
+csv_path.write_text(
+    "name,area_m2\nLobby,24.0\nOffice,18.0\n",
+    encoding="utf-8"
+)
 
-    total_m2 = 0.0
-    with open(csv_path, "r", newline="", encoding="utf-8") as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            total_m2 += float(row["area_m2"])
+total_m2 = 0.0
+with open(csv_path, "r", newline="", encoding="utf-8") as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        total_m2 += float(row["area_m2"])
 
-    print(f"Total: {total_m2:.1f} m2")
-}{Read named CSV columns}
+print(f"Total: {total_m2:.1f} m2")
+\end{lstlisting}
 
 Values read from CSV are strings. Convert numeric fields explicitly.
 
@@ -314,25 +386,31 @@ Values read from CSV are strings. Convert numeric fields explicitly.
 JSON represents dictionaries, lists, strings, numbers, booleans, and null
 values in a text format.
 
-\code{c10_json_write}{python}{
-    import json
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Write a dictionary as formatted JSON},
+    label={c10_json_write},
+    captionpos=b
+]
+import json
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    json_path = data_folder / "settings.json"
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+json_path = data_folder / "settings.json"
 
-    settings = {
-        "units": "metric",
-        "rounding_digits": 2,
-        "visible_layers": ["walls", "doors", "rooms"]
-    }
+settings = {
+    "units": "metric",
+    "rounding_digits": 2,
+    "visible_layers": ["walls", "doors", "rooms"]
+}
 
-    with open(json_path, "w", encoding="utf-8") as file:
-        json.dump(settings, file, indent=2)
+with open(json_path, "w", encoding="utf-8") as file:
+    json.dump(settings, file, indent=2)
 
-    print(json_path.read_text(encoding="utf-8"))
-}{Write a dictionary as formatted JSON}
+print(json_path.read_text(encoding="utf-8"))
+\end{lstlisting}
 
 The \c{indent=2} option makes the file easier for people to read.
 
@@ -340,24 +418,30 @@ The \c{indent=2} option makes the file easier for people to read.
 
 Use \c{json.load()} to convert JSON text back into Python values.
 
-\code{c10_json_read}{python}{
-    import json
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Read JSON into a dictionary},
+    label={c10_json_read},
+    captionpos=b
+]
+import json
+from pathlib import Path
 
-    data_folder = Path("study_data")
-    data_folder.mkdir(exist_ok=True)
-    json_path = data_folder / "settings.json"
-    json_path.write_text(
-        '{"units": "metric", "rounding_digits": 2}',
-        encoding="utf-8"
-    )
+data_folder = Path("study_data")
+data_folder.mkdir(exist_ok=True)
+json_path = data_folder / "settings.json"
+json_path.write_text(
+    '{"units": "metric", "rounding_digits": 2}',
+    encoding="utf-8"
+)
 
-    with open(json_path, "r", encoding="utf-8") as file:
-        settings = json.load(file)
+with open(json_path, "r", encoding="utf-8") as file:
+    settings = json.load(file)
 
-    print(settings["units"])
-    print(settings["rounding_digits"])
-}{Read JSON into a dictionary}
+print(settings["units"])
+print(settings["rounding_digits"])
+\end{lstlisting}
 
 Invalid JSON raises \c{json.JSONDecodeError}. Handle it when a file may be
 edited manually or come from an uncertain source.
@@ -366,24 +450,30 @@ edited manually or come from an uncertain source.
 
 Small functions separate file access from the rest of the program.
 
-\code{c10_file_functions}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Separate saving and loading into functions},
+    label={c10_file_functions},
+    captionpos=b
+]
+from pathlib import Path
 
-    def save_lines(file_path, lines):
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        text = "\n".join(lines) + "\n"
-        file_path.write_text(text, encoding="utf-8")
+def save_lines(file_path, lines):
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    text = "\n".join(lines) + "\n"
+    file_path.write_text(text, encoding="utf-8")
 
-    def load_lines(file_path):
-        text = file_path.read_text(encoding="utf-8")
-        return text.splitlines()
+def load_lines(file_path):
+    text = file_path.read_text(encoding="utf-8")
+    return text.splitlines()
 
-    path = Path("study_data") / "room_names.txt"
-    save_lines(path, ["Lobby", "Office", "Cafe"])
-    room_names = load_lines(path)
+path = Path("study_data") / "room_names.txt"
+save_lines(path, ["Lobby", "Office", "Cafe"])
+room_names = load_lines(path)
 
-    print(room_names)
-}{Separate saving and loading into functions}
+print(room_names)
+\end{lstlisting}
 
 The caller chooses the path and data. Each function performs one clear task.
 
@@ -404,13 +494,19 @@ The caller chooses the path and data. Each function performs one clear task.
 
 \hhh{Level 0 -- Read and predict}
 
-\code{c10_practice_level0}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict two path properties},
+    label={c10_practice_level0},
+    captionpos=b
+]
+from pathlib import Path
 
-    path = Path("study_data") / "notes.txt"
-    print(path.name)
-    print(path.suffix)
-}{Predict two path properties}
+path = Path("study_data") / "notes.txt"
+print(path.name)
+print(path.suffix)
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
@@ -422,15 +518,21 @@ suffix.
 Use the starter code to create a folder. Then add statements that write the
 three material names on separate lines, read them back, and display the text.
 
-\code{c10_practice_level2}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Starter code for writing and reading three lines},
+    label={c10_practice_level2},
+    captionpos=b
+]
+from pathlib import Path
 
-    folder = Path("study_data")
-    folder.mkdir(exist_ok=True)
-    path = folder / "materials.txt"
+folder = Path("study_data")
+folder.mkdir(exist_ok=True)
+path = folder / "materials.txt"
 
-    # Add one write statement and one read statement here.
-}{Starter code for writing and reading three lines}
+# Add one write statement and one read statement here.
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -455,70 +557,88 @@ Handle a missing file in the caller and display a helpful message.
 
 \textbf{Level 2}
 
-\code{c10_solution_level2}{python}{
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c10_solution_level2},
+    captionpos=b
+]
+from pathlib import Path
 
-    folder = Path("study_data")
-    folder.mkdir(exist_ok=True)
-    path = folder / "materials.txt"
+folder = Path("study_data")
+folder.mkdir(exist_ok=True)
+path = folder / "materials.txt"
 
-    path.write_text("Wood\nSteel\nConcrete\n", encoding="utf-8")
-    text = path.read_text(encoding="utf-8")
-    print(text)
-}{One solution to Level 2}
+path.write_text("Wood\nSteel\nConcrete\n", encoding="utf-8")
+text = path.read_text(encoding="utf-8")
+print(text)
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c10_solution_level3}{python}{
-    import csv
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c10_solution_level3},
+    captionpos=b
+]
+import csv
+from pathlib import Path
 
-    folder = Path("study_data")
-    folder.mkdir(exist_ok=True)
-    path = folder / "practice_rooms.csv"
+folder = Path("study_data")
+folder.mkdir(exist_ok=True)
+path = folder / "practice_rooms.csv"
 
-    with open(path, "w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow(["name", "area_m2"])
-        writer.writerow(["Lobby", 24.0])
-        writer.writerow(["Office", 18.0])
-        writer.writerow(["Cafe", 31.0])
+with open(path, "w", newline="", encoding="utf-8") as file:
+    writer = csv.writer(file)
+    writer.writerow(["name", "area_m2"])
+    writer.writerow(["Lobby", 24.0])
+    writer.writerow(["Office", 18.0])
+    writer.writerow(["Cafe", 31.0])
 
-    total_m2 = 0.0
-    with open(path, "r", newline="", encoding="utf-8") as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            total_m2 += float(row["area_m2"])
+total_m2 = 0.0
+with open(path, "r", newline="", encoding="utf-8") as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        total_m2 += float(row["area_m2"])
 
-    print(f"Total: {total_m2:.1f} m2")
-}{One solution to Level 3}
+print(f"Total: {total_m2:.1f} m2")
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c10_solution_level4}{python}{
-    import json
-    from pathlib import Path
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c10_solution_level4},
+    captionpos=b
+]
+import json
+from pathlib import Path
 
-    def save_settings(path, settings):
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as file:
-            json.dump(settings, file, indent=2)
+def save_settings(path, settings):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(settings, file, indent=2)
 
-    def load_settings(path):
-        with open(path, "r", encoding="utf-8") as file:
-            return json.load(file)
+def load_settings(path):
+    with open(path, "r", encoding="utf-8") as file:
+        return json.load(file)
 
-    path = Path("study_data") / "practice_settings.json"
-    settings = {"units": "metric", "digits": 2}
-    save_settings(path, settings)
+path = Path("study_data") / "practice_settings.json"
+settings = {"units": "metric", "digits": 2}
+save_settings(path, settings)
 
-    try:
-        restored = load_settings(path)
-    except FileNotFoundError:
-        print(f"Could not find: {path}")
-    else:
-        print(restored)
-}{One solution to Level 4}
+try:
+    restored = load_settings(path)
+except FileNotFoundError:
+    print(f"Could not find: {path}")
+else:
+    print(restored)
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

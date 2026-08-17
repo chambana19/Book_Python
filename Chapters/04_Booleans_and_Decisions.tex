@@ -29,13 +29,19 @@ After completing this chapter, you should be able to:
 Python has two boolean values: \c{True} and \c{False}. Their capital letters
 matter.
 
-\code{c04_boolean_values}{python}{
-    is_accessible = True
-    needs_review = False
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Store and display boolean values},
+    label={c04_boolean_values},
+    captionpos=b
+]
+is_accessible = True
+needs_review = False
 
-    print(is_accessible)
-    print(needs_review)
-}{Store and display boolean values}
+print(is_accessible)
+print(needs_review)
+\end{lstlisting}
 
 Boolean values usually come from questions expressed as comparisons.
 
@@ -55,21 +61,33 @@ Less than or equal to & \c{<=} & \c{area_m2 <= 40} \\
 \end{tabular}
 \end{center}
 
-\code{c04_comparisons}{python}{
-    area_m2 = 32.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Three comparisons},
+    label={c04_comparisons},
+    captionpos=b
+]
+area_m2 = 32.0
 
-    print(area_m2 > 20.0)
-    print(area_m2 == 32.0)
-    print(area_m2 < 25.0)
-}{Three comparisons}
+print(area_m2 > 20.0)
+print(area_m2 == 32.0)
+print(area_m2 < 25.0)
+\end{lstlisting}
 
 Expected output:
 
-\code{c04_comparisons_output}{text}{
-    True
-    True
-    False
-}{Comparison results}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Comparison results},
+    label={c04_comparisons_output},
+    captionpos=b
+]
+True
+True
+False
+\end{lstlisting}
 
 Do not confuse \c{=} with \c{==}. A single equals sign assigns a value. Two
 equals signs compare two values.
@@ -83,12 +101,18 @@ equals signs compare two values.
 
 Python can express a range as one chained comparison.
 
-\code{c04_chained_comparison}{python}{
-    area_m2 = 32.0
-    is_medium = 20.0 <= area_m2 <= 40.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Check whether a value is inside a range},
+    label={c04_chained_comparison},
+    captionpos=b
+]
+area_m2 = 32.0
+is_medium = 20.0 <= area_m2 <= 40.0
 
-    print(is_medium)
-}{Check whether a value is inside a range}
+print(is_medium)
+\end{lstlisting}
 
 The expression is true when both boundaries are satisfied.
 
@@ -96,13 +120,19 @@ The expression is true when both boundaries are satisfied.
 
 The \c{and} operator is true only when both conditions are true.
 
-\code{c04_and_operator}{python}{
-    width_m = 4.0
-    length_m = 7.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Require two conditions},
+    label={c04_and_operator},
+    captionpos=b
+]
+width_m = 4.0
+length_m = 7.0
 
-    dimensions_positive = width_m > 0 and length_m > 0
-    print(dimensions_positive)
-}{Require two conditions}
+dimensions_positive = width_m > 0 and length_m > 0
+print(dimensions_positive)
+\end{lstlisting}
 
 Use \c{and} when every requirement must be satisfied.
 
@@ -110,12 +140,18 @@ Use \c{and} when every requirement must be satisfied.
 
 The \c{or} operator is true when at least one condition is true.
 
-\code{c04_or_operator}{python}{
-    room_type = "Studio"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Accept either of two values},
+    label={c04_or_operator},
+    captionpos=b
+]
+room_type = "Studio"
 
-    is_work_space = room_type == "Studio" or room_type == "Office"
-    print(is_work_space)
-}{Accept either of two values}
+is_work_space = room_type == "Studio" or room_type == "Office"
+print(is_work_space)
+\end{lstlisting}
 
 Use \c{or} when one of several alternatives is enough.
 
@@ -123,12 +159,18 @@ Use \c{or} when one of several alternatives is enough.
 
 The \c{not} operator reverses a boolean result.
 
-\code{c04_not_operator}{python}{
-    needs_review = False
-    is_approved = not needs_review
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Reverse a boolean value},
+    label={c04_not_operator},
+    captionpos=b
+]
+needs_review = False
+is_approved = not needs_review
 
-    print(is_approved)
-}{Reverse a boolean value}
+print(is_approved)
+\end{lstlisting}
 
 Keep combined conditions short. A named boolean such as \c{is_approved} is
 often easier to read than a long expression repeated several times.
@@ -137,35 +179,53 @@ often easier to read than a long expression repeated several times.
 
 The \c{in} operator works with collections and returns a boolean.
 
-\code{c04_membership_condition}{python}{
-    allowed_types = ["Studio", "Office", "Classroom"]
-    room_type = "Studio"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Check whether a value is in a list},
+    label={c04_membership_condition},
+    captionpos=b
+]
+allowed_types = ["Studio", "Office", "Classroom"]
+room_type = "Studio"
 
-    is_allowed = room_type in allowed_types
-    print(is_allowed)
-}{Check whether a value is in a list}
+is_allowed = room_type in allowed_types
+print(is_allowed)
+\end{lstlisting}
 
 Use \c{not in} to ask the opposite question.
 
-\code{c04_not_in}{python}{
-    allowed_types = ["Studio", "Office", "Classroom"]
-    room_type = "Storage"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Check that a value is absent},
+    label={c04_not_in},
+    captionpos=b
+]
+allowed_types = ["Studio", "Office", "Classroom"]
+room_type = "Storage"
 
-    print(room_type not in allowed_types)
-}{Check that a value is absent}
+print(room_type not in allowed_types)
+\end{lstlisting}
 
 \hh{Make a decision with if}
 
 An \c{if} statement runs an indented block only when its condition is true.
 
-\code{c04_first_if}{python}{
-    area_m2 = 32.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A basic if statement},
+    label={c04_first_if},
+    captionpos=b
+]
+area_m2 = 32.0
 
-    if area_m2 >= 20.0:
-        print("Area requirement passed")
+if area_m2 >= 20.0:
+    print("Area requirement passed")
 
-    print("Check complete")
-}{A basic if statement}
+print("Check complete")
+\end{lstlisting}
 
 The colon ends the \c{if} line. The four spaces before the first \c{print()}
 place that instruction inside the conditional block. The final \c{print()} is
@@ -180,14 +240,20 @@ to \c{18.0}?
 
 Use \c{if} and \c{else} when exactly one of two branches should run.
 
-\code{c04_if_else}{python}{
-    area_m2 = 18.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Choose one of two branches},
+    label={c04_if_else},
+    captionpos=b
+]
+area_m2 = 18.0
 
-    if area_m2 >= 20.0:
-        print("Pass")
-    else:
-        print("Review")
-}{Choose one of two branches}
+if area_m2 >= 20.0:
+    print("Pass")
+else:
+    print("Review")
+\end{lstlisting}
 
 Only one message appears. The \c{else} branch runs when the \c{if} condition is
 false.
@@ -196,18 +262,24 @@ false.
 
 Use \c{elif}, meaning ``else if,'' for additional conditions.
 
-\code{c04_if_elif_else}{python}{
-    area_m2 = 32.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Classify a value with three branches},
+    label={c04_if_elif_else},
+    captionpos=b
+]
+area_m2 = 32.0
 
-    if area_m2 < 20.0:
-        category = "Small"
-    elif area_m2 < 40.0:
-        category = "Medium"
-    else:
-        category = "Large"
+if area_m2 < 20.0:
+    category = "Small"
+elif area_m2 < 40.0:
+    category = "Medium"
+else:
+    category = "Large"
 
-    print(category)
-}{Classify a value with three branches}
+print(category)
+\end{lstlisting}
 
 Python checks the conditions from top to bottom and stops after the first true
 branch. Because the first branch already handled values below 20, the second
@@ -218,19 +290,25 @@ branch only needs to check whether the area is below 40.
 Trace values before running the code. Write the value of each variable, then
 evaluate each condition as true or false.
 
-\code{c04_trace_decision}{python}{
-    width_m = 4.0
-    length_m = 6.0
-    area_m2 = width_m * length_m
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Trace named conditions before the decision},
+    label={c04_trace_decision},
+    captionpos=b
+]
+width_m = 4.0
+length_m = 6.0
+area_m2 = width_m * length_m
 
-    large_enough = area_m2 >= 20.0
-    dimensions_positive = width_m > 0 and length_m > 0
+large_enough = area_m2 >= 20.0
+dimensions_positive = width_m > 0 and length_m > 0
 
-    if large_enough and dimensions_positive:
-        print("Accepted")
-    else:
-        print("Review the dimensions")
-}{Trace named conditions before the decision}
+if large_enough and dimensions_positive:
+    print("Accepted")
+else:
+    print("Review the dimensions")
+\end{lstlisting}
 
 Named conditions make the final decision easier to read and test.
 
@@ -239,14 +317,20 @@ Named conditions make the final decision easier to read and test.
 Python treats some values as false in a condition. These include \c{0}, an
 empty string, and empty collections. Nonempty values usually count as true.
 
-\code{c04_truthiness}{python}{
-    room_name = "Studio"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use a string directly as a condition},
+    label={c04_truthiness},
+    captionpos=b
+]
+room_name = "Studio"
 
-    if room_name:
-        print("A room name was provided")
-    else:
-        print("The room name is empty")
-}{Use a string directly as a condition}
+if room_name:
+    print("A room name was provided")
+else:
+    print("The room name is empty")
+\end{lstlisting}
 
 For beginners, explicit comparisons are often clearer. Use truthiness when the
 meaning of empty versus nonempty is obvious.
@@ -256,18 +340,24 @@ meaning of empty versus nonempty is obvious.
 An \c{if} statement may appear inside another branch, but deep nesting becomes
 difficult to follow.
 
-\code{c04_nested_if}{python}{
-    area_m2 = 32.0
-    has_daylight = True
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A two-level nested decision},
+    label={c04_nested_if},
+    captionpos=b
+]
+area_m2 = 32.0
+has_daylight = True
 
-    if area_m2 >= 20.0:
-        if has_daylight:
-            print("Area and daylight checks passed")
-        else:
-            print("Daylight review required")
+if area_m2 >= 20.0:
+    if has_daylight:
+        print("Area and daylight checks passed")
     else:
-        print("Area review required")
-}{A two-level nested decision}
+        print("Daylight review required")
+else:
+    print("Area review required")
+\end{lstlisting}
 
 When possible, combine related requirements with \c{and} or give conditions
 clear names.
@@ -289,38 +379,56 @@ clear names.
 
 \hhh{Level 0 -- Read and predict}
 
-\code{c04_practice_level0}{python}{
-    width_m = 3.0
-    print(width_m > 2.5)
-    print(width_m == 4.0)
-}{Predict two boolean results}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict two boolean results},
+    label={c04_practice_level0},
+    captionpos=b
+]
+width_m = 3.0
+print(width_m > 2.5)
+print(width_m == 4.0)
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
 Run the following code, then try values below, inside, and above the range.
 
-\code{c04_practice_level1}{python}{
-    area_m2 = 25.0
-    is_in_range = 20.0 <= area_m2 <= 40.0
-    print(is_in_range)
-}{Test several values against one range}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Test several values against one range},
+    label={c04_practice_level1},
+    captionpos=b
+]
+area_m2 = 25.0
+is_in_range = 20.0 <= area_m2 <= 40.0
+print(is_in_range)
+\end{lstlisting}
 
 \hhh{Level 2 -- Complete}
 
 Replace \c{...} with a condition that is true only when both dimensions are
 positive.
 
-\code{c04_practice_level2}{python}{
-    width_m = 4.0
-    length_m = 7.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Complete a two-condition decision},
+    label={c04_practice_level2},
+    captionpos=b
+]
+width_m = 4.0
+length_m = 7.0
 
-    dimensions_are_positive = ...
+dimensions_are_positive = ...
 
-    if dimensions_are_positive:
-        print("Pass")
-    else:
-        print("Review")
-}{Complete a two-condition decision}
+if dimensions_are_positive:
+    print("Pass")
+else:
+    print("Review")
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -346,44 +454,62 @@ instead of a size category.
 
 \textbf{Level 2}
 
-\code{c04_solution_level2}{python}{
-    width_m = 4.0
-    length_m = 7.0
-    dimensions_are_positive = width_m > 0 and length_m > 0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c04_solution_level2},
+    captionpos=b
+]
+width_m = 4.0
+length_m = 7.0
+dimensions_are_positive = width_m > 0 and length_m > 0
 
-    if dimensions_are_positive:
-        print("Pass")
-    else:
-        print("Review")
-}{One solution to Level 2}
+if dimensions_are_positive:
+    print("Pass")
+else:
+    print("Review")
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c04_solution_level3}{python}{
-    area_m2 = float(input("Area in m2: "))
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c04_solution_level3},
+    captionpos=b
+]
+area_m2 = float(input("Area in m2: "))
 
-    if area_m2 < 20.0:
-        print("Small")
-    elif area_m2 < 40.0:
-        print("Medium")
-    else:
-        print("Large")
-}{One solution to Level 3}
+if area_m2 < 20.0:
+    print("Small")
+elif area_m2 < 40.0:
+    print("Medium")
+else:
+    print("Large")
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c04_solution_level4}{python}{
-    area_m2 = float(input("Area in m2: "))
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c04_solution_level4},
+    captionpos=b
+]
+area_m2 = float(input("Area in m2: "))
 
-    if area_m2 <= 0:
-        print("Invalid area")
-    elif area_m2 < 20.0:
-        print("Small")
-    elif area_m2 < 40.0:
-        print("Medium")
-    else:
-        print("Large")
-}{One solution to Level 4}
+if area_m2 <= 0:
+    print("Invalid area")
+elif area_m2 < 20.0:
+    print("Small")
+elif area_m2 < 40.0:
+    print("Medium")
+else:
+    print("Large")
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

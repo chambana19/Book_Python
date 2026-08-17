@@ -1,0 +1,12 @@
+# Local LaTeX/PDF validation artifacts
+output/
+tmp/
+
+# Common TeX intermediates
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc

@@ -30,12 +30,18 @@ After completing this chapter, you should be able to:
 A built-in function belongs to Python itself. You call it directly without an
 \c{import} statement.
 
-\code{c07_familiar_builtins}{python}{
-    room_names = ["Lobby", "Office", "Cafe"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Call two familiar built-in functions},
+    label={c07_familiar_builtins},
+    captionpos=b
+]
+room_names = ["Lobby", "Office", "Cafe"]
 
-    print(len(room_names))
-    print(type(room_names))
-}{Call two familiar built-in functions}
+print(len(room_names))
+print(type(room_names))
+\end{lstlisting}
 
 The Python documentation lists every built-in, but beginners do not need to
 memorize the full list. Learn a small set and look up the rest when needed.
@@ -44,18 +50,24 @@ memorize the full list. Learn a small set and look up the rest when needed.
 
 Use \c{sum()}, \c{min()}, and \c{max()} for common summaries.
 
-\code{c07_numeric_summary}{python}{
-    areas_m2 = [24.0, 35.5, 18.0, 31.0]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Summarize a list of areas},
+    label={c07_numeric_summary},
+    captionpos=b
+]
+areas_m2 = [24.0, 35.5, 18.0, 31.0]
 
-    total_m2 = sum(areas_m2)
-    smallest_m2 = min(areas_m2)
-    largest_m2 = max(areas_m2)
-    average_m2 = total_m2 / len(areas_m2)
+total_m2 = sum(areas_m2)
+smallest_m2 = min(areas_m2)
+largest_m2 = max(areas_m2)
+average_m2 = total_m2 / len(areas_m2)
 
-    print(f"Total: {total_m2:.1f} m2")
-    print(f"Range: {smallest_m2:.1f} to {largest_m2:.1f} m2")
-    print(f"Average: {average_m2:.1f} m2")
-}{Summarize a list of areas}
+print(f"Total: {total_m2:.1f} m2")
+print(f"Range: {smallest_m2:.1f} to {largest_m2:.1f} m2")
+print(f"Average: {average_m2:.1f} m2")
+\end{lstlisting}
 
 These functions make the intent clearer than a manually written loop when only
 a standard summary is needed.
@@ -70,15 +82,21 @@ has no smallest or largest item. Chapter 8 explains how to handle such errors.
 The \c{abs()} function removes the sign, and \c{round()} returns a value rounded
 to a requested number of decimal places.
 
-\code{c07_abs_round}{python}{
-    difference_m = -0.1267
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use absolute value and rounding},
+    label={c07_abs_round},
+    captionpos=b
+]
+difference_m = -0.1267
 
-    magnitude_m = abs(difference_m)
-    rounded_m = round(magnitude_m, 2)
+magnitude_m = abs(difference_m)
+rounded_m = round(magnitude_m, 2)
 
-    print(magnitude_m)
-    print(rounded_m)
-}{Use absolute value and rounding}
+print(magnitude_m)
+print(rounded_m)
+\end{lstlisting}
 
 Use rounding for display or when the specification requires it. Keep full
 precision during intermediate calculations when possible.
@@ -88,82 +106,118 @@ precision during intermediate calculations when possible.
 The \c{sorted()} function returns a new list. The original collection remains
 unchanged.
 
-\code{c07_sorted}{python}{
-    floor_numbers = [3, 1, 4, 2]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create sorted lists without changing the original},
+    label={c07_sorted},
+    captionpos=b
+]
+floor_numbers = [3, 1, 4, 2]
 
-    ascending = sorted(floor_numbers)
-    descending = sorted(floor_numbers, reverse=True)
+ascending = sorted(floor_numbers)
+descending = sorted(floor_numbers, reverse=True)
 
-    print(floor_numbers)
-    print(ascending)
-    print(descending)
-}{Create sorted lists without changing the original}
+print(floor_numbers)
+print(ascending)
+print(descending)
+\end{lstlisting}
 
 By contrast, the list method \c{floor_numbers.sort()} changes the list and
 returns \c{None}. Choose based on whether the original order should be kept.
 
-\code{c07_sort_method}{python}{
-    floor_numbers = [3, 1, 4, 2]
-    result = floor_numbers.sort()
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A sorting method modifies the list},
+    label={c07_sort_method},
+    captionpos=b
+]
+floor_numbers = [3, 1, 4, 2]
+result = floor_numbers.sort()
 
-    print(floor_numbers)
-    print(result)
-}{A sorting method modifies the list}
+print(floor_numbers)
+print(result)
+\end{lstlisting}
 
 \hh{Reverse an order}
 
 The \c{reversed()} function produces values in reverse order. Convert the
 result to a list when you need to store or display all values at once.
 
-\code{c07_reversed}{python}{
-    room_names = ["Lobby", "Office", "Cafe"]
-    reverse_order = list(reversed(room_names))
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Reverse without modifying the original list},
+    label={c07_reversed},
+    captionpos=b
+]
+room_names = ["Lobby", "Office", "Cafe"]
+reverse_order = list(reversed(room_names))
 
-    print(reverse_order)
-    print(room_names)
-}{Reverse without modifying the original list}
+print(reverse_order)
+print(room_names)
+\end{lstlisting}
 
 \hh{Summarize boolean values}
 
 Use \c{any()} when at least one \c{True} value is enough. Use \c{all()} when
 every value must be \c{True}.
 
-\code{c07_any_all}{python}{
-    checks = [True, True, False, True]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Compare any with all},
+    label={c07_any_all},
+    captionpos=b
+]
+checks = [True, True, False, True]
 
-    print(any(checks))
-    print(all(checks))
-}{Compare any with all}
+print(any(checks))
+print(all(checks))
+\end{lstlisting}
 
 The first result is \c{True} because at least one check passes. The second is
 \c{False} because one check fails.
 
 The boolean list can be created from data before it is summarized.
 
-\code{c07_checks_from_values}{python}{
-    widths_m = [1.2, 0.9, 1.5, 1.1]
-    wide_enough = []
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Build and summarize boolean checks},
+    label={c07_checks_from_values},
+    captionpos=b
+]
+widths_m = [1.2, 0.9, 1.5, 1.1]
+wide_enough = []
 
-    for width_m in widths_m:
-        wide_enough.append(width_m >= 1.0)
+for width_m in widths_m:
+    wide_enough.append(width_m >= 1.0)
 
-    print(wide_enough)
-    print(all(wide_enough))
-}{Build and summarize boolean checks}
+print(wide_enough)
+print(all(wide_enough))
+\end{lstlisting}
 
 \hh{Number and pair items}
 
 You used \c{enumerate()} and \c{zip()} in Chapter 5. They are worth keeping in
 your regular toolkit.
 
-\code{c07_enumerate_zip}{python}{
-    room_names = ["Lobby", "Office", "Cafe"]
-    areas_m2 = [24.0, 18.0, 31.0]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Number paired values},
+    label={c07_enumerate_zip},
+    captionpos=b
+]
+room_names = ["Lobby", "Office", "Cafe"]
+areas_m2 = [24.0, 18.0, 31.0]
 
-    for number, pair in enumerate(zip(room_names, areas_m2), start=1):
-        room_name, area_m2 = pair
-        print(f"{number}. {room_name}: {area_m2:.1f} m2")
-}{Number paired values}
+for number, pair in enumerate(zip(room_names, areas_m2), start=1):
+    room_name, area_m2 = pair
+    print(f"{number}. {room_name}: {area_m2:.1f} m2")
+\end{lstlisting}
 
 When nested calls make a loop hard to read, create an intermediate variable or
 use a simpler loop. Compact code is not automatically clearer code.
@@ -173,18 +227,24 @@ use a simpler loop. Compact code is not automatically clearer code.
 The names \c{int}, \c{float}, \c{str}, \c{list}, \c{tuple}, and \c{set} can be
 called to create or convert values.
 
-\code{c07_type_conversion}{python}{
-    count_text = "4"
-    count = int(count_text)
-    area_text = str(24.5)
-    letters = list("ABC")
-    unique_levels = set([1, 2, 2, 3])
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Convert values and collections},
+    label={c07_type_conversion},
+    captionpos=b
+]
+count_text = "4"
+count = int(count_text)
+area_text = str(24.5)
+letters = list("ABC")
+unique_levels = set([1, 2, 2, 3])
 
-    print(count)
-    print(area_text)
-    print(letters)
-    print(unique_levels)
-}{Convert values and collections}
+print(count)
+print(area_text)
+print(letters)
+print(unique_levels)
+\end{lstlisting}
 
 Conversion works only when the source value has a suitable form. For example,
 \c{int("four")} raises an exception.
@@ -193,12 +253,18 @@ Conversion works only when the source value has a suitable form. For example,
 
 The \c{isinstance()} function checks whether a value has a particular type.
 
-\code{c07_isinstance}{python}{
-    value = 3.5
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Check a value's type},
+    label={c07_isinstance},
+    captionpos=b
+]
+value = 3.5
 
-    print(isinstance(value, float))
-    print(isinstance(value, str))
-}{Check a value's type}
+print(isinstance(value, float))
+print(isinstance(value, str))
+\end{lstlisting}
 
 Do not add type checks everywhere. Clear inputs and conversions are usually
 easier to follow. Use \c{isinstance()} when a function intentionally accepts
@@ -208,12 +274,18 @@ more than one kind of value.
 
 The \c{help()} function displays documentation in the REPL.
 
-\code{c07_help_example}{python}{
-    values = [3, 1, 2]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use help interactively when a function is unfamiliar},
+    label={c07_help_example},
+    captionpos=b
+]
+values = [3, 1, 2]
 
-    print(sorted(values))
-    # Try help(sorted) in the REPL.
-}{Use help interactively when a function is unfamiliar}
+print(sorted(values))
+# Try help(sorted) in the REPL.
+\end{lstlisting}
 
 Documentation commonly shows parameters inside square brackets when they are
 optional. Try a small example after reading the description.
@@ -223,16 +295,22 @@ optional. Try a small example after reading the description.
 Not every useful function is built in. Python's standard library contains
 modules that are installed with Python.
 
-\code{c07_standard_library}{python}{
-    import math
-    from statistics import mean
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use the math and statistics modules},
+    label={c07_standard_library},
+    captionpos=b
+]
+import math
+from statistics import mean
 
-    areas_m2 = [24.0, 35.5, 18.0, 31.0]
-    radius_m = 3.0
+areas_m2 = [24.0, 35.5, 18.0, 31.0]
+radius_m = 3.0
 
-    print(f"Mean area: {mean(areas_m2):.2f} m2")
-    print(f"Circle area: {math.pi * radius_m ** 2:.2f} m2")
-}{Use the math and statistics modules}
+print(f"Mean area: {mean(areas_m2):.2f} m2")
+print(f"Circle area: {math.pi * radius_m ** 2:.2f} m2")
+\end{lstlisting}
 
 \c{math.pi} identifies where the name \c{pi} comes from. The targeted import
 \c{from statistics import mean} allows a direct call to \c{mean()}.
@@ -252,13 +330,19 @@ modules that are installed with Python.
 
 \hhh{Level 0 -- Read and predict}
 
-\code{c07_practice_level0}{python}{
-    values = [6, 2, 9, 4]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict three numeric summaries},
+    label={c07_practice_level0},
+    captionpos=b
+]
+values = [6, 2, 9, 4]
 
-    print(min(values))
-    print(max(values))
-    print(sum(values))
-}{Predict three numeric summaries}
+print(min(values))
+print(max(values))
+print(sum(values))
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
@@ -270,15 +354,21 @@ Add two values to the list. Then display the average using \c{sum()} and
 Replace the two \c{...} placeholders to create ascending and descending
 versions of the list while preserving the original.
 
-\code{c07_practice_level2}{python}{
-    levels = [4, 1, 3, 2]
-    ascending = ...
-    descending = ...
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Complete two sorting expressions},
+    label={c07_practice_level2},
+    captionpos=b
+]
+levels = [4, 1, 3, 2]
+ascending = ...
+descending = ...
 
-    print(levels)
-    print(ascending)
-    print(descending)
-}{Complete two sorting expressions}
+print(levels)
+print(ascending)
+print(descending)
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -303,47 +393,65 @@ smallest. Hint: pair the data with \c{zip()}, then use \c{sorted()}.
 
 \textbf{Level 2}
 
-\code{c07_solution_level2}{python}{
-    levels = [4, 1, 3, 2]
-    ascending = sorted(levels)
-    descending = sorted(levels, reverse=True)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2; the original order is preserved},
+    label={c07_solution_level2},
+    captionpos=b
+]
+levels = [4, 1, 3, 2]
+ascending = sorted(levels)
+descending = sorted(levels, reverse=True)
 
-    print(levels)
-    print(ascending)
-    print(descending)
-}{One solution to Level 2; the original order is preserved}
+print(levels)
+print(ascending)
+print(descending)
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c07_solution_level3}{python}{
-    areas_m2 = [24.0, 35.5, 18.0, 31.0]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c07_solution_level3},
+    captionpos=b
+]
+areas_m2 = [24.0, 35.5, 18.0, 31.0]
 
-    count = len(areas_m2)
-    total_m2 = sum(areas_m2)
-    average_m2 = total_m2 / count
+count = len(areas_m2)
+total_m2 = sum(areas_m2)
+average_m2 = total_m2 / count
 
-    print(f"Count: {count}")
-    print(f"Total: {total_m2:.1f} m2")
-    print(f"Average: {average_m2:.1f} m2")
-    print(f"Smallest: {min(areas_m2):.1f} m2")
-    print(f"Largest: {max(areas_m2):.1f} m2")
-}{One solution to Level 3}
+print(f"Count: {count}")
+print(f"Total: {total_m2:.1f} m2")
+print(f"Average: {average_m2:.1f} m2")
+print(f"Smallest: {min(areas_m2):.1f} m2")
+print(f"Largest: {max(areas_m2):.1f} m2")
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c07_solution_level4}{python}{
-    room_names = ["Lobby", "Office", "Cafe"]
-    areas_m2 = [24.0, 18.0, 31.0]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c07_solution_level4},
+    captionpos=b
+]
+room_names = ["Lobby", "Office", "Cafe"]
+areas_m2 = [24.0, 18.0, 31.0]
 
-    room_areas = list(zip(room_names, areas_m2))
-    def area_from_pair(pair):
-        return pair[1]
+room_areas = list(zip(room_names, areas_m2))
+def area_from_pair(pair):
+    return pair[1]
 
-    largest_first = sorted(room_areas, key=area_from_pair, reverse=True)
+largest_first = sorted(room_areas, key=area_from_pair, reverse=True)
 
-    for room_name, area_m2 in largest_first:
-        print(f"{room_name}: {area_m2:.1f} m2")
-}{One solution to Level 4}
+for room_name, area_m2 in largest_first:
+    print(f"{room_name}: {area_m2:.1f} m2")
+\end{lstlisting}
 
 The small \c{area_from_pair()} function supplies the sort key. Its name makes
 the sorting rule visible without introducing new syntax.

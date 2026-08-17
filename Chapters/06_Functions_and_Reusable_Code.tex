@@ -30,13 +30,19 @@ Repeated code is harder to correct. If the same calculation appears in five
 places, a change must be made five times. A function keeps the calculation in
 one named place.
 
-\code{c06_repeated_calculation}{python}{
-    lobby_area_m2 = 6.0 * 8.0
-    office_area_m2 = 4.0 * 5.5
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The same calculation written twice},
+    label={c06_repeated_calculation},
+    captionpos=b
+]
+lobby_area_m2 = 6.0 * 8.0
+office_area_m2 = 4.0 * 5.5
 
-    print(lobby_area_m2)
-    print(office_area_m2)
-}{The same calculation written twice}
+print(lobby_area_m2)
+print(office_area_m2)
+\end{lstlisting}
 
 The next example moves the shared rule into a function.
 
@@ -45,13 +51,19 @@ The next example moves the shared rule into a function.
 Use \c{def} to define a function. The indented body contains the instructions
 that belong to it.
 
-\code{c06_first_function}{python}{
-    def show_welcome():
-        print("Welcome to Chapter 6")
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Define a function and call it twice},
+    label={c06_first_function},
+    captionpos=b
+]
+def show_welcome():
+    print("Welcome to Chapter 6")
 
-    show_welcome()
-    show_welcome()
-}{Define a function and call it twice}
+show_welcome()
+show_welcome()
+\end{lstlisting}
 
 Defining a function does not run its body. The body runs when Python reaches a
 call such as \c{show_welcome()}.
@@ -66,13 +78,19 @@ The definition remains, but nothing calls it.
 A \emph{parameter} is a name in the function definition. An \emph{argument} is
 the value supplied in a call.
 
-\code{c06_one_parameter}{python}{
-    def show_room(room_name):
-        print(f"Room: {room_name}")
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Pass one argument to a parameter},
+    label={c06_one_parameter},
+    captionpos=b
+]
+def show_room(room_name):
+    print(f"Room: {room_name}")
 
-    show_room("Lobby")
-    show_room("Office")
-}{Pass one argument to a parameter}
+show_room("Lobby")
+show_room("Office")
+\end{lstlisting}
 
 In this example, \c{room_name} is the parameter. \c{"Lobby"} and
 \c{"Office"} are arguments.
@@ -82,17 +100,23 @@ In this example, \c{room_name} is the parameter. \c{"Lobby"} and
 Use \c{return} when the caller needs a value. A returned value can be stored,
 printed, compared, or passed to another function.
 
-\code{c06_return_area}{python}{
-    def rectangle_area_m2(width_m, length_m):
-        area_m2 = width_m * length_m
-        return area_m2
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Return a calculation result},
+    label={c06_return_area},
+    captionpos=b
+]
+def rectangle_area_m2(width_m, length_m):
+    area_m2 = width_m * length_m
+    return area_m2
 
-    lobby_area_m2 = rectangle_area_m2(6.0, 8.0)
-    office_area_m2 = rectangle_area_m2(4.0, 5.5)
+lobby_area_m2 = rectangle_area_m2(6.0, 8.0)
+office_area_m2 = rectangle_area_m2(4.0, 5.5)
 
-    print(lobby_area_m2)
-    print(office_area_m2)
-}{Return a calculation result}
+print(lobby_area_m2)
+print(office_area_m2)
+\end{lstlisting}
 
 When Python reaches \c{return}, the function ends and sends the value back to
 the call.
@@ -101,19 +125,25 @@ the call.
 
 Printing displays information. Returning gives a value back to the caller.
 
-\code{c06_print_and_return}{python}{
-    def display_area(width_m, length_m):
-        print(width_m * length_m)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Compare printing with returning},
+    label={c06_print_and_return},
+    captionpos=b
+]
+def display_area(width_m, length_m):
+    print(width_m * length_m)
 
-    def calculate_area(width_m, length_m):
-        return width_m * length_m
+def calculate_area(width_m, length_m):
+    return width_m * length_m
 
-    displayed = display_area(3.0, 4.0)
-    calculated = calculate_area(3.0, 4.0)
+displayed = display_area(3.0, 4.0)
+calculated = calculate_area(3.0, 4.0)
 
-    print(f"Displayed returned: {displayed}")
-    print(f"Calculated returned: {calculated}")
-}{Compare printing with returning}
+print(f"Displayed returned: {displayed}")
+print(f"Calculated returned: {calculated}")
+\end{lstlisting}
 
 The first function displays \c{12.0} but returns \c{None}. The second returns
 \c{12.0}, so the program can reuse it.
@@ -123,13 +153,19 @@ The first function displays \c{12.0} but returns \c{None}. The second returns
 Parameters are matched with arguments from left to right unless keywords are
 used.
 
-\code{c06_multiple_parameters}{python}{
-    def volume_m3(width_m, length_m, height_m):
-        return width_m * length_m * height_m
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use three positional arguments},
+    label={c06_multiple_parameters},
+    captionpos=b
+]
+def volume_m3(width_m, length_m, height_m):
+    return width_m * length_m * height_m
 
-    result_m3 = volume_m3(5.0, 8.0, 3.2)
-    print(f"Volume: {result_m3:.2f} m3")
-}{Use three positional arguments}
+result_m3 = volume_m3(5.0, 8.0, 3.2)
+print(f"Volume: {result_m3:.2f} m3")
+\end{lstlisting}
 
 Choose parameter names that make their roles clear. A reader should not need to
 guess what each number represents.
@@ -139,18 +175,24 @@ guess what each number represents.
 Keywords connect each value to a parameter name. They are helpful when a
 function has several similar inputs.
 
-\code{c06_keyword_arguments}{python}{
-    def volume_m3(width_m, length_m, height_m):
-        return width_m * length_m * height_m
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Call a function with keyword arguments},
+    label={c06_keyword_arguments},
+    captionpos=b
+]
+def volume_m3(width_m, length_m, height_m):
+    return width_m * length_m * height_m
 
-    result_m3 = volume_m3(
-        length_m=8.0,
-        height_m=3.2,
-        width_m=5.0
-    )
+result_m3 = volume_m3(
+    length_m=8.0,
+    height_m=3.2,
+    width_m=5.0
+)
 
-    print(f"Volume: {result_m3:.2f} m3")
-}{Call a function with keyword arguments}
+print(f"Volume: {result_m3:.2f} m3")
+\end{lstlisting}
 
 Keyword arguments may appear in a different order because their names show how
 they match.
@@ -160,13 +202,19 @@ they match.
 A default makes an argument optional. Parameters without defaults must come
 before parameters with defaults.
 
-\code{c06_default_argument}{python}{
-    def area_with_waste(area_m2, waste_rate=0.05):
-        return area_m2 * (1 + waste_rate)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use and override a default argument},
+    label={c06_default_argument},
+    captionpos=b
+]
+def area_with_waste(area_m2, waste_rate=0.05):
+    return area_m2 * (1 + waste_rate)
 
-    print(area_with_waste(100.0))
-    print(area_with_waste(100.0, waste_rate=0.10))
-}{Use and override a default argument}
+print(area_with_waste(100.0))
+print(area_with_waste(100.0, waste_rate=0.10))
+\end{lstlisting}
 
 Defaults should represent a sensible common case. A caller can still provide a
 different value.
@@ -176,14 +224,20 @@ different value.
 A name created inside a function is local to that call. Code outside the
 function cannot use it directly.
 
-\code{c06_local_scope}{python}{
-    def calculate_perimeter_m(width_m, length_m):
-        perimeter_m = 2 * (width_m + length_m)
-        return perimeter_m
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use a local variable and return its value},
+    label={c06_local_scope},
+    captionpos=b
+]
+def calculate_perimeter_m(width_m, length_m):
+    perimeter_m = 2 * (width_m + length_m)
+    return perimeter_m
 
-    result_m = calculate_perimeter_m(4.0, 7.0)
-    print(result_m)
-}{Use a local variable and return its value}
+result_m = calculate_perimeter_m(4.0, 7.0)
+print(result_m)
+\end{lstlisting}
 
 The name \c{perimeter_m} exists inside the function. The caller stores the
 returned value under the separate name \c{result_m}.
@@ -196,16 +250,22 @@ make the function's behavior easier to see and test.
 A guard clause handles a special case near the top of a function. It prevents
 the main calculation from becoming deeply nested.
 
-\code{c06_guard_clause}{python}{
-    def average(values):
-        if len(values) == 0:
-            return None
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Return early for an empty collection},
+    label={c06_guard_clause},
+    captionpos=b
+]
+def average(values):
+    if len(values) == 0:
+        return None
 
-        return sum(values) / len(values)
+    return sum(values) / len(values)
 
-    print(average([10.0, 20.0, 30.0]))
-    print(average([]))
-}{Return early for an empty collection}
+print(average([10.0, 20.0, 30.0]))
+print(average([]))
+\end{lstlisting}
 
 Chapter 8 shows how a function can raise an exception when invalid input should
 be reported as an error.
@@ -214,19 +274,25 @@ be reported as an error.
 
 One function can call another. This is called composition.
 
-\code{c06_composition}{python}{
-    def rectangle_area_m2(width_m, length_m):
-        return width_m * length_m
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Compose two focused functions},
+    label={c06_composition},
+    captionpos=b
+]
+def rectangle_area_m2(width_m, length_m):
+    return width_m * length_m
 
-    def material_cost(area_m2, price_per_m2):
-        return area_m2 * price_per_m2
+def material_cost(area_m2, price_per_m2):
+    return area_m2 * price_per_m2
 
-    area_m2 = rectangle_area_m2(6.0, 8.0)
-    cost = material_cost(area_m2, 12.50)
+area_m2 = rectangle_area_m2(6.0, 8.0)
+cost = material_cost(area_m2, 12.50)
 
-    print(f"Area: {area_m2:.2f} m2")
-    print(f"Cost: ${cost:.2f}")
-}{Compose two focused functions}
+print(f"Area: {area_m2:.2f} m2")
+print(f"Cost: ${cost:.2f}")
+\end{lstlisting}
 
 Each function has one clear responsibility. The short main section shows how
 the pieces fit together.
@@ -236,13 +302,19 @@ the pieces fit together.
 A docstring is a string placed immediately below the function header. It
 briefly explains the function's purpose.
 
-\code{c06_docstring}{python}{
-    def celsius_to_fahrenheit(celsius):
-        """Return a Celsius temperature converted to Fahrenheit."""
-        return celsius * 9 / 5 + 32
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Add a short docstring},
+    label={c06_docstring},
+    captionpos=b
+]
+def celsius_to_fahrenheit(celsius):
+    """Return a Celsius temperature converted to Fahrenheit."""
+    return celsius * 9 / 5 + 32
 
-    print(celsius_to_fahrenheit(20))
-}{Add a short docstring}
+print(celsius_to_fahrenheit(20))
+\end{lstlisting}
 
 Use \c{help(celsius_to_fahrenheit)} in the REPL to display the docstring.
 
@@ -262,14 +334,20 @@ Use \c{help(celsius_to_fahrenheit)} in the REPL to display the docstring.
 
 \hhh{Level 0 -- Read and predict}
 
-\code{c06_practice_level0}{python}{
-    def double(value):
-        return value * 2
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Trace two function calls},
+    label={c06_practice_level0},
+    captionpos=b
+]
+def double(value):
+    return value * 2
 
-    first = double(4)
-    second = double(first)
-    print(second)
-}{Trace two function calls}
+first = double(4)
+second = double(first)
+print(second)
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
@@ -279,12 +357,18 @@ Change \c{double} to \c{triple}. Update the name, calculation, and calls.
 
 Replace \c{...} with the expression that returns the perimeter of a rectangle.
 
-\code{c06_practice_level2}{python}{
-    def rectangle_perimeter_m(width_m, length_m):
-        return ...
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Complete a perimeter function},
+    label={c06_practice_level2},
+    captionpos=b
+]
+def rectangle_perimeter_m(width_m, length_m):
+    return ...
 
-    print(rectangle_perimeter_m(5.0, 8.0))
-}{Complete a perimeter function}
+print(rectangle_perimeter_m(5.0, 8.0))
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -309,35 +393,53 @@ function and return one formatted sentence containing the name and area.
 
 \textbf{Level 2}
 
-\code{c06_solution_level2}{python}{
-    def rectangle_perimeter_m(width_m, length_m):
-        return 2 * (width_m + length_m)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2; the output is 26.0},
+    label={c06_solution_level2},
+    captionpos=b
+]
+def rectangle_perimeter_m(width_m, length_m):
+    return 2 * (width_m + length_m)
 
-    print(rectangle_perimeter_m(5.0, 8.0))
-}{One solution to Level 2; the output is 26.0}
+print(rectangle_perimeter_m(5.0, 8.0))
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c06_solution_level3}{python}{
-    def circle_area_m2(radius_m):
-        return 3.14159 * radius_m ** 2
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c06_solution_level3},
+    captionpos=b
+]
+def circle_area_m2(radius_m):
+    return 3.14159 * radius_m ** 2
 
-    area_m2 = circle_area_m2(4.0)
-    print(f"Area: {area_m2:.2f} m2")
-}{One solution to Level 3}
+area_m2 = circle_area_m2(4.0)
+print(f"Area: {area_m2:.2f} m2")
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c06_solution_level4}{python}{
-    def rectangle_area_m2(width_m, length_m):
-        return width_m * length_m
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c06_solution_level4},
+    captionpos=b
+]
+def rectangle_area_m2(width_m, length_m):
+    return width_m * length_m
 
-    def room_report(name, width_m, length_m):
-        area_m2 = rectangle_area_m2(width_m, length_m)
-        return f"{name}: {area_m2:.2f} m2"
+def room_report(name, width_m, length_m):
+    area_m2 = rectangle_area_m2(width_m, length_m)
+    return f"{name}: {area_m2:.2f} m2"
 
-    print(room_report("Lobby", 6.0, 8.0))
-}{One solution to Level 4}
+print(room_report("Lobby", 6.0, 8.0))
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

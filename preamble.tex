@@ -1,0 +1,34 @@
+% Project-wide additions loaded after the LiX-based textbook class.
+
+\usepackage[most]{tcolorbox}
+
+% A compact callout used throughout the self-study chapters.
+\newtcolorbox{NoteBox}{
+    breakable,
+    colback=blue!3,
+    colframe=blue!45!black,
+    boxrule=0.6pt,
+    arc=1.5mm,
+    left=2mm,
+    right=2mm,
+    top=1.5mm,
+    bottom=1.5mm
+}
+
+% Listings uses named languages. Define the two lightweight formats used for
+% terminal commands and plain output so every chapter compiles consistently.
+\lstdefinelanguage{text}{}
+\lstdefinelanguage{bash}{
+    sensitive=true,
+    morecomment=[l]{\#},
+    morestring=[b]"
+}
+
+% LiX implements \c with \lstinline, which is verbatim-like and therefore
+% fails inside bold labels, list items, and other command arguments. This
+% protected, detokenized form preserves code punctuation in those contexts.
+\RenewDocumentCommand{\c}{m}{\texttt{\detokenize{#1}}}
+
+% Keep captions with the code blocks they describe and place them underneath,
+% matching the original \code command's layout.
+\lstset{captionpos=b}

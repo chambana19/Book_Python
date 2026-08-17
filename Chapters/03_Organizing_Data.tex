@@ -28,19 +28,31 @@ After completing this chapter, you should be able to:
 
 Without a collection, four room names require four variables.
 
-\code{c03_separate_names}{python}{
-    room_1 = "Lobby"
-    room_2 = "Studio"
-    room_3 = "Office"
-    room_4 = "Cafe"
-}{Four separate variables}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Four separate variables},
+    label={c03_separate_names},
+    captionpos=b
+]
+room_1 = "Lobby"
+room_2 = "Studio"
+room_3 = "Office"
+room_4 = "Cafe"
+\end{lstlisting}
 
 A list stores the same information under one name.
 
-\code{c03_first_list}{python}{
-    room_names = ["Lobby", "Studio", "Office", "Cafe"]
-    print(room_names)
-}{Store several room names in one list}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Store several room names in one list},
+    label={c03_first_list},
+    captionpos=b
+]
+room_names = ["Lobby", "Studio", "Office", "Cafe"]
+print(room_names)
+\end{lstlisting}
 
 The square brackets identify a list. Commas separate its items.
 
@@ -49,45 +61,69 @@ The square brackets identify a list. Commas separate its items.
 A list is an ordered, changeable collection. Its items may be numbers, strings,
 booleans, or other values.
 
-\code{c03_list_examples}{python}{
-    floor_numbers = [1, 2, 3, 4]
-    room_areas_m2 = [24.0, 35.5, 18.0]
-    status_labels = ["Open", "Closed", "Review"]
-    empty_list = []
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create four lists},
+    label={c03_list_examples},
+    captionpos=b
+]
+floor_numbers = [1, 2, 3, 4]
+room_areas_m2 = [24.0, 35.5, 18.0]
+status_labels = ["Open", "Closed", "Review"]
+empty_list = []
 
-    print(floor_numbers)
-    print(room_areas_m2)
-    print(status_labels)
-    print(empty_list)
-}{Create four lists}
+print(floor_numbers)
+print(room_areas_m2)
+print(status_labels)
+print(empty_list)
+\end{lstlisting}
 
 Use \c{len()} to find the number of items.
 
-\code{c03_list_length}{python}{
-    room_names = ["Lobby", "Studio", "Office", "Cafe"]
-    print(len(room_names))
-}{Count list items}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Count list items},
+    label={c03_list_length},
+    captionpos=b
+]
+room_names = ["Lobby", "Studio", "Office", "Cafe"]
+print(len(room_names))
+\end{lstlisting}
 
 \hh{Read list items by index}
 
 Each item has a position called an \emph{index}. Python begins counting at
 zero.
 
-\code{c03_list_index}{python}{
-    room_names = ["Lobby", "Studio", "Office", "Cafe"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Read list items by position},
+    label={c03_list_index},
+    captionpos=b
+]
+room_names = ["Lobby", "Studio", "Office", "Cafe"]
 
-    print(room_names[0])
-    print(room_names[1])
-    print(room_names[-1])
-}{Read list items by position}
+print(room_names[0])
+print(room_names[1])
+print(room_names[-1])
+\end{lstlisting}
 
 Expected output:
 
-\code{c03_list_index_output}{text}{
-    Lobby
-    Studio
-    Cafe
-}{List indexing output}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={List indexing output},
+    label={c03_list_index_output},
+    captionpos=b
+]
+Lobby
+Studio
+Cafe
+\end{lstlisting}
 
 An index of \c{-1} means the last item.
 
@@ -102,34 +138,52 @@ An index outside the list produces an \c{IndexError}.
 
 A slice selects a range of items. The stop position is not included.
 
-\code{c03_list_slice}{python}{
-    levels = ["B1", "L1", "L2", "L3", "Roof"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Select list slices},
+    label={c03_list_slice},
+    captionpos=b
+]
+levels = ["B1", "L1", "L2", "L3", "Roof"]
 
-    print(levels[1:4])
-    print(levels[:2])
-    print(levels[3:])
-}{Select list slices}
+print(levels[1:4])
+print(levels[:2])
+print(levels[3:])
+\end{lstlisting}
 
 Expected output:
 
-\code{c03_list_slice_output}{text}{
-    ['L1', 'L2', 'L3']
-    ['B1', 'L1']
-    ['L3', 'Roof']
-}{Three list slices}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Three list slices},
+    label={c03_list_slice_output},
+    captionpos=b
+]
+['L1', 'L2', 'L3']
+['B1', 'L1']
+['L3', 'Roof']
+\end{lstlisting}
 
 \hh{Change a list}
 
 Lists are mutable, which means their contents can change.
 
-\code{c03_modify_list}{python}{
-    room_names = ["Lobby", "Studio", "Office"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Replace one item and append another},
+    label={c03_modify_list},
+    captionpos=b
+]
+room_names = ["Lobby", "Studio", "Office"]
 
-    room_names[2] = "Meeting Room"
-    room_names.append("Cafe")
+room_names[2] = "Meeting Room"
+room_names.append("Cafe")
 
-    print(room_names)
-}{Replace one item and append another}
+print(room_names)
+\end{lstlisting}
 
 Common list methods include:
 \begin{itemize}
@@ -140,16 +194,22 @@ Common list methods include:
     \item \c{clear()}: remove all items.
 \end{itemize}
 
-\code{c03_list_methods}{python}{
-    materials = ["Concrete", "Steel"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Insert, remove, and pop list items},
+    label={c03_list_methods},
+    captionpos=b
+]
+materials = ["Concrete", "Steel"]
 
-    materials.insert(1, "Timber")
-    materials.remove("Steel")
-    removed_item = materials.pop()
+materials.insert(1, "Timber")
+materials.remove("Steel")
+removed_item = materials.pop()
 
-    print(materials)
-    print(removed_item)
-}{Insert, remove, and pop list items}
+print(materials)
+print(removed_item)
+\end{lstlisting}
 
 After \c{remove("Steel")}, the list contains \c{"Concrete"} and
 \c{"Timber"}. Then \c{pop()} removes and returns \c{"Timber"}.
@@ -159,12 +219,18 @@ After \c{remove("Steel")}, the list contains \c{"Concrete"} and
 The \c{in} operator asks whether a collection contains a value. The result is
 \c{True} or \c{False}.
 
-\code{c03_list_membership}{python}{
-    materials = ["Concrete", "Timber", "Glass"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Check list membership},
+    label={c03_list_membership},
+    captionpos=b
+]
+materials = ["Concrete", "Timber", "Glass"]
 
-    print("Timber" in materials)
-    print("Brick" in materials)
-}{Check list membership}
+print("Timber" in materials)
+print("Brick" in materials)
+\end{lstlisting}
 
 Membership checks are case-sensitive. \c{"timber"} and \c{"Timber"} are
 different strings.
@@ -175,28 +241,40 @@ A dictionary stores key--value pairs. Each key is a label used to retrieve its
 value. Curly braces identify a dictionary, and a colon separates each key from
 its value.
 
-\code{c03_first_dictionary}{python}{
-    room = {
-        "name": "Studio",
-        "area_m2": 48.0,
-        "level": 2
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A dictionary describing one room},
+    label={c03_first_dictionary},
+    captionpos=b
+]
+room = {
+    "name": "Studio",
+    "area_m2": 48.0,
+    "level": 2
+}
 
-    print(room)
-}{A dictionary describing one room}
+print(room)
+\end{lstlisting}
 
 Use a key inside square brackets to read a value.
 
-\code{c03_dictionary_access}{python}{
-    room = {
-        "name": "Studio",
-        "area_m2": 48.0,
-        "level": 2
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Read dictionary values by key},
+    label={c03_dictionary_access},
+    captionpos=b
+]
+room = {
+    "name": "Studio",
+    "area_m2": 48.0,
+    "level": 2
+}
 
-    print(room["name"])
-    print(room["area_m2"])
-}{Read dictionary values by key}
+print(room["name"])
+print(room["area_m2"])
+\end{lstlisting}
 
 Unlike list indexes, dictionary keys communicate what the values mean.
 
@@ -205,70 +283,100 @@ Unlike list indexes, dictionary keys communicate what the values mean.
 Assign to an existing key to replace its value. Assign to a new key to add a
 new pair.
 
-\code{c03_dictionary_update}{python}{
-    room = {
-        "name": "Studio",
-        "area_m2": 48.0
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Replace one value and add another},
+    label={c03_dictionary_update},
+    captionpos=b
+]
+room = {
+    "name": "Studio",
+    "area_m2": 48.0
+}
 
-    room["area_m2"] = 50.5
-    room["level"] = 2
+room["area_m2"] = 50.5
+room["level"] = 2
 
-    print(room)
-}{Replace one value and add another}
+print(room)
+\end{lstlisting}
 
 Use \c{pop(key)} to remove a pair and return its value.
 
-\code{c03_dictionary_pop}{python}{
-    room = {
-        "name": "Studio",
-        "area_m2": 50.5,
-        "level": 2
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Remove a dictionary pair},
+    label={c03_dictionary_pop},
+    captionpos=b
+]
+room = {
+    "name": "Studio",
+    "area_m2": 50.5,
+    "level": 2
+}
 
-    removed_level = room.pop("level")
-    print(removed_level)
-    print(room)
-}{Remove a dictionary pair}
+removed_level = room.pop("level")
+print(removed_level)
+print(room)
+\end{lstlisting}
 
 \hh{Use safe dictionary lookup}
 
 Square-bracket lookup produces a \c{KeyError} when the requested key is
 missing. The \c{get()} method can return a default value instead.
 
-\code{c03_dictionary_get}{python}{
-    room = {
-        "name": "Studio",
-        "area_m2": 50.5
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use get for a key that may be missing},
+    label={c03_dictionary_get},
+    captionpos=b
+]
+room = {
+    "name": "Studio",
+    "area_m2": 50.5
+}
 
-    print(room.get("name"))
-    print(room.get("occupancy", "Not recorded"))
-}{Use get for a key that may be missing}
+print(room.get("name"))
+print(room.get("occupancy", "Not recorded"))
+\end{lstlisting}
 
 Use square brackets when a key must exist. Use \c{get()} when a missing value
 has a reasonable default.
 
 Dictionary membership checks keys.
 
-\code{c03_dictionary_membership}{python}{
-    room = {"name": "Studio", "area_m2": 50.5}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Check whether dictionary keys exist},
+    label={c03_dictionary_membership},
+    captionpos=b
+]
+room = {"name": "Studio", "area_m2": 50.5}
 
-    print("name" in room)
-    print("level" in room)
-}{Check whether dictionary keys exist}
+print("name" in room)
+print("level" in room)
+\end{lstlisting}
 
 \hh{Use tuples for fixed records}
 
 A tuple is an ordered collection that cannot be changed after creation.
 Parentheses identify a tuple.
 
-\code{c03_first_tuple}{python}{
-    point_xy = (12.5, 8.0)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A fixed two-coordinate record},
+    label={c03_first_tuple},
+    captionpos=b
+]
+point_xy = (12.5, 8.0)
 
-    print(point_xy[0])
-    print(point_xy[1])
-}{A fixed two-coordinate record}
+print(point_xy[0])
+print(point_xy[1])
+\end{lstlisting}
 
 A tuple is useful when the number and meaning of its positions should remain
 fixed. Use a list when items need to be added, removed, or replaced.
@@ -278,21 +386,33 @@ fixed. Use a list when items need to be added, removed, or replaced.
 A set stores unique values. Repeated values are removed automatically. Sets do
 not provide list-style positional indexing.
 
-\code{c03_first_set}{python}{
-    materials = {"Steel", "Glass", "Steel", "Concrete"}
-    print(materials)
-}{A set removes a repeated value}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A set removes a repeated value},
+    label={c03_first_set},
+    captionpos=b
+]
+materials = {"Steel", "Glass", "Steel", "Concrete"}
+print(materials)
+\end{lstlisting}
 
 The displayed order may vary. Use \c{set()} to create an empty set because
 empty curly braces create an empty dictionary.
 
-\code{c03_set_membership}{python}{
-    materials = {"Steel", "Glass", "Concrete"}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Add an item and check set membership},
+    label={c03_set_membership},
+    captionpos=b
+]
+materials = {"Steel", "Glass", "Concrete"}
 
-    materials.add("Timber")
-    print("Timber" in materials)
-    print(len(materials))
-}{Add an item and check set membership}
+materials.add("Timber")
+print("Timber" in materials)
+print(len(materials))
+\end{lstlisting}
 
 \hh{Choose a collection}
 
@@ -323,36 +443,54 @@ label? These questions usually narrow the choice quickly.
 
 \hhh{Level 0 -- Read and predict}
 
-\code{c03_practice_level0}{python}{
-    levels = ["B1", "L1", "L2"]
-    print(levels[0])
-    print(levels[-1])
-}{Predict two list lookups}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict two list lookups},
+    label={c03_practice_level0},
+    captionpos=b
+]
+levels = ["B1", "L1", "L2"]
+print(levels[0])
+print(levels[-1])
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
 Add two room names to the list, replace the first item, and print the result.
 
-\code{c03_practice_level1}{python}{
-    rooms = ["Lobby", "Studio"]
-    print(rooms)
-}{Starting list for modification}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Starting list for modification},
+    label={c03_practice_level1},
+    captionpos=b
+]
+rooms = ["Lobby", "Studio"]
+print(rooms)
+\end{lstlisting}
 
 \hhh{Level 2 -- Complete}
 
 Replace each \c{...} with a value to complete a dictionary that stores a room
 name, area, and level. Then display only the name and area.
 
-\code{c03_practice_level2}{python}{
-    room = {
-        "name": ...,
-        "area_m2": ...,
-        "level": ...
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Complete three dictionary values},
+    label={c03_practice_level2},
+    captionpos=b
+]
+room = {
+    "name": ...,
+    "area_m2": ...,
+    "level": ...
+}
 
-    print(room["name"])
-    print(room["area_m2"])
-}{Complete three dictionary values}
+print(room["name"])
+print(room["area_m2"])
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -382,42 +520,60 @@ materials. Add a fourth material to the nested list and display the result.
 
 \textbf{Level 2}
 
-\code{c03_solution_level2}{python}{
-    room = {
-        "name": "Seminar Room",
-        "area_m2": 32.0,
-        "level": 3
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c03_solution_level2},
+    captionpos=b
+]
+room = {
+    "name": "Seminar Room",
+    "area_m2": 32.0,
+    "level": 3
+}
 
-    print(room["name"])
-    print(room["area_m2"])
-}{One solution to Level 2}
+print(room["name"])
+print(room["area_m2"])
+\end{lstlisting}
 
 \textbf{Level 3 -- one possible solution}
 
-\code{c03_solution_level3}{python}{
-    materials = ["Concrete", "Steel", "Glass", "Timber"]
-    material_cost = {"name": "Concrete", "cost_per_m2": 42.0}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c03_solution_level3},
+    captionpos=b
+]
+materials = ["Concrete", "Steel", "Glass", "Timber"]
+material_cost = {"name": "Concrete", "cost_per_m2": 42.0}
 
-    repeated_names = ["Steel", "Glass", "Steel", "Timber"]
-    unique_materials = set(repeated_names)
+repeated_names = ["Steel", "Glass", "Steel", "Timber"]
+unique_materials = set(repeated_names)
 
-    print(materials, len(materials))
-    print(material_cost, len(material_cost))
-    print(unique_materials, len(unique_materials))
-}{One solution to Level 3}
+print(materials, len(materials))
+print(material_cost, len(material_cost))
+print(unique_materials, len(unique_materials))
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c03_solution_level4}{python}{
-    room = {
-        "name": "Studio",
-        "finishes": ["Concrete", "Paint", "Timber"]
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c03_solution_level4},
+    captionpos=b
+]
+room = {
+    "name": "Studio",
+    "finishes": ["Concrete", "Paint", "Timber"]
+}
 
-    room["finishes"].append("Glass")
-    print(room)
-}{One solution to Level 4}
+room["finishes"].append("Glass")
+print(room)
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

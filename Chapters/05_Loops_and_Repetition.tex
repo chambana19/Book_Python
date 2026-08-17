@@ -30,23 +30,35 @@ After completing this chapter, you should be able to:
 Suppose a list contains four room names. Repeating \c{print()} with four
 indexes works, but the code must change whenever the list changes.
 
-\code{c05_without_loop}{python}{
-    rooms = ["Lobby", "Studio", "Office", "Cafe"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Repeated instructions without a loop},
+    label={c05_without_loop},
+    captionpos=b
+]
+rooms = ["Lobby", "Studio", "Office", "Cafe"]
 
-    print(rooms[0])
-    print(rooms[1])
-    print(rooms[2])
-    print(rooms[3])
-}{Repeated instructions without a loop}
+print(rooms[0])
+print(rooms[1])
+print(rooms[2])
+print(rooms[3])
+\end{lstlisting}
 
 A loop expresses the real intention: display every item.
 
-\code{c05_first_loop}{python}{
-    rooms = ["Lobby", "Studio", "Office", "Cafe"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Display every item with a for loop},
+    label={c05_first_loop},
+    captionpos=b
+]
+rooms = ["Lobby", "Studio", "Office", "Cafe"]
 
-    for room in rooms:
-        print(room)
-}{Display every item with a for loop}
+for room in rooms:
+    print(room)
+\end{lstlisting}
 
 Read the loop header as ``for each \c{room} in \c{rooms}.'' During each
 repetition, \c{room} refers to the next item.
@@ -57,16 +69,22 @@ The colon ends the loop header. Indented instructions form the loop body and
 run once for each item. Instructions after the indentation ends run once after
 the loop.
 
-\code{c05_loop_block}{python}{
-    rooms = ["Lobby", "Studio", "Office"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Distinguish repeated and non-repeated instructions},
+    label={c05_loop_block},
+    captionpos=b
+]
+rooms = ["Lobby", "Studio", "Office"]
 
-    print("Room list")
-    for room in rooms:
-        print(room)
-        print("Checked")
+print("Room list")
+for room in rooms:
+    print(room)
+    print("Checked")
 
-    print("All rooms checked")
-}{Distinguish repeated and non-repeated instructions}
+print("All rooms checked")
+\end{lstlisting}
 
 \begin{NoteBox}
 \textbf{Stop and predict.} How many times will \c{Checked} appear? How many
@@ -77,13 +95,19 @@ times will \c{All rooms checked} appear?
 
 The loop variable may be used in a calculation or f-string.
 
-\code{c05_loop_calculation}{python}{
-    areas_m2 = [24.0, 35.5, 18.0]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Apply one calculation to every list item},
+    label={c05_loop_calculation},
+    captionpos=b
+]
+areas_m2 = [24.0, 35.5, 18.0]
 
-    for area_m2 in areas_m2:
-        area_ft2 = area_m2 * 10.764
-        print(f"{area_m2:.1f} m2 = {area_ft2:.1f} ft2")
-}{Apply one calculation to every list item}
+for area_m2 in areas_m2:
+    area_ft2 = area_m2 * 10.764
+    print(f"{area_m2:.1f} m2 = {area_ft2:.1f} ft2")
+\end{lstlisting}
 
 Each result is calculated from the current item. The original list is not
 changed.
@@ -93,54 +117,84 @@ changed.
 The \c{range()} function produces a sequence of integers. It is useful when
 you know how many times to repeat.
 
-\code{c05_range_basic}{python}{
-    for number in range(5):
-        print(number)
-}{Count from zero through four}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Count from zero through four},
+    label={c05_range_basic},
+    captionpos=b
+]
+for number in range(5):
+    print(number)
+\end{lstlisting}
 
 The stop value is not included. \c{range(5)} produces 0, 1, 2, 3, and 4.
 
 Provide a start and stop value when counting should begin elsewhere.
 
-\code{c05_range_start_stop}{python}{
-    for level in range(1, 5):
-        print(f"Level {level}")
-}{Count from one through four}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Count from one through four},
+    label={c05_range_start_stop},
+    captionpos=b
+]
+for level in range(1, 5):
+    print(f"Level {level}")
+\end{lstlisting}
 
 A third argument sets the step.
 
-\code{c05_range_step}{python}{
-    for grid_line in range(0, 25, 5):
-        print(grid_line)
-}{Count from zero by fives}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Count from zero by fives},
+    label={c05_range_step},
+    captionpos=b
+]
+for grid_line in range(0, 25, 5):
+    print(grid_line)
+\end{lstlisting}
 
 \hh{Calculate a running total}
 
 An accumulator stores a result that changes during the loop. Begin at zero,
 then add each value.
 
-\code{c05_running_total}{python}{
-    areas_m2 = [24.0, 35.5, 18.0]
-    total_area_m2 = 0.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Accumulate a total},
+    label={c05_running_total},
+    captionpos=b
+]
+areas_m2 = [24.0, 35.5, 18.0]
+total_area_m2 = 0.0
 
-    for area_m2 in areas_m2:
-        total_area_m2 = total_area_m2 + area_m2
+for area_m2 in areas_m2:
+    total_area_m2 = total_area_m2 + area_m2
 
-    print(f"Total area: {total_area_m2:.1f} m2")
-}{Accumulate a total}
+print(f"Total area: {total_area_m2:.1f} m2")
+\end{lstlisting}
 
 The shorter statement \c{total_area_m2 += area_m2} has the same purpose.
 
-\code{c05_running_total_short}{python}{
-    areas_m2 = [24.0, 35.5, 18.0]
-    total_area_m2 = 0.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use an accumulator to calculate an average},
+    label={c05_running_total_short},
+    captionpos=b
+]
+areas_m2 = [24.0, 35.5, 18.0]
+total_area_m2 = 0.0
 
-    for area_m2 in areas_m2:
-        total_area_m2 += area_m2
+for area_m2 in areas_m2:
+    total_area_m2 += area_m2
 
-    average_area_m2 = total_area_m2 / len(areas_m2)
-    print(f"Average area: {average_area_m2:.1f} m2")
-}{Use an accumulator to calculate an average}
+average_area_m2 = total_area_m2 / len(areas_m2)
+print(f"Average area: {average_area_m2:.1f} m2")
+\end{lstlisting}
 
 Keep the final calculation outside the loop because it is needed only once.
 
@@ -148,13 +202,19 @@ Keep the final calculation outside the loop because it is needed only once.
 
 An \c{if} statement inside a loop can select which items receive an action.
 
-\code{c05_loop_with_if}{python}{
-    areas_m2 = [24.0, 35.5, 18.0, 42.0]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Display only values that meet a condition},
+    label={c05_loop_with_if},
+    captionpos=b
+]
+areas_m2 = [24.0, 35.5, 18.0, 42.0]
 
-    for area_m2 in areas_m2:
-        if area_m2 >= 30.0:
-            print(f"Large area: {area_m2:.1f} m2")
-}{Display only values that meet a condition}
+for area_m2 in areas_m2:
+    if area_m2 >= 30.0:
+        print(f"Large area: {area_m2:.1f} m2")
+\end{lstlisting}
 
 Indentation shows the structure: the \c{if} belongs to the loop, and its
 \c{print()} belongs to the \c{if}.
@@ -163,29 +223,41 @@ Indentation shows the structure: the \c{if} belongs to the loop, and its
 
 Looping directly over a dictionary produces its keys.
 
-\code{c05_dictionary_keys}{python}{
-    room_areas = {
-        "Lobby": 24.0,
-        "Studio": 35.5,
-        "Office": 18.0
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Iterate over dictionary keys},
+    label={c05_dictionary_keys},
+    captionpos=b
+]
+room_areas = {
+    "Lobby": 24.0,
+    "Studio": 35.5,
+    "Office": 18.0
+}
 
-    for room_name in room_areas:
-        print(room_name)
-}{Iterate over dictionary keys}
+for room_name in room_areas:
+    print(room_name)
+\end{lstlisting}
 
 Use \c{items()} when both the key and value are needed.
 
-\code{c05_dictionary_items}{python}{
-    room_areas = {
-        "Lobby": 24.0,
-        "Studio": 35.5,
-        "Office": 18.0
-    }
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Iterate over dictionary key--value pairs},
+    label={c05_dictionary_items},
+    captionpos=b
+]
+room_areas = {
+    "Lobby": 24.0,
+    "Studio": 35.5,
+    "Office": 18.0
+}
 
-    for room_name, area_m2 in room_areas.items():
-        print(f"{room_name}: {area_m2:.1f} m2")
-}{Iterate over dictionary key--value pairs}
+for room_name, area_m2 in room_areas.items():
+    print(f"{room_name}: {area_m2:.1f} m2")
+\end{lstlisting}
 
 The two loop variables receive the key and value from each pair.
 
@@ -194,20 +266,32 @@ The two loop variables receive the key and value from each pair.
 The \c{enumerate()} function provides an index and an item during each
 repetition.
 
-\code{c05_enumerate}{python}{
-    rooms = ["Lobby", "Studio", "Office"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Number list items starting at one},
+    label={c05_enumerate},
+    captionpos=b
+]
+rooms = ["Lobby", "Studio", "Office"]
 
-    for number, room_name in enumerate(rooms, start=1):
-        print(f"{number}. {room_name}")
-}{Number list items starting at one}
+for number, room_name in enumerate(rooms, start=1):
+    print(f"{number}. {room_name}")
+\end{lstlisting}
 
 Expected output:
 
-\code{c05_enumerate_output}{text}{
-    1. Lobby
-    2. Studio
-    3. Office
-}{Numbered output from enumerate}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Numbered output from enumerate},
+    label={c05_enumerate_output},
+    captionpos=b
+]
+1. Lobby
+2. Studio
+3. Office
+\end{lstlisting}
 
 Use \c{enumerate()} instead of manually updating a counter when you need both
 position and value.
@@ -216,13 +300,19 @@ position and value.
 
 The \c{zip()} function pairs corresponding items from two or more collections.
 
-\code{c05_zip}{python}{
-    room_names = ["Lobby", "Studio", "Office"]
-    areas_m2 = [24.0, 35.5, 18.0]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Pair room names and areas},
+    label={c05_zip},
+    captionpos=b
+]
+room_names = ["Lobby", "Studio", "Office"]
+areas_m2 = [24.0, 35.5, 18.0]
 
-    for room_name, area_m2 in zip(room_names, areas_m2):
-        print(f"{room_name}: {area_m2:.1f} m2")
-}{Pair room names and areas}
+for room_name, area_m2 in zip(room_names, areas_m2):
+    print(f"{room_name}: {area_m2:.1f} m2")
+\end{lstlisting}
 
 If the collections have different lengths, \c{zip()} stops at the end of the
 shortest one. Check that related collections have matching lengths.
@@ -232,15 +322,21 @@ shortest one. Check that related collections have matching lengths.
 A \c{while} loop repeats as long as its condition remains true. Something in
 the loop must eventually make the condition false.
 
-\code{c05_first_while}{python}{
-    count = 1
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A while loop with an updating counter},
+    label={c05_first_while},
+    captionpos=b
+]
+count = 1
 
-    while count <= 4:
-        print(count)
-        count += 1
+while count <= 4:
+    print(count)
+    count += 1
 
-    print("Finished")
-}{A while loop with an updating counter}
+print("Finished")
+\end{lstlisting}
 
 Trace the counter carefully:
 \begin{enumerate}
@@ -257,17 +353,23 @@ Forgetting \c{count += 1} creates an infinite loop. Use
 
 The \c{break} statement exits the nearest loop immediately.
 
-\code{c05_break}{python}{
-    room_names = ["Lobby", "Studio", "Office", "Cafe"]
-    target = "Office"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Stop after finding a target},
+    label={c05_break},
+    captionpos=b
+]
+room_names = ["Lobby", "Studio", "Office", "Cafe"]
+target = "Office"
 
-    for room_name in room_names:
-        if room_name == target:
-            print("Found the target")
-            break
+for room_name in room_names:
+    if room_name == target:
+        print("Found the target")
+        break
 
-        print(f"Checked {room_name}")
-}{Stop after finding a target}
+    print(f"Checked {room_name}")
+\end{lstlisting}
 
 Use \c{break} when continuing would serve no purpose.
 
@@ -276,15 +378,21 @@ Use \c{break} when continuing would serve no purpose.
 The \c{continue} statement skips the rest of the current repetition and moves
 to the next item.
 
-\code{c05_continue}{python}{
-    values = [24.0, None, 35.5, None, 18.0]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Skip missing values},
+    label={c05_continue},
+    captionpos=b
+]
+values = [24.0, None, 35.5, None, 18.0]
 
-    for value in values:
-        if value is None:
-            continue
+for value in values:
+    if value is None:
+        continue
 
-        print(f"Area: {value:.1f} m2")
-}{Skip missing values}
+    print(f"Area: {value:.1f} m2")
+\end{lstlisting}
 
 Use \c{continue} only when it makes the loop easier to read than an additional
 level of nesting.
@@ -294,24 +402,36 @@ level of nesting.
 After an ordinary loop is clear, a short list comprehension can express a
 simple transformation.
 
-\code{c05_ordinary_transform}{python}{
-    areas_m2 = [20.0, 30.0, 40.0]
-    doubled_areas = []
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Build a transformed list with an ordinary loop},
+    label={c05_ordinary_transform},
+    captionpos=b
+]
+areas_m2 = [20.0, 30.0, 40.0]
+doubled_areas = []
 
-    for area_m2 in areas_m2:
-        doubled_areas.append(area_m2 * 2)
+for area_m2 in areas_m2:
+    doubled_areas.append(area_m2 * 2)
 
-    print(doubled_areas)
-}{Build a transformed list with an ordinary loop}
+print(doubled_areas)
+\end{lstlisting}
 
 The equivalent comprehension is:
 
-\code{c05_list_comprehension}{python}{
-    areas_m2 = [20.0, 30.0, 40.0]
-    doubled_areas = [area_m2 * 2 for area_m2 in areas_m2]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The same transformation as a list comprehension},
+    label={c05_list_comprehension},
+    captionpos=b
+]
+areas_m2 = [20.0, 30.0, 40.0]
+doubled_areas = [area_m2 * 2 for area_m2 in areas_m2]
 
-    print(doubled_areas)
-}{The same transformation as a list comprehension}
+print(doubled_areas)
+\end{lstlisting}
 
 Prefer the ordinary loop when the transformation includes several steps or
 would be difficult to explain in one short sentence.
@@ -333,14 +453,20 @@ would be difficult to explain in one short sentence.
 
 \hhh{Level 0 -- Read and predict}
 
-\code{c05_practice_level0}{python}{
-    names = ["A", "B", "C"]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict repeated and final output},
+    label={c05_practice_level0},
+    captionpos=b
+]
+names = ["A", "B", "C"]
 
-    for name in names:
-        print(name)
+for name in names:
+    print(name)
 
-    print("Done")
-}{Predict repeated and final output}
+print("Done")
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
@@ -350,15 +476,21 @@ Add two names to the list and change the message inside the loop.
 
 Replace \c{...} with the value that must be added during each repetition.
 
-\code{c05_practice_level2}{python}{
-    areas_m2 = [20.0, 32.5, 18.0, 29.5]
-    total_area_m2 = 0.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Complete an accumulator update},
+    label={c05_practice_level2},
+    captionpos=b
+]
+areas_m2 = [20.0, 32.5, 18.0, 29.5]
+total_area_m2 = 0.0
 
-    for area_m2 in areas_m2:
-        total_area_m2 += ...
+for area_m2 in areas_m2:
+    total_area_m2 += ...
 
-    print(f"Total: {total_area_m2:.1f} m2")
-}{Complete an accumulator update}
+print(f"Total: {total_area_m2:.1f} m2")
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -383,43 +515,61 @@ count after the loop.
 
 \textbf{Level 2:} The total is \c{100.0 m2}.
 
-\code{c05_solution_level2}{python}{
-    areas_m2 = [20.0, 32.5, 18.0, 29.5]
-    total_area_m2 = 0.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c05_solution_level2},
+    captionpos=b
+]
+areas_m2 = [20.0, 32.5, 18.0, 29.5]
+total_area_m2 = 0.0
 
-    for area_m2 in areas_m2:
-        total_area_m2 += area_m2
+for area_m2 in areas_m2:
+    total_area_m2 += area_m2
 
-    print(f"Total: {total_area_m2:.1f} m2")
-}{One solution to Level 2}
+print(f"Total: {total_area_m2:.1f} m2")
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c05_solution_level3}{python}{
-    room_names = ["Lobby", "Studio", "Office", "Cafe"]
-    areas_m2 = [24.0, 35.5, 18.0, 31.0]
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c05_solution_level3},
+    captionpos=b
+]
+room_names = ["Lobby", "Studio", "Office", "Cafe"]
+areas_m2 = [24.0, 35.5, 18.0, 31.0]
 
-    for room_name, area_m2 in zip(room_names, areas_m2):
-        print(f"{room_name}: {area_m2:.1f} m2")
-        if area_m2 >= 30.0:
-            print("Large")
-}{One solution to Level 3}
+for room_name, area_m2 in zip(room_names, areas_m2):
+    print(f"{room_name}: {area_m2:.1f} m2")
+    if area_m2 >= 30.0:
+        print("Large")
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c05_solution_level4}{python}{
-    room_names = ["Lobby", "Studio", "Office", "Cafe"]
-    areas_m2 = [24.0, 35.5, 18.0, 31.0]
-    large_count = 0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c05_solution_level4},
+    captionpos=b
+]
+room_names = ["Lobby", "Studio", "Office", "Cafe"]
+areas_m2 = [24.0, 35.5, 18.0, 31.0]
+large_count = 0
 
-    for room_name, area_m2 in zip(room_names, areas_m2):
-        print(f"{room_name}: {area_m2:.1f} m2")
-        if area_m2 >= 30.0:
-            print("Large")
-            large_count += 1
+for room_name, area_m2 in zip(room_names, areas_m2):
+    print(f"{room_name}: {area_m2:.1f} m2")
+    if area_m2 >= 30.0:
+        print("Large")
+        large_count += 1
 
-    print(f"Large room count: {large_count}")
-}{One solution to Level 4}
+print(f"Large room count: {large_count}")
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

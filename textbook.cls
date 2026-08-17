@@ -51,7 +51,9 @@
 \renewcommand{\headrulewidth}{0pt}%
 \renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}%
 \fancyhead[L]{%
-    \small\scshape\color{darkgray} \chaptername\ \thechapter\ --\ \leftmark%
+    % Long chapter names collided with the page counter. Keep the running
+    % header compact; the full title remains in the chapter heading and TOC.
+    \small\scshape\color{darkgray} \chaptername\ \thechapter%
 }
 \fancyhead[R]{%
     \small\scshape\color{darkgray} Page \thepage\ of \pageref{LastPage}% <<< keep \pageref

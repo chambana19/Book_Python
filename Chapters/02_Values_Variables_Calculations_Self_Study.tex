@@ -30,13 +30,19 @@ A \emph{value} is one piece of information. Every value has a \emph{type}. The
 type tells Python what kind of information the value represents and which
 operations make sense for it.
 
-\code{c02_basic_values}{python}{
-    print(4)
-    print(3.5)
-    print("Studio")
-    print(True)
-    print(None)
-}{Five basic Python values}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Five basic Python values},
+    label={c02_basic_values},
+    captionpos=b
+]
+print(4)
+print(3.5)
+print("Studio")
+print(True)
+print(None)
+\end{lstlisting}
 
 These values have different types:
 \begin{itemize}
@@ -49,11 +55,17 @@ These values have different types:
 
 Use \c{type()} when you want Python to report a value's type.
 
-\code{c02_type_check}{python}{
-    print(type(4))
-    print(type(3.5))
-    print(type("Studio"))
-}{Inspect three value types}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Inspect three value types},
+    label={c02_type_check},
+    captionpos=b
+]
+print(type(4))
+print(type(3.5))
+print(type("Studio"))
+\end{lstlisting}
 
 \begin{NoteBox}
 \textbf{Stop and predict.} What type will Python report for \c{"4"}? Notice
@@ -65,15 +77,21 @@ that quotation marks change a number into text.
 A variable is a name connected to a value. The equals sign assigns the value
 on the right to the name on the left.
 
-\code{c02_first_variables}{python}{
-    room_name = "Studio"
-    width_m = 6.0
-    length_m = 8.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Assign and display three variables},
+    label={c02_first_variables},
+    captionpos=b
+]
+room_name = "Studio"
+width_m = 6.0
+length_m = 8.0
 
-    print(room_name)
-    print(width_m)
-    print(length_m)
-}{Assign and display three variables}
+print(room_name)
+print(width_m)
+print(length_m)
+\end{lstlisting}
 
 Read \c{width_m = 6.0} as ``assign the value 6.0 to \c{width_m}.'' The equals
 sign performs assignment here; it is not asking a mathematical question.
@@ -93,20 +111,32 @@ Names such as \c{wall_height_m} and \c{area_m2} are clearer than \c{x} and
 
 A variable can receive a new value later.
 
-\code{c02_reassignment}{python}{
-    floor_count = 3
-    print(floor_count)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Reassign a variable},
+    label={c02_reassignment},
+    captionpos=b
+]
+floor_count = 3
+print(floor_count)
 
-    floor_count = 4
-    print(floor_count)
-}{Reassign a variable}
+floor_count = 4
+print(floor_count)
+\end{lstlisting}
 
 Expected output:
 
-\code{c02_reassignment_output}{text}{
-    3
-    4
-}{Output after reassignment}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Output after reassignment},
+    label={c02_reassignment_output},
+    captionpos=b
+]
+3
+4
+\end{lstlisting}
 
 Reassignment does not change the earlier output. It changes which value the
 name refers to from that point forward.
@@ -129,17 +159,23 @@ Exponentiation & \c{**} & \c{3 ** 2} \\
 
 Parentheses make the intended order clear.
 
-\code{c02_arithmetic}{python}{
-    width_m = 6.0
-    length_m = 8.0
-    height_m = 3.2
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Calculate area and volume},
+    label={c02_arithmetic},
+    captionpos=b
+]
+width_m = 6.0
+length_m = 8.0
+height_m = 3.2
 
-    area_m2 = width_m * length_m
-    volume_m3 = area_m2 * height_m
+area_m2 = width_m * length_m
+volume_m3 = area_m2 * height_m
 
-    print(area_m2)
-    print(volume_m3)
-}{Calculate area and volume}
+print(area_m2)
+print(volume_m3)
+\end{lstlisting}
 
 \begin{NoteBox}
 \textbf{Stop and predict.} If \c{width_m} changes to \c{7.0}, which results
@@ -152,20 +188,32 @@ Python follows standard arithmetic precedence. Multiplication and division
 occur before addition and subtraction. Parentheses let you state the intended
 order directly.
 
-\code{c02_precedence}{python}{
-    result_a = 4 + 3 * 2
-    result_b = (4 + 3) * 2
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Parentheses change calculation order},
+    label={c02_precedence},
+    captionpos=b
+]
+result_a = 4 + 3 * 2
+result_b = (4 + 3) * 2
 
-    print(result_a)
-    print(result_b)
-}{Parentheses change calculation order}
+print(result_a)
+print(result_b)
+\end{lstlisting}
 
 Expected output:
 
-\code{c02_precedence_output}{text}{
-    10
-    14
-}{Results with and without parentheses}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Results with and without parentheses},
+    label={c02_precedence_output},
+    captionpos=b
+]
+10
+14
+\end{lstlisting}
 
 Use parentheses when a reader might otherwise need to stop and check the
 order.
@@ -175,24 +223,36 @@ order.
 A string is text inside quotation marks. Single and double quotation marks
 both create strings.
 
-\code{c02_strings}{python}{
-    room_name = "Lecture Room"
-    level_name = 'Second Floor'
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create two strings},
+    label={c02_strings},
+    captionpos=b
+]
+room_name = "Lecture Room"
+level_name = 'Second Floor'
 
-    print(room_name)
-    print(level_name)
-}{Create two strings}
+print(room_name)
+print(level_name)
+\end{lstlisting}
 
 Choose one quotation style and use it consistently. A string can contain
 spaces, punctuation, and digits. The digits in \c{"Room 204"} are still text.
 
 Strings can be joined with \c{+}.
 
-\code{c02_string_join}{python}{
-    room_name = "Studio"
-    message = "Room: " + room_name
-    print(message)
-}{Join two strings}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Join two strings},
+    label={c02_string_join},
+    captionpos=b
+]
+room_name = "Studio"
+message = "Room: " + room_name
+print(message)
+\end{lstlisting}
 
 For messages containing numbers, an f-string is usually clearer than joining
 many converted values.
@@ -202,30 +262,48 @@ many converted values.
 The \c{input()} function displays a prompt, waits for the user to type, and
 returns the response as a string.
 
-\code{c02_text_input}{python}{
-    room_name = input("Room name: ")
-    print("You entered: " + room_name)
-}{Read and display text input}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Read and display text input},
+    label={c02_text_input},
+    captionpos=b
+]
+room_name = input("Room name: ")
+print("You entered: " + room_name)
+\end{lstlisting}
 
 Even when a user types digits, \c{input()} returns text. Convert the response
 before using it in arithmetic.
 
-\code{c02_numeric_input}{python}{
-    width_text = input("Width in meters: ")
-    width_m = float(width_text)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Convert input text to a floating-point number},
+    label={c02_numeric_input},
+    captionpos=b
+]
+width_text = input("Width in meters: ")
+width_m = float(width_text)
 
-    print(width_m * 2)
-}{Convert input text to a floating-point number}
+print(width_m * 2)
+\end{lstlisting}
 
 You can combine reading and conversion when the shorter form remains clear.
 
-\code{c02_direct_conversion}{python}{
-    width_m = float(input("Width in meters: "))
-    length_m = float(input("Length in meters: "))
-    area_m2 = width_m * length_m
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Read two dimensions and calculate area},
+    label={c02_direct_conversion},
+    captionpos=b
+]
+width_m = float(input("Width in meters: "))
+length_m = float(input("Length in meters: "))
+area_m2 = width_m * length_m
 
-    print(area_m2)
-}{Read two dimensions and calculate area}
+print(area_m2)
+\end{lstlisting}
 
 If the user types text that cannot be converted, Python reports a
 \c{ValueError}. Chapter 8 will show how to handle that error. For now, enter a
@@ -236,22 +314,34 @@ valid number when a prompt requests one.
 An f-string places values inside a readable message. Begin the string with
 \c{f} and place variable names inside braces.
 
-\code{c02_first_fstring}{python}{
-    room_name = "Studio"
-    area_m2 = 48.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Insert values into an f-string},
+    label={c02_first_fstring},
+    captionpos=b
+]
+room_name = "Studio"
+area_m2 = 48.0
 
-    print(f"{room_name} area: {area_m2} m2")
-}{Insert values into an f-string}
+print(f"{room_name} area: {area_m2} m2")
+\end{lstlisting}
 
 Use a format specification to control decimal places.
 
-\code{c02_decimal_format}{python}{
-    width_m = 5.75
-    length_m = 7.2
-    area_m2 = width_m * length_m
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Display a number with two decimal places},
+    label={c02_decimal_format},
+    captionpos=b
+]
+width_m = 5.75
+length_m = 7.2
+area_m2 = width_m * length_m
 
-    print(f"Area: {area_m2:.2f} m2")
-}{Display a number with two decimal places}
+print(f"Area: {area_m2:.2f} m2")
+\end{lstlisting}
 
 The specification \c{:.2f} displays a floating-point value with two digits
 after the decimal point. It changes the displayed form, not the stored value.
@@ -261,14 +351,20 @@ after the decimal point. It changes the displayed form, not the stored value.
 A comment begins with \c{#}. Python ignores the comment when the program runs.
 Use comments to explain an assumption or decision.
 
-\code{c02_comments}{python}{
-    # Dimensions are measured in meters.
-    width_m = 5.75
-    length_m = 7.2
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A comment records an important assumption},
+    label={c02_comments},
+    captionpos=b
+]
+# Dimensions are measured in meters.
+width_m = 5.75
+length_m = 7.2
 
-    area_m2 = width_m * length_m
-    print(f"Area: {area_m2:.2f} m2")
-}{A comment records an important assumption}
+area_m2 = width_m * length_m
+print(f"Area: {area_m2:.2f} m2")
+\end{lstlisting}
 
 Avoid comments that merely repeat the code. A comment should add information
 that the names and operations do not already communicate.
@@ -277,33 +373,57 @@ that the names and operations do not already communicate.
 
 \hhh{Using a variable before assigning it}
 
-\code{c02_name_error}{python}{
-    print(area_m2)
-}{This intentionally produces a NameError}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={This intentionally produces a NameError},
+    label={c02_name_error},
+    captionpos=b
+]
+print(area_m2)
+\end{lstlisting}
 
 Assign \c{area_m2} before trying to use it.
 
 \hhh{Mixing text and numbers with plus}
 
-\code{c02_type_error}{python}{
-    area_m2 = 48.0
-    print("Area: " + area_m2)
-}{This intentionally produces a TypeError}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={This intentionally produces a TypeError},
+    label={c02_type_error},
+    captionpos=b
+]
+area_m2 = 48.0
+print("Area: " + area_m2)
+\end{lstlisting}
 
 Use an f-string instead:
 
-\code{c02_type_error_fixed}{python}{
-    area_m2 = 48.0
-    print(f"Area: {area_m2} m2")
-}{Use an f-string to combine text and a number}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use an f-string to combine text and a number},
+    label={c02_type_error_fixed},
+    captionpos=b
+]
+area_m2 = 48.0
+print(f"Area: {area_m2} m2")
+\end{lstlisting}
 
 \hhh{Using an unclear name}
 
-\code{c02_unclear_names}{python}{
-    a = 6.0
-    b = 8.0
-    c = a * b
-}{Valid code with unclear names}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Valid code with unclear names},
+    label={c02_unclear_names},
+    captionpos=b
+]
+a = 6.0
+b = 8.0
+c = a * b
+\end{lstlisting}
 
 Prefer \c{width_m}, \c{length_m}, and \c{area_m2}. Clear names reduce the
 amount of explanation a reader needs.
@@ -314,12 +434,18 @@ amount of explanation a reader needs.
 
 Predict the output before running the code.
 
-\code{c02_practice_level0}{python}{
-    width_m = 4.0
-    length_m = 6.0
-    area_m2 = width_m * length_m
-    print(area_m2)
-}{Predict a calculation result}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict a calculation result},
+    label={c02_practice_level0},
+    captionpos=b
+]
+width_m = 4.0
+length_m = 6.0
+area_m2 = width_m * length_m
+print(area_m2)
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
@@ -331,13 +457,19 @@ the result by hand, then run the code again.
 Replace \c{...} with the missing expression so the program calculates
 perimeter. Complete the line before you run the program.
 
-\code{c02_practice_level2}{python}{
-    width_m = 5.0
-    length_m = 9.0
-    perimeter_m = ...  # Replace ... with the perimeter calculation.
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Complete one missing expression},
+    label={c02_practice_level2},
+    captionpos=b
+]
+width_m = 5.0
+length_m = 9.0
+perimeter_m = ...  # Replace ... with the perimeter calculation.
 
-    print(f"Perimeter: {perimeter_m:.1f} m")
-}{Complete one missing expression}
+print(f"Perimeter: {perimeter_m:.1f} m")
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -362,43 +494,61 @@ Display a clear sentence describing the difference.
 
 \textbf{Level 2}
 
-\code{c02_solution_level2}{python}{
-    width_m = 5.0
-    length_m = 9.0
-    perimeter_m = 2 * (width_m + length_m)
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c02_solution_level2},
+    captionpos=b
+]
+width_m = 5.0
+length_m = 9.0
+perimeter_m = 2 * (width_m + length_m)
 
-    print(f"Perimeter: {perimeter_m:.1f} m")
-}{One solution to Level 2}
+print(f"Perimeter: {perimeter_m:.1f} m")
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c02_solution_level3}{python}{
-    width_m = float(input("Width in meters: "))
-    length_m = float(input("Length in meters: "))
-    height_m = float(input("Height in meters: "))
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c02_solution_level3},
+    captionpos=b
+]
+width_m = float(input("Width in meters: "))
+length_m = float(input("Length in meters: "))
+height_m = float(input("Height in meters: "))
 
-    area_m2 = width_m * length_m
-    volume_m3 = area_m2 * height_m
+area_m2 = width_m * length_m
+volume_m3 = area_m2 * height_m
 
-    print(f"Area: {area_m2:.2f} m2")
-    print(f"Volume: {volume_m3:.2f} m3")
-}{One solution to Level 3}
+print(f"Area: {area_m2:.2f} m2")
+print(f"Volume: {volume_m3:.2f} m3")
+\end{lstlisting}
 
 \textbf{Level 4 addition}
 
-\code{c02_solution_level4}{python}{
-    width_m = float(input("Width in meters: "))
-    length_m = float(input("Length in meters: "))
-    height_m = float(input("Height in meters: "))
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution that extends Level 3},
+    label={c02_solution_level4},
+    captionpos=b
+]
+width_m = float(input("Width in meters: "))
+length_m = float(input("Length in meters: "))
+height_m = float(input("Height in meters: "))
 
-    area_m2 = width_m * length_m
-    volume_m3 = area_m2 * height_m
-    difference_m = length_m - width_m
+area_m2 = width_m * length_m
+volume_m3 = area_m2 * height_m
+difference_m = length_m - width_m
 
-    print(f"Area: {area_m2:.2f} m2")
-    print(f"Volume: {volume_m3:.2f} m3")
-    print(f"Length minus width: {difference_m:.2f} m")
-}{One solution that extends Level 3}
+print(f"Area: {area_m2:.2f} m2")
+print(f"Volume: {volume_m3:.2f} m3")
+print(f"Length minus width: {difference_m:.2f} m")
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

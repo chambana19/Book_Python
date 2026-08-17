@@ -36,9 +36,15 @@ Program problems often fall into three broad groups:
 
 This intentionally incorrect instruction has an unclosed string:
 
-\code{c08_syntax_example}{text}{
-    print("Lobby)
-}{Text showing a syntax mistake; do not run it as correct code}
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={Text showing a syntax mistake; do not run it as correct code},
+    label={c08_syntax_example},
+    captionpos=b
+]
+print("Lobby)
+\end{lstlisting}
 
 A syntax problem must be corrected before the program can run. A runtime
 exception can sometimes be anticipated and handled. A logic error requires
@@ -50,11 +56,17 @@ When an exception is not handled, Python prints a traceback. Begin with its
 last line. It names the exception and describes the immediate problem. Then
 look upward for the line in your file.
 
-\code{c08_runtime_error}{python}{
-    width_text = "three"
-    width_m = float(width_text)
-    print(width_m)
-}{An unhandled ValueError example}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={An unhandled ValueError example},
+    label={c08_runtime_error},
+    captionpos=b
+]
+width_text = "three"
+width_m = float(width_text)
+print(width_m)
+\end{lstlisting}
 
 The final traceback line includes \c{ValueError}. The failed operation is the
 attempt to convert \c{"three"} to a floating-point number.
@@ -64,14 +76,20 @@ attempt to convert \c{"three"} to a floating-point number.
 Place only the operation that may fail inside \c{try}. Catch the exception you
 expect by name.
 
-\code{c08_basic_try_except}{python}{
-    width_text = "three"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Handle an expected conversion error},
+    label={c08_basic_try_except},
+    captionpos=b
+]
+width_text = "three"
 
-    try:
-        width_m = float(width_text)
-    except ValueError:
-        print("Enter a number such as 3.5.")
-}{Handle an expected conversion error}
+try:
+    width_m = float(width_text)
+except ValueError:
+    print("Enter a number such as 3.5.")
+\end{lstlisting}
 
 The program does not crash. It gives a message that helps the user correct the
 input.
@@ -80,18 +98,24 @@ input.
 
 A narrow \c{try} block makes it clear which operation is protected.
 
-\code{c08_narrow_try}{python}{
-    width_text = "6.0"
-    length_m = 8.0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Separate conversion from the success path},
+    label={c08_narrow_try},
+    captionpos=b
+]
+width_text = "6.0"
+length_m = 8.0
 
-    try:
-        width_m = float(width_text)
-    except ValueError:
-        print("Width must be numeric.")
-    else:
-        area_m2 = width_m * length_m
-        print(f"Area: {area_m2:.2f} m2")
-}{Separate conversion from the success path}
+try:
+    width_m = float(width_text)
+except ValueError:
+    print("Width must be numeric.")
+else:
+    area_m2 = width_m * length_m
+    print(f"Area: {area_m2:.2f} m2")
+\end{lstlisting}
 
 If the calculation in \c{else} contains a different bug, Python reports it
 instead of incorrectly treating it as a conversion problem.
@@ -100,21 +124,27 @@ instead of incorrectly treating it as a conversion problem.
 
 Different failures often require different messages.
 
-\code{c08_multiple_exceptions}{python}{
-    total_text = "24.0"
-    count_text = "0"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Give each expected failure a useful message},
+    label={c08_multiple_exceptions},
+    captionpos=b
+]
+total_text = "24.0"
+count_text = "0"
 
-    try:
-        total = float(total_text)
-        count = int(count_text)
-        average = total / count
-    except ValueError:
-        print("Total and count must be numbers.")
-    except ZeroDivisionError:
-        print("Count must be greater than zero.")
-    else:
-        print(f"Average: {average:.2f}")
-}{Give each expected failure a useful message}
+try:
+    total = float(total_text)
+    count = int(count_text)
+    average = total / count
+except ValueError:
+    print("Total and count must be numbers.")
+except ZeroDivisionError:
+    print("Count must be greater than zero.")
+else:
+    print(f"Average: {average:.2f}")
+\end{lstlisting}
 
 Catch specific exceptions before broader ones. Avoid a bare \c{except:}
 because it can hide mistakes that should be fixed.
@@ -123,14 +153,20 @@ because it can hide mistakes that should be fixed.
 
 Add \c{as error} when the original message is useful for diagnosis.
 
-\code{c08_exception_object}{python}{
-    value_text = "4O"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Capture the original exception message},
+    label={c08_exception_object},
+    captionpos=b
+]
+value_text = "4O"
 
-    try:
-        value = float(value_text)
-    except ValueError as error:
-        print(f"Conversion failed: {error}")
-}{Capture the original exception message}
+try:
+    value = float(value_text)
+except ValueError as error:
+    print(f"Conversion failed: {error}")
+\end{lstlisting}
 
 System messages are helpful for a programmer but may be unclear to a beginner.
 A user-facing program can provide a plain explanation and record technical
@@ -141,16 +177,22 @@ details separately when needed.
 The \c{else} block runs only when the \c{try} block completes without an
 exception.
 
-\code{c08_else_block}{python}{
-    height_text = "3.2"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Run a success action in else},
+    label={c08_else_block},
+    captionpos=b
+]
+height_text = "3.2"
 
-    try:
-        height_m = float(height_text)
-    except ValueError:
-        print("Height must be numeric.")
-    else:
-        print(f"Accepted height: {height_m:.2f} m")
-}{Run a success action in else}
+try:
+    height_m = float(height_text)
+except ValueError:
+    print("Height must be numeric.")
+else:
+    print(f"Accepted height: {height_m:.2f} m")
+\end{lstlisting}
 
 Use \c{else} when it makes the success path easier to distinguish. It is not
 required after every \c{try} block.
@@ -159,17 +201,23 @@ required after every \c{try} block.
 
 The \c{finally} block runs whether the operation succeeds or fails.
 
-\code{c08_finally_block}{python}{
-    value_text = "not a number"
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Run a final status action},
+    label={c08_finally_block},
+    captionpos=b
+]
+value_text = "not a number"
 
-    try:
-        value = float(value_text)
-        print(value)
-    except ValueError:
-        print("Conversion failed.")
-    finally:
-        print("Conversion attempt finished.")
-}{Run a final status action}
+try:
+    value = float(value_text)
+    print(value)
+except ValueError:
+    print("Conversion failed.")
+finally:
+    print("Conversion attempt finished.")
+\end{lstlisting}
 
 Chapter 10 uses context managers to close files automatically. That is usually
 clearer than manual cleanup in \c{finally}.
@@ -178,24 +226,30 @@ clearer than manual cleanup in \c{finally}.
 
 A \c{while} loop can ask again after an expected conversion failure.
 
-\code{c08_input_validation_loop}{python}{
-    while True:
-        value_text = input("Enter a positive width in meters: ")
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Ask again until a positive number is entered},
+    label={c08_input_validation_loop},
+    captionpos=b
+]
+while True:
+    value_text = input("Enter a positive width in meters: ")
 
-        try:
-            width_m = float(value_text)
-        except ValueError:
-            print("Use a number such as 3.5.")
-            continue
+    try:
+        width_m = float(value_text)
+    except ValueError:
+        print("Use a number such as 3.5.")
+        continue
 
-        if width_m <= 0:
-            print("Width must be greater than zero.")
-            continue
+    if width_m <= 0:
+        print("Width must be greater than zero.")
+        continue
 
-        break
+    break
 
-    print(f"Accepted: {width_m:.2f} m")
-}{Ask again until a positive number is entered}
+print(f"Accepted: {width_m:.2f} m")
+\end{lstlisting}
 
 Conversion failure and value validation are separate. The exception handles
 text that is not numeric. The \c{if} statement handles a numeric value that is
@@ -205,18 +259,24 @@ outside the accepted range.
 
 A function can use \c{raise} to report that an argument violates its rules.
 
-\code{c08_raise_value_error}{python}{
-    def rectangle_area_m2(width_m, length_m):
-        if width_m <= 0 or length_m <= 0:
-            raise ValueError("width and length must be positive")
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Raise and handle a clear ValueError},
+    label={c08_raise_value_error},
+    captionpos=b
+]
+def rectangle_area_m2(width_m, length_m):
+    if width_m <= 0 or length_m <= 0:
+        raise ValueError("width and length must be positive")
 
-        return width_m * length_m
+    return width_m * length_m
 
-    try:
-        print(rectangle_area_m2(-2.0, 5.0))
-    except ValueError as error:
-        print(f"Cannot calculate area: {error}")
-}{Raise and handle a clear ValueError}
+try:
+    print(rectangle_area_m2(-2.0, 5.0))
+except ValueError as error:
+    print(f"Cannot calculate area: {error}")
+\end{lstlisting}
 
 The function reports the invalid argument. The caller decides whether to show
 a message, ask again, or stop.
@@ -225,14 +285,20 @@ a message, ask again, or stop.
 
 Use a condition when a situation is expected and easy to test.
 
-\code{c08_condition_before_operation}{python}{
-    values = []
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use a condition for an expected empty list},
+    label={c08_condition_before_operation},
+    captionpos=b
+]
+values = []
 
-    if len(values) == 0:
-        print("No values are available.")
-    else:
-        print(sum(values) / len(values))
-}{Use a condition for an expected empty list}
+if len(values) == 0:
+    print("No values are available.")
+else:
+    print(sum(values) / len(values))
+\end{lstlisting}
 
 Use exception handling when an operation may fail for reasons that are awkward
 or unreliable to predict in advance, such as converting user text or opening a
@@ -272,14 +338,20 @@ still needs to be examined.
 
 \hhh{Level 0 -- Read and predict}
 
-\code{c08_practice_level0}{python}{
-    try:
-        value = int("12")
-    except ValueError:
-        print("Invalid")
-    else:
-        print(value + 1)
-}{Predict which block runs}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Predict which block runs},
+    label={c08_practice_level0},
+    captionpos=b
+]
+try:
+    value = int("12")
+except ValueError:
+    print("Invalid")
+else:
+    print(value + 1)
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
@@ -291,15 +363,21 @@ block executes.
 Complete the handler by replacing \c{...} with a statement that displays a
 useful message.
 
-\code{c08_practice_level2}{python}{
-    numerator = 20
-    denominator = 0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Complete a division handler},
+    label={c08_practice_level2},
+    captionpos=b
+]
+numerator = 20
+denominator = 0
 
-    try:
-        print(numerator / denominator)
-    except ZeroDivisionError:
-        ...
-}{Complete a division handler}
+try:
+    print(numerator / denominator)
+except ZeroDivisionError:
+    ...
+\end{lstlisting}
 
 \hhh{Level 3 -- Apply}
 
@@ -324,53 +402,71 @@ valid value. Display the reason after each rejected entry.
 
 \textbf{Level 2}
 
-\code{c08_solution_level2}{python}{
-    numerator = 20
-    denominator = 0
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c08_solution_level2},
+    captionpos=b
+]
+numerator = 20
+denominator = 0
 
-    try:
-        print(numerator / denominator)
-    except ZeroDivisionError:
-        print("Denominator must not be zero.")
-}{One solution to Level 2}
+try:
+    print(numerator / denominator)
+except ZeroDivisionError:
+    print("Denominator must not be zero.")
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c08_solution_level3}{python}{
-    def parse_floor_count(text):
-        count = int(text)
-        if count < 1:
-            raise ValueError("floor count must be at least 1")
-        return count
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c08_solution_level3},
+    captionpos=b
+]
+def parse_floor_count(text):
+    count = int(text)
+    if count < 1:
+        raise ValueError("floor count must be at least 1")
+    return count
 
-    try:
-        floor_count = parse_floor_count("0")
-    except ValueError as error:
-        print(f"Invalid floor count: {error}")
-    else:
-        print(f"Accepted: {floor_count}")
-}{One solution to Level 3}
+try:
+    floor_count = parse_floor_count("0")
+except ValueError as error:
+    print(f"Invalid floor count: {error}")
+else:
+    print(f"Accepted: {floor_count}")
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c08_solution_level4}{python}{
-    def parse_floor_count(text):
-        count = int(text)
-        if count < 1:
-            raise ValueError("floor count must be at least 1")
-        return count
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c08_solution_level4},
+    captionpos=b
+]
+def parse_floor_count(text):
+    count = int(text)
+    if count < 1:
+        raise ValueError("floor count must be at least 1")
+    return count
 
-    while True:
-        text = input("Floor count: ")
-        try:
-            floor_count = parse_floor_count(text)
-        except ValueError as error:
-            print(f"Try again: {error}")
-            continue
-        break
+while True:
+    text = input("Floor count: ")
+    try:
+        floor_count = parse_floor_count(text)
+    except ValueError as error:
+        print(f"Try again: {error}")
+        continue
+    break
 
-    print(f"Accepted: {floor_count}")
-}{One solution to Level 4}
+print(f"Accepted: {floor_count}")
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 

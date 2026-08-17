@@ -43,14 +43,20 @@ computer.
 Most introductory plotting uses the \c{pyplot} interface with the conventional
 name \c{plt}.
 
-\code{c13_import_matplotlib}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create and close an empty figure},
+    label={c13_import_matplotlib},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    fig, ax = plt.subplots()
-    print(type(fig).__name__)
-    print(type(ax).__name__)
-    plt.close(fig)
-}{Create and close an empty figure}
+fig, ax = plt.subplots()
+print(type(fig).__name__)
+print(type(ax).__name__)
+plt.close(fig)
+\end{lstlisting}
 
 Closing a finished figure releases its resources. This matters when a program
 creates many figures in one run.
@@ -60,18 +66,24 @@ creates many figures in one run.
 A \c{Figure} is the complete output area. An \c{Axes} is one plotting region
 inside that Figure. Most visible chart elements are added through an Axes.
 
-\code{c13_first_plot}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Draw a first line plot},
+    label={c13_first_plot},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    days = [1, 2, 3, 4, 5]
-    temperatures_c = [19.0, 20.5, 22.0, 21.0, 23.5]
+days = [1, 2, 3, 4, 5]
+temperatures_c = [19.0, 20.5, 22.0, 21.0, 23.5]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.plot(days, temperatures_c)
+fig, ax = plt.subplots(layout="constrained")
+ax.plot(days, temperatures_c)
 
-    plt.show()
-    plt.close(fig)
-}{Draw a first line plot}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 The call to \c{plt.subplots()} creates both objects. The call to \c{ax.plot()}
 adds data to the Axes. In a standalone script, \c{plt.show()} displays the
@@ -82,22 +94,28 @@ Figure in a window when the active backend supports one.
 An unlabeled line has little meaning. Name the subject, both variables, and
 their units.
 
-\code{c13_labeled_line}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Label a line plot clearly},
+    label={c13_labeled_line},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    days = [1, 2, 3, 4, 5]
-    temperatures_c = [19.0, 20.5, 22.0, 21.0, 23.5]
+days = [1, 2, 3, 4, 5]
+temperatures_c = [19.0, 20.5, 22.0, 21.0, 23.5]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.plot(days, temperatures_c, color="tab:blue", marker="o")
-    ax.set_title("Indoor temperature over five days")
-    ax.set_xlabel("Day")
-    ax.set_ylabel("Temperature (degrees C)")
-    ax.grid(axis="y", alpha=0.25)
+fig, ax = plt.subplots(layout="constrained")
+ax.plot(days, temperatures_c, color="tab:blue", marker="o")
+ax.set_title("Indoor temperature over five days")
+ax.set_xlabel("Day")
+ax.set_ylabel("Temperature (degrees C)")
+ax.grid(axis="y", alpha=0.25)
 
-    plt.show()
-    plt.close(fig)
-}{Label a line plot clearly}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 The grid is light and appears only on the value axis. It supports reading
 values without competing with the data.
@@ -124,32 +142,38 @@ structure matches the question.
 A line connects observations in sequence. That connection implies meaningful
 order, such as time, distance, or iteration.
 
-\code{c13_line_plot}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Show ordered change with a line},
+    label={c13_line_plot},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    hours = [8, 10, 12, 14, 16, 18]
-    daylight_percent = [18, 35, 52, 61, 43, 20]
+hours = [8, 10, 12, 14, 16, 18]
+daylight_percent = [18, 35, 52, 61, 43, 20]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.plot(
-        hours,
-        daylight_percent,
-        color="tab:blue",
-        marker="o",
-        linewidth=2,
-        label="Measured",
-    )
-    ax.set(
-        title="Daylight through the day",
-        xlabel="Hour",
-        ylabel="Daylight level (percent)",
-    )
-    ax.legend()
-    ax.grid(axis="y", alpha=0.25)
+fig, ax = plt.subplots(layout="constrained")
+ax.plot(
+    hours,
+    daylight_percent,
+    color="tab:blue",
+    marker="o",
+    linewidth=2,
+    label="Measured",
+)
+ax.set(
+    title="Daylight through the day",
+    xlabel="Hour",
+    ylabel="Daylight level (percent)",
+)
+ax.legend()
+ax.grid(axis="y", alpha=0.25)
 
-    plt.show()
-    plt.close(fig)
-}{Show ordered change with a line}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 Markers reveal the actual observations. The connecting line helps the eye
 follow their order but does not create new measurements between them.
@@ -159,41 +183,47 @@ follow their order but does not create new measurements between them.
 Give each series both a label and a visual pattern. Color alone should not be
 the only way to tell them apart.
 
-\code{c13_two_lines}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Compare two series with redundant visual cues},
+    label={c13_two_lines},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    hours = [8, 10, 12, 14, 16, 18]
-    north_c = [19.0, 20.0, 21.0, 21.5, 21.0, 20.0]
-    south_c = [19.5, 21.0, 23.0, 24.0, 22.5, 21.0]
+hours = [8, 10, 12, 14, 16, 18]
+north_c = [19.0, 20.0, 21.0, 21.5, 21.0, 20.0]
+south_c = [19.5, 21.0, 23.0, 24.0, 22.5, 21.0]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.plot(
-        hours,
-        north_c,
-        color="tab:blue",
-        marker="o",
-        linestyle="-",
-        label="North room",
-    )
-    ax.plot(
-        hours,
-        south_c,
-        color="tab:orange",
-        marker="s",
-        linestyle="--",
-        label="South room",
-    )
-    ax.set(
-        title="Room temperature comparison",
-        xlabel="Hour",
-        ylabel="Temperature (degrees C)",
-    )
-    ax.legend()
-    ax.grid(axis="y", alpha=0.25)
+fig, ax = plt.subplots(layout="constrained")
+ax.plot(
+    hours,
+    north_c,
+    color="tab:blue",
+    marker="o",
+    linestyle="-",
+    label="North room",
+)
+ax.plot(
+    hours,
+    south_c,
+    color="tab:orange",
+    marker="s",
+    linestyle="--",
+    label="South room",
+)
+ax.set(
+    title="Room temperature comparison",
+    xlabel="Hour",
+    ylabel="Temperature (degrees C)",
+)
+ax.legend()
+ax.grid(axis="y", alpha=0.25)
 
-    plt.show()
-    plt.close(fig)
-}{Compare two series with redundant visual cues}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 The names in the legend carry the meaning. Marker shape and line style keep the
 series distinguishable when color is hard to perceive or the page is printed
@@ -204,27 +234,33 @@ in grayscale.
 Bars compare values attached to separate categories. Their lengths share a
 common baseline, which makes differences easy to judge.
 
-\code{c13_bar_chart}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Compare category values with bars},
+    label={c13_bar_chart},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    room_names = ["Lobby", "Office", "Cafe", "Studio"]
-    areas_m2 = [24.0, 18.0, 31.0, 26.0]
+room_names = ["Lobby", "Office", "Cafe", "Studio"]
+areas_m2 = [24.0, 18.0, 31.0, 26.0]
 
-    fig, ax = plt.subplots(layout="constrained")
-    bars = ax.bar(room_names, areas_m2, color="tab:blue")
-    ax.bar_label(bars, fmt="%.1f", padding=3)
-    ax.set(
-        title="Area by room",
-        xlabel="Room",
-        ylabel="Area (m2)",
-    )
-    ax.set_ylim(0, 36)
-    ax.grid(axis="y", alpha=0.25)
-    ax.set_axisbelow(True)
+fig, ax = plt.subplots(layout="constrained")
+bars = ax.bar(room_names, areas_m2, color="tab:blue")
+ax.bar_label(bars, fmt="%.1f", padding=3)
+ax.set(
+    title="Area by room",
+    xlabel="Room",
+    ylabel="Area (m2)",
+)
+ax.set_ylim(0, 36)
+ax.grid(axis="y", alpha=0.25)
+ax.set_axisbelow(True)
 
-    plt.show()
-    plt.close(fig)
-}{Compare category values with bars}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 A zero baseline keeps bar lengths honest. Direct value labels are useful when
 the exact values matter and the chart has only a few bars.
@@ -233,29 +269,35 @@ the exact values matter and the chart has only a few bars.
 
 Horizontal bars give long category names more room.
 
-\code{c13_horizontal_bar}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Use horizontal bars for readable category labels},
+    label={c13_horizontal_bar},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    materials = [
-        "Reinforced concrete",
-        "Cross-laminated timber",
-        "Structural steel",
-    ]
-    quantities_m3 = [42.0, 28.0, 16.0]
+materials = [
+    "Reinforced concrete",
+    "Cross-laminated timber",
+    "Structural steel",
+]
+quantities_m3 = [42.0, 28.0, 16.0]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.barh(materials, quantities_m3, color="tab:orange")
-    ax.set(
-        title="Material quantities",
-        xlabel="Quantity (m3)",
-        ylabel="Material",
-    )
-    ax.grid(axis="x", alpha=0.25)
-    ax.set_axisbelow(True)
+fig, ax = plt.subplots(layout="constrained")
+ax.barh(materials, quantities_m3, color="tab:orange")
+ax.set(
+    title="Material quantities",
+    xlabel="Quantity (m3)",
+    ylabel="Material",
+)
+ax.grid(axis="x", alpha=0.25)
+ax.set_axisbelow(True)
 
-    plt.show()
-    plt.close(fig)
-}{Use horizontal bars for readable category labels}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 Long labels remain horizontal, so the reader does not need to rotate the page
 or decode abbreviations.
@@ -265,30 +307,36 @@ or decode abbreviations.
 A scatter plot represents each observation as one point with an x-value and a
 y-value. It can reveal direction, spread, clusters, and unusual observations.
 
-\code{c13_scatter_plot}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Show a relationship between two numerical variables},
+    label={c13_scatter_plot},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    window_percent = [18, 22, 28, 35, 41, 48, 55]
-    daylight_percent = [24, 29, 37, 45, 53, 58, 66]
+window_percent = [18, 22, 28, 35, 41, 48, 55]
+daylight_percent = [24, 29, 37, 45, 53, 58, 66]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.scatter(
-        window_percent,
-        daylight_percent,
-        color="tab:blue",
-        edgecolor="black",
-        alpha=0.8,
-    )
-    ax.set(
-        title="Window area and daylight",
-        xlabel="Window area (percent of wall)",
-        ylabel="Daylight level (percent)",
-    )
-    ax.grid(alpha=0.2)
+fig, ax = plt.subplots(layout="constrained")
+ax.scatter(
+    window_percent,
+    daylight_percent,
+    color="tab:blue",
+    edgecolor="black",
+    alpha=0.8,
+)
+ax.set(
+    title="Window area and daylight",
+    xlabel="Window area (percent of wall)",
+    ylabel="Daylight level (percent)",
+)
+ax.grid(alpha=0.2)
 
-    plt.show()
-    plt.close(fig)
-}{Show a relationship between two numerical variables}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 The pattern suggests an association, not proof that one variable causes the
 other. Other variables may explain part of the relationship.
@@ -304,32 +352,38 @@ cause.
 A histogram groups a numerical collection into intervals called bins. It shows
 where values concentrate and how broadly they spread.
 
-\code{c13_histogram}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Group numerical values into histogram bins},
+    label={c13_histogram},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    room_areas_m2 = [
-        15, 18, 18, 20, 21, 22, 22, 23, 24, 24,
-        25, 26, 27, 28, 30, 31, 33, 35, 38, 42,
-    ]
+room_areas_m2 = [
+    15, 18, 18, 20, 21, 22, 22, 23, 24, 24,
+    25, 26, 27, 28, 30, 31, 33, 35, 38, 42,
+]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.hist(
-        room_areas_m2,
-        bins=[10, 20, 30, 40, 50],
-        color="tab:blue",
-        edgecolor="black",
-    )
-    ax.set(
-        title="Distribution of room areas",
-        xlabel="Area (m2)",
-        ylabel="Number of rooms",
-    )
-    ax.grid(axis="y", alpha=0.25)
-    ax.set_axisbelow(True)
+fig, ax = plt.subplots(layout="constrained")
+ax.hist(
+    room_areas_m2,
+    bins=[10, 20, 30, 40, 50],
+    color="tab:blue",
+    edgecolor="black",
+)
+ax.set(
+    title="Distribution of room areas",
+    xlabel="Area (m2)",
+    ylabel="Number of rooms",
+)
+ax.grid(axis="y", alpha=0.25)
+ax.set_axisbelow(True)
 
-    plt.show()
-    plt.close(fig)
-}{Group numerical values into histogram bins}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 Different bins can change the visible pattern. State or inspect bin boundaries
 when the conclusion depends on them.
@@ -358,33 +412,39 @@ information.
 Select columns by name, then pass those Series to an Axes method. This keeps
 data preparation separate from chart formatting.
 
-\code{c13_plot_dataframe}{python}{
-    import matplotlib.pyplot as plt
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Prepare pandas data before plotting},
+    label={c13_plot_dataframe},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["Lobby", "Office", "Cafe", "Studio"],
-        "area_m2": [24.0, 18.0, 31.0, 26.0],
-    })
-    ordered = rooms.sort_values("area_m2")
+rooms = pd.DataFrame({
+    "room": ["Lobby", "Office", "Cafe", "Studio"],
+    "area_m2": [24.0, 18.0, 31.0, 26.0],
+})
+ordered = rooms.sort_values("area_m2")
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.barh(
-        ordered["room"],
-        ordered["area_m2"],
-        color="tab:blue",
-    )
-    ax.set(
-        title="Room areas from a DataFrame",
-        xlabel="Area (m2)",
-        ylabel="Room",
-    )
-    ax.grid(axis="x", alpha=0.25)
-    ax.set_axisbelow(True)
+fig, ax = plt.subplots(layout="constrained")
+ax.barh(
+    ordered["room"],
+    ordered["area_m2"],
+    color="tab:blue",
+)
+ax.set(
+    title="Room areas from a DataFrame",
+    xlabel="Area (m2)",
+    ylabel="Room",
+)
+ax.grid(axis="x", alpha=0.25)
+ax.set_axisbelow(True)
 
-    plt.show()
-    plt.close(fig)
-}{Prepare pandas data before plotting}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 Sorting is part of the data-preparation stage. The plotting stage receives the
 rows in the intended visual order.
@@ -394,49 +454,55 @@ rows in the intended visual order.
 Subplots help readers compare related views that should share one Figure. Keep
 the number small and give each Axes a distinct question.
 
-\code{c13_two_subplots}{python}{
-    import matplotlib.pyplot as plt
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Place two related questions in one Figure},
+    label={c13_two_subplots},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
+import pandas as pd
 
-    data = pd.DataFrame({
-        "month": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        "energy_kwh": [820, 760, 690, 610, 540, 500],
-        "temperature_c": [2, 4, 8, 13, 18, 22],
-    })
+data = pd.DataFrame({
+    "month": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "energy_kwh": [820, 760, 690, 610, 540, 500],
+    "temperature_c": [2, 4, 8, 13, 18, 22],
+})
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4), layout="constrained")
+fig, axes = plt.subplots(1, 2, figsize=(10, 4), layout="constrained")
 
-    axes[0].plot(
-        data["month"],
-        data["energy_kwh"],
-        color="tab:blue",
-        marker="o",
-    )
-    axes[0].set(
-        title="Monthly energy",
-        xlabel="Month",
-        ylabel="Energy (kWh)",
-    )
+axes[0].plot(
+    data["month"],
+    data["energy_kwh"],
+    color="tab:blue",
+    marker="o",
+)
+axes[0].set(
+    title="Monthly energy",
+    xlabel="Month",
+    ylabel="Energy (kWh)",
+)
 
-    axes[1].scatter(
-        data["temperature_c"],
-        data["energy_kwh"],
-        color="tab:orange",
-        marker="s",
-        edgecolor="black",
-    )
-    axes[1].set(
-        title="Energy and temperature",
-        xlabel="Outdoor temperature (degrees C)",
-        ylabel="Energy (kWh)",
-    )
+axes[1].scatter(
+    data["temperature_c"],
+    data["energy_kwh"],
+    color="tab:orange",
+    marker="s",
+    edgecolor="black",
+)
+axes[1].set(
+    title="Energy and temperature",
+    xlabel="Outdoor temperature (degrees C)",
+    ylabel="Energy (kWh)",
+)
 
-    for ax in axes:
-        ax.grid(alpha=0.2)
+for ax in axes:
+    ax.grid(alpha=0.2)
 
-    plt.show()
-    plt.close(fig)
-}{Place two related questions in one Figure}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 The first chart preserves time order. The second removes that ordering to focus
 on the relationship between two numerical variables.
@@ -446,30 +512,36 @@ on the relationship between two numerical variables.
 An annotation should direct attention to a value relevant to the chart's
 question. Too many annotations become clutter.
 
-\code{c13_annotation}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Annotate one observation without crowding the plot},
+    label={c13_annotation},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
-    energy_kwh = [820, 760, 690, 610, 540, 500]
+months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+energy_kwh = [820, 760, 690, 610, 540, 500]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.plot(months, energy_kwh, color="tab:blue", marker="o")
-    ax.annotate(
-        "Lowest value",
-        xy=("Jun", 500),
-        xytext=("Apr", 700),
-        arrowprops={"arrowstyle": "->", "color": "black"},
-    )
-    ax.set(
-        title="Monthly energy use",
-        xlabel="Month",
-        ylabel="Energy (kWh)",
-    )
-    ax.grid(axis="y", alpha=0.25)
+fig, ax = plt.subplots(layout="constrained")
+ax.plot(months, energy_kwh, color="tab:blue", marker="o")
+ax.annotate(
+    "Lowest value",
+    xy=("Jun", 500),
+    xytext=("Apr", 700),
+    arrowprops={"arrowstyle": "->", "color": "black"},
+)
+ax.set(
+    title="Monthly energy use",
+    xlabel="Month",
+    ylabel="Energy (kWh)",
+)
+ax.grid(axis="y", alpha=0.25)
 
-    plt.show()
-    plt.close(fig)
-}{Annotate one observation without crowding the plot}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 The annotation text states the interpretation. Its arrow identifies the
 specific observation.
@@ -479,31 +551,37 @@ specific observation.
 Call \c{savefig()} on the Figure. The file extension selects the output format.
 PNG is convenient for screens; PDF and SVG preserve vector lines and text.
 
-\code{c13_save_figure}{python}{
-    from pathlib import Path
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Save a labeled figure to a folder},
+    label={c13_save_figure},
+    captionpos=b
+]
+from pathlib import Path
+import matplotlib.pyplot as plt
 
-    output_folder = Path("study_figures")
-    output_folder.mkdir(exist_ok=True)
-    output_path = output_folder / "area_by_room.png"
+output_folder = Path("study_figures")
+output_folder.mkdir(exist_ok=True)
+output_path = output_folder / "area_by_room.png"
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.bar(
-        ["Lobby", "Office", "Cafe"],
-        [24.0, 18.0, 31.0],
-        color="tab:blue",
-    )
-    ax.set(
-        title="Area by room",
-        xlabel="Room",
-        ylabel="Area (m2)",
-    )
+fig, ax = plt.subplots(layout="constrained")
+ax.bar(
+    ["Lobby", "Office", "Cafe"],
+    [24.0, 18.0, 31.0],
+    color="tab:blue",
+)
+ax.set(
+    title="Area by room",
+    xlabel="Room",
+    ylabel="Area (m2)",
+)
 
-    fig.savefig(output_path, dpi=200, bbox_inches="tight")
-    plt.close(fig)
+fig.savefig(output_path, dpi=200, bbox_inches="tight")
+plt.close(fig)
 
-    print(f"Saved: {output_path}")
-}{Save a labeled figure to a folder}
+print(f"Saved: {output_path}")
+\end{lstlisting}
 
 The \c{bbox_inches="tight"} option trims unnecessary outer whitespace while
 keeping labels in the output. Always open the saved file and inspect it before
@@ -551,32 +629,44 @@ This order is short enough to use every time.
 
 Which plot type is produced? Which variable appears on each axis?
 
-\code{c13_practice_level0}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Identify a plot type and its variables},
+    label={c13_practice_level0},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    widths_m = [3.0, 4.0, 5.0]
-    areas_m2 = [18.0, 24.0, 32.0]
+widths_m = [3.0, 4.0, 5.0]
+areas_m2 = [18.0, 24.0, 32.0]
 
-    fig, ax = plt.subplots()
-    ax.scatter(widths_m, areas_m2)
-    plt.close(fig)
-}{Identify a plot type and its variables}
+fig, ax = plt.subplots()
+ax.scatter(widths_m, areas_m2)
+plt.close(fig)
+\end{lstlisting}
 
 \hhh{Level 1 -- Modify}
 
 Add a title, both axis labels with units, and value labels above the bars.
 
-\code{c13_practice_level1}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Complete the communication around a bar chart},
+    label={c13_practice_level1},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    rooms = ["A", "B", "C"]
-    areas_m2 = [18.0, 24.0, 31.0]
+rooms = ["A", "B", "C"]
+areas_m2 = [18.0, 24.0, 31.0]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.bar(rooms, areas_m2, color="tab:blue")
-    plt.show()
-    plt.close(fig)
-}{Complete the communication around a bar chart}
+fig, ax = plt.subplots(layout="constrained")
+ax.bar(rooms, areas_m2, color="tab:blue")
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 \hhh{Level 2 -- Complete}
 
@@ -610,102 +700,120 @@ the y-axis.
 
 \textbf{Level 2}
 
-\code{c13_solution_level2}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 2},
+    label={c13_solution_level2},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    hours = [8, 10, 12, 14, 16, 18]
-    temperatures_c = [19.0, 20.5, 22.0, 23.0, 22.0, 20.5]
+hours = [8, 10, 12, 14, 16, 18]
+temperatures_c = [19.0, 20.5, 22.0, 23.0, 22.0, 20.5]
 
-    fig, ax = plt.subplots(layout="constrained")
-    ax.plot(hours, temperatures_c, color="tab:blue", marker="o")
-    ax.set(
-        title="Temperature through the day",
-        xlabel="Hour",
-        ylabel="Temperature (degrees C)",
-    )
-    ax.grid(axis="y", alpha=0.25)
+fig, ax = plt.subplots(layout="constrained")
+ax.plot(hours, temperatures_c, color="tab:blue", marker="o")
+ax.set(
+    title="Temperature through the day",
+    xlabel="Hour",
+    ylabel="Temperature (degrees C)",
+)
+ax.grid(axis="y", alpha=0.25)
 
-    plt.show()
-    plt.close(fig)
-}{One solution to Level 2}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 \textbf{Level 3}
 
-\code{c13_solution_level3}{python}{
-    import matplotlib.pyplot as plt
-    import pandas as pd
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 3},
+    label={c13_solution_level3},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
+import pandas as pd
 
-    rooms = pd.DataFrame({
-        "room": ["A", "B", "C", "D", "E"],
-        "area_m2": [18.0, 24.0, 31.0, 26.0, 21.0],
-    })
+rooms = pd.DataFrame({
+    "room": ["A", "B", "C", "D", "E"],
+    "area_m2": [18.0, 24.0, 31.0, 26.0, 21.0],
+})
 
-    fig, axes = plt.subplots(1, 2, figsize=(9, 4), layout="constrained")
-    axes[0].bar(rooms["room"], rooms["area_m2"], color="tab:blue")
-    axes[0].set(
-        title="Area by room",
-        xlabel="Room",
-        ylabel="Area (m2)",
-    )
+fig, axes = plt.subplots(1, 2, figsize=(9, 4), layout="constrained")
+axes[0].bar(rooms["room"], rooms["area_m2"], color="tab:blue")
+axes[0].set(
+    title="Area by room",
+    xlabel="Room",
+    ylabel="Area (m2)",
+)
 
-    axes[1].hist(rooms["area_m2"], bins=4, color="tab:orange", edgecolor="black")
-    axes[1].set(
-        title="Area distribution",
-        xlabel="Area (m2)",
-        ylabel="Number of rooms",
-    )
+axes[1].hist(rooms["area_m2"], bins=4, color="tab:orange", edgecolor="black")
+axes[1].set(
+    title="Area distribution",
+    xlabel="Area (m2)",
+    ylabel="Number of rooms",
+)
 
-    for ax in axes:
-        ax.grid(axis="y", alpha=0.25)
-        ax.set_axisbelow(True)
+for ax in axes:
+    ax.grid(axis="y", alpha=0.25)
+    ax.set_axisbelow(True)
 
-    plt.show()
-    plt.close(fig)
-}{One solution to Level 3}
+plt.show()
+plt.close(fig)
+\end{lstlisting}
 
 \textbf{Level 4}
 
-\code{c13_solution_level4}{python}{
-    import matplotlib.pyplot as plt
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One solution to Level 4},
+    label={c13_solution_level4},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
 
-    def plot_two_series(x, first, second, labels):
-        fig, ax = plt.subplots(layout="constrained")
-        ax.plot(
-            x,
-            first,
-            color="tab:blue",
-            marker="o",
-            linestyle="-",
-            label=labels[0],
-        )
-        ax.plot(
-            x,
-            second,
-            color="tab:orange",
-            marker="s",
-            linestyle="--",
-            label=labels[1],
-        )
-        ax.set(
-            title="Temperature comparison",
-            xlabel="Hour",
-            ylabel="Temperature (degrees C)",
-        )
-        ax.legend()
-        ax.grid(axis="y", alpha=0.25)
-        return fig
-
-    hours = [8, 10, 12, 14]
-    north_c = [19.0, 20.0, 21.0, 21.5]
-    south_c = [19.5, 21.0, 23.0, 24.0]
-    figure = plot_two_series(
-        hours,
-        north_c,
-        south_c,
-        labels=("North room", "South room"),
+def plot_two_series(x, first, second, labels):
+    fig, ax = plt.subplots(layout="constrained")
+    ax.plot(
+        x,
+        first,
+        color="tab:blue",
+        marker="o",
+        linestyle="-",
+        label=labels[0],
     )
-    plt.close(figure)
-}{One solution to Level 4}
+    ax.plot(
+        x,
+        second,
+        color="tab:orange",
+        marker="s",
+        linestyle="--",
+        label=labels[1],
+    )
+    ax.set(
+        title="Temperature comparison",
+        xlabel="Hour",
+        ylabel="Temperature (degrees C)",
+    )
+    ax.legend()
+    ax.grid(axis="y", alpha=0.25)
+    return fig
+
+hours = [8, 10, 12, 14]
+north_c = [19.0, 20.0, 21.0, 21.5]
+south_c = [19.5, 21.0, 23.0, 24.0]
+figure = plot_two_series(
+    hours,
+    north_c,
+    south_c,
+    labels=("North room", "South room"),
+)
+plt.close(figure)
+\end{lstlisting}
 
 \hh{Chapter checkpoint}
 
