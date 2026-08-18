@@ -1,0 +1,1081 @@
+% Part VII -- Algorithms, Optimization, and Machine Learning
+% Chapter 20: Gradient-based and metaheuristic optimization
+
+\h{Gradient-Based and Metaheuristic Optimization}
+\label{ch:20}
+
+\booklink{ch:18}{Chapter 18} formulated an optimization model and handed it to a
+solver. This chapter opens the solver. You will write gradient descent from
+first principles, watch the learning rate decide whether it converges, and then
+build three search methods that need no derivative at all: simulated annealing,
+a genetic algorithm, and particle swarm optimization. The purpose is not to
+replace SciPy. It is to know which algorithm the problem deserves and what
+evidence justifies reporting its answer.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should be comfortable with functions, NumPy arrays,
+loops, random number generators, plotting, and the optimization vocabulary of
+\booklink{ch:18}{Chapter 18}: decision variables, objective, bounds, and
+validation. The facade model used throughout is an educational construction,
+not a building-performance standard.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item explain a derivative as a local slope and a gradient as a direction of steepest increase;
+    \item derive an analytic gradient and check it against a finite-difference estimate;
+    \item implement projected gradient descent with an explicit stopping rule;
+    \item diagnose a learning rate that is too small, useful, or unstable;
+    \item pass \c{jac} to \c{scipy.optimize.minimize()} and read the evaluation count;
+    \item explain why a local method fails on a rugged objective;
+    \item implement simulated annealing, a genetic algorithm, and particle swarm optimization;
+    \item compare search methods under one shared evaluation budget;
+    \item use \c{differential_evolution()} and \c{dual_annealing()} appropriately; and
+    \item report seeds, budgets, and run-to-run variation as part of the result.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Two families of search, one modeling discipline}
+
+Every method in this chapter answers the same question: which feasible decision
+gives the lowest objective value? They differ in what they are allowed to
+assume.
+
+A \textbf{local, gradient-based} method assumes the objective is smooth enough
+to have a slope at the current point. It uses that slope to step downhill. It is
+fast and needs few evaluations, but it can only reach the bottom of the valley
+it started in.
+
+A \textbf{metaheuristic} makes almost no assumption. It samples candidates,
+keeps promising ones, and deliberately explores worse regions for a while. It
+needs many more evaluations, it uses randomness, and it offers no proof of
+optimality -- but it can escape a valley.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch20_search_methods.pdf}
+{Smooth single-valley objectives suit gradient methods; rugged, noisy, or non-numeric objectives suit metaheuristics, and every method should be compared against a random-search baseline on the same evaluation budget.}
+{fig:ch20-methods}
+
+\begin{ExplainBox}{The algorithm choice is a claim about the landscape}
+Choosing gradient descent asserts that the objective has a meaningful slope
+everywhere the search will travel and that the nearest valley is the one you
+want. Choosing a metaheuristic asserts that you cannot rely on either. Neither
+claim is verified by the code running without error. Sample the objective, plot
+it when the dimension allows, and restart from several points before deciding
+which assumption your problem actually supports.
+\end{ExplainBox}
+
+\hh{The teaching model: a two-variable facade decision}
+
+The chapter uses one model throughout so that method comparisons are fair. Two
+decisions are available: the window-to-wall ratio $r$ and the shading depth $d$
+in meters. The objective combines modeled energy use, a daylight penalty that
+activates when the window is too small, and a construction cost that grows with
+shading depth.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The smooth facade objective used by every method in this chapter},
+    label={c20_objective},
+    captionpos=b
+]
+BOUNDS = [(0.10, 0.70), (0.00, 1.20)]
+
+
+def facade_cost(decisions):
+    """Return one modeled cost; lower is better."""
+    window_ratio, shading_depth_m = decisions
+    energy = (
+        90
+        + 180 * (window_ratio - 0.22) ** 2
+        + 60 * (shading_depth_m - 0.45) ** 2
+        - 70 * window_ratio * shading_depth_m
+    )
+    daylight_penalty = 500 * max(0.0, 0.25 - window_ratio) ** 2
+    shading_cost = 40 * shading_depth_m ** 2
+    return energy + daylight_penalty + shading_cost
+\end{lstlisting}
+
+\begin{SyntaxBox}{One vector in, one scalar out}
+\c{decisions} arrives as a two-element sequence and is immediately unpacked into
+named variables with units in their names. The three components are summed so
+the function returns a single comparable number. \c{BOUNDS} is a list of
+\c{(low, high)} pairs in the same order as the unpacking, which is the ordering
+convention every SciPy optimizer expects.
+\end{SyntaxBox}
+
+The interaction term \c{- 70 * window_ratio * shading_depth_m} makes the two
+decisions dependent: the best shading depth changes with the window ratio.
+Optimizing each variable separately would therefore give the wrong answer.
+
+\begin{TryBox}{Sample before you search}
+Evaluate \c{facade_cost} at \c{(0.20, 0.20)}, \c{(0.29, 0.37)}, and
+\c{(0.65, 0.60)}. You should obtain roughly 98.7, 89.2, and 111.7. Print the
+three components separately at each point and name the term that dominates.
+\end{TryBox}
+
+\hh{A derivative is a local slope}
+
+Fix the shading depth and vary only the window ratio. The resulting
+one-variable function has, at each point, a slope: the rate at which cost
+changes per unit change in ratio. That slope is the derivative.
+
+Three facts make the derivative useful for optimization:
+
+\begin{enumerate}
+    \item A \textbf{positive} slope means cost increases as the variable
+          increases, so improvement lies in the negative direction.
+    \item A \textbf{negative} slope means the opposite.
+    \item A slope of \textbf{zero} means the point is flat, which happens at
+          minima, maxima, and saddle points alike.
+\end{enumerate}
+
+The energy term $180(r - 0.22)^2$ has derivative $360(r - 0.22)$. At $r = 0.65$
+that is $154.8$: steeply uphill, so descent should reduce $r$.
+
+\hh{The gradient collects one slope per variable}
+
+With several decision variables, the derivative with respect to each variable
+separately is a \textbf{partial derivative}, and the vector of all partial
+derivatives is the \textbf{gradient}. It points in the direction of steepest
+increase, so its negative points in the direction of steepest decrease.
+
+\[
+\nabla f(r, d) = \left[\frac{\partial f}{\partial r},\; \frac{\partial f}{\partial d}\right].
+\]
+
+Differentiating the facade objective term by term gives:
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The analytic gradient of the facade objective},
+    label={c20_gradient},
+    captionpos=b
+]
+import numpy as np
+
+
+def facade_gradient(decisions):
+    """Return the two partial derivatives of facade_cost."""
+    window_ratio, shading_depth_m = decisions
+    d_ratio = (
+        360 * (window_ratio - 0.22)
+        - 70 * shading_depth_m
+        - 1000 * max(0.0, 0.25 - window_ratio)
+    )
+    d_depth = (
+        120 * (shading_depth_m - 0.45)
+        - 70 * window_ratio
+        + 80 * shading_depth_m
+    )
+    return np.array([d_ratio, d_depth])
+\end{lstlisting}
+
+\begin{SyntaxBox}{Read the gradient term by term}
+\begin{itemize}
+    \item $180(r-0.22)^2$ contributes $360(r-0.22)$ to the ratio slope.
+    \item The interaction $-70rd$ contributes $-70d$ to the ratio slope and
+          $-70r$ to the depth slope.
+    \item The daylight penalty $500\max(0, 0.25-r)^2$ contributes
+          $-1000\max(0, 0.25-r)$: zero when the constraint is satisfied, and
+          increasingly negative as the ratio falls below 0.25.
+    \item The gradient is returned as a NumPy array so it can be scaled and
+          subtracted with one vectorized expression.
+\end{itemize}
+The penalty makes the gradient continuous but not smooth at $r = 0.25$. A
+\c{max()} in an objective always deserves this check.
+\end{SyntaxBox}
+
+\hh{Estimate a gradient with finite differences}
+
+Deriving partial derivatives by hand is error-prone, and for a simulation-based
+objective it may be impossible. A \textbf{central difference} estimates each
+partial derivative by nudging one variable in both directions:
+
+\[
+\frac{\partial f}{\partial x_i} \approx \frac{f(x + h e_i) - f(x - h e_i)}{2h}.
+\]
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Estimate any gradient without calculus},
+    label={c20_numerical_gradient},
+    captionpos=b
+]
+import numpy as np
+
+
+def numerical_gradient(function, point, step=1e-5):
+    point = np.asarray(point, dtype=float)
+    gradient = np.zeros_like(point)
+    for index in range(point.size):
+        forward = point.copy()
+        backward = point.copy()
+        forward[index] += step
+        backward[index] -= step
+        gradient[index] = (function(forward) - function(backward)) / (2 * step)
+    return gradient
+
+
+print(facade_gradient([0.55, 0.90]))
+print(numerical_gradient(facade_cost, [0.55, 0.90]))
+\end{lstlisting}
+
+Both lines print \c{[55.8 87.5]}. Agreement between an analytic gradient and a
+finite-difference estimate is the standard way to catch a differentiation
+mistake, and you should run this check every time you hand-derive a gradient.
+
+\begin{SyntaxBox}{Why copies, and why a central difference}
+\c{forward} and \c{backward} are copies because modifying \c{point} in place
+would corrupt every later partial derivative. One variable moves per iteration
+so each result isolates one direction. The central form is more accurate than a
+one-sided difference of the same step size, at the cost of two evaluations per
+variable: a $p$-variable gradient costs $2p$ objective evaluations. When each
+evaluation is a multi-minute simulation, that cost decides the method.
+\end{SyntaxBox}
+
+\begin{ExplainBox}{The step size is a numerical trade-off}
+A step that is too large measures the average slope over a wide interval rather
+than the local slope. A step that is too small makes
+\c{function(forward) - function(backward)} a difference between nearly equal
+floating-point numbers, and cancellation destroys the significant digits.
+Around \c{1e-5} to \c{1e-6} is a reasonable default for variables of order one.
+If your variables span very different magnitudes, scale them first.
+\end{ExplainBox}
+
+\hh{Write the descent loop}
+
+Gradient descent repeats one rule: move a small distance opposite the gradient.
+Because our decisions have bounds, each step is clipped back into the feasible
+box, which is called a \textbf{projected} step.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Projected gradient descent with an explicit stopping rule},
+    label={c20_descent},
+    captionpos=b
+]
+import numpy as np
+
+LOWS = np.array([low for low, _ in BOUNDS])
+HIGHS = np.array([high for _, high in BOUNDS])
+
+
+def gradient_descent(cost, gradient_of, start, learning_rate,
+                     iterations=400, tolerance=1e-6):
+    point = np.clip(np.array(start, dtype=float), LOWS, HIGHS)
+    path = [point.copy()]
+    for _ in range(iterations):
+        moved = np.clip(point - learning_rate * gradient_of(point), LOWS, HIGHS)
+        path.append(moved.copy())
+        step_size = np.linalg.norm(moved - point)
+        point = moved
+        if step_size < tolerance:
+            break
+    return point, np.array(path)
+
+
+best, path = gradient_descent(facade_cost, facade_gradient, [0.65, 0.60], 0.0025)
+print("Steps taken:", len(path) - 1)
+print("Recommendation:", best.round(4))
+print("Cost:", round(facade_cost(best), 4))
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Descent from a poor starting design}, label={c20_descent_output}, captionpos=b]
+Steps taken: 22
+Recommendation: [0.2924 0.3723]
+Cost: 89.2298
+\end{lstlisting}
+
+\begin{SyntaxBox}{Three design decisions live in this loop}
+\begin{itemize}
+    \item \c{learning_rate} scales the step. It is the single most important
+          setting and has the units of decision per unit of slope.
+    \item \c{np.clip(..., LOWS, HIGHS)} enforces the bounds after every step
+          rather than trusting the gradient to respect them.
+    \item The loop stops when the step becomes smaller than \c{tolerance}, or
+          when \c{iterations} is exhausted. Returning without ever meeting the
+          tolerance is a failure to report, not a result to print.
+\end{itemize}
+The gradient function is a parameter, so the same loop accepts either
+\c{facade_gradient} or a finite-difference estimator.
+\end{SyntaxBox}
+
+\hh{Choose a learning rate by evidence}
+
+A learning rate is not guessed once and forgotten. Run several and plot the
+cost against iteration.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch20_gradient_descent.pdf}
+{Descent from the same start converges to the same recommendation in 22 steps at rate 0.0025 and in 115 steps at rate 0.0005, while rate 0.0060 overshoots the valley on every step and oscillates permanently above the best known cost of 89.23.}
+{fig:ch20-gradient-descent}
+
+\begin{center}
+\begin{tabular}{llll}
+\textbf{Learning rate} & \textbf{Steps} & \textbf{Final cost} & \textbf{Diagnosis} \\
+0.0005 & 115 & 89.2298 & correct but wasteful \\
+0.0025 & 22 & 89.2298 & converged efficiently \\
+0.0060 & 400 (limit) & 123.9901 & unstable; never settles \\
+\end{tabular}
+\end{center}
+
+The unstable run is the important one. It does not raise an exception, it does
+not return \c{None}, and it prints a perfectly plausible pair of numbers. Its
+only symptom is that the cost stopped improving and the loop hit its iteration
+limit. Code that ignores the iteration limit will report the failure as an
+answer.
+
+\begin{ExplainBox}{Why too large a step makes things worse}
+The gradient describes the slope only at the current point. A step small enough
+stays in the region where that description is roughly true. A step too large
+lands on the far wall of the valley, where the slope points back the other way
+with similar magnitude, and the next step jumps back again. The search
+oscillates across the minimum instead of descending into it. Curvature sets the
+limit: the more sharply the objective bends, the smaller the usable rate. The
+daylight penalty in this model bends sharply, which is why the safe rate here
+is far below 0.006.
+\end{ExplainBox}
+
+\begin{TryBox}{Make the failure visible}
+Modify \c{gradient_descent} to also return the cost at each step, then plot
+rates 0.0005, 0.0025, and 0.0060 on one axis. Add a check that raises
+\c{RuntimeError} when the loop exits because \c{iterations} ran out. Confirm
+that rate 0.0060 now raises instead of returning a number.
+\end{TryBox}
+
+\hh{Let SciPy manage the step size}
+
+Production code should rarely use a hand-tuned fixed rate. Quasi-Newton methods
+such as L-BFGS-B estimate curvature and choose their own step length by line
+search. Supplying the analytic gradient through \c{jac} removes the
+finite-difference cost.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Compare a supplied gradient with a finite-difference gradient},
+    label={c20_lbfgs},
+    captionpos=b
+]
+from scipy.optimize import minimize
+
+with_gradient = minimize(
+    facade_cost,
+    x0=[0.65, 0.60],
+    jac=facade_gradient,
+    bounds=BOUNDS,
+    method="L-BFGS-B",
+)
+without_gradient = minimize(
+    facade_cost,
+    x0=[0.65, 0.60],
+    bounds=BOUNDS,
+    method="L-BFGS-B",
+)
+
+print("With jac   :", with_gradient.x.round(4), with_gradient.nfev, "evaluations")
+print("Without jac:", without_gradient.x.round(4), without_gradient.nfev, "evaluations")
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={The same optimum at different evaluation costs}, label={c20_lbfgs_output}, captionpos=b]
+With jac   : [0.2924 0.3723] 6 evaluations
+Without jac: [0.2924 0.3723] 18 evaluations
+\end{lstlisting}
+
+Both reach the recommendation that hand-written descent needed 22 iterations to
+find, and the supplied gradient reaches it in six objective evaluations. When
+each evaluation is expensive, that difference is the entire engineering budget.
+
+\begin{SyntaxBox}{Read the whole result object, again}
+\c{minimize()} returns the same style of result described in
+\booklink{ch:18}{Chapter 18}: \c{x} is the recommendation, \c{fun} its cost,
+\c{success} and \c{message} describe convergence, \c{nfev} counts objective
+evaluations, and \c{njev} counts gradient evaluations. A wrong \c{jac} is a
+common and quiet bug -- if \c{minimize()} converges somewhere your
+finite-difference run does not, distrust the analytic gradient first.
+\end{SyntaxBox}
+
+\hh{When a local method is not enough}
+
+Real objectives are often not smooth bowls. Simulation outputs contain solver
+noise, catalogue components come in fixed increments, and fitted response
+surfaces ripple. The following variant adds such a ripple to the same model.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A rugged variant of the same design problem},
+    label={c20_rugged},
+    captionpos=b
+]
+import numpy as np
+
+
+def rugged_facade_cost(decisions):
+    """The same model plus a manufacturing-increment ripple."""
+    window_ratio, shading_depth_m = decisions
+    ripple = (
+        6.0
+        * np.sin(12 * np.pi * window_ratio)
+        * np.sin(8 * np.pi * shading_depth_m)
+    )
+    return facade_cost(decisions) + ripple
+\end{lstlisting}
+
+The ripple is small -- at most six cost units against a total near ninety -- but
+it creates 29 interior local minima inside the feasible box, with costs ranging
+from 83.57 to 128.06. Starting at \c{(0.65, 0.60)}, fixed-step descent stops at
+cost 105.56 and L-BFGS-B stops at 93.29, while the best cost anywhere in the box
+is 83.57.
+
+The failure is not occasional. Running L-BFGS-B from forty random starting
+points on this objective gives:
+
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Measure over 40 random starts} & \textbf{Value} \\
+Best cost found & 83.5663 \\
+Median cost found & 88.6101 \\
+Worst cost found & 111.2238 \\
+Starts reaching the best known cost & 4 of 40 \\
+Mean objective evaluations per start & 42 \\
+\end{tabular}
+\end{center}
+
+\begin{ExplainBox}{A converged local solver is telling the truth about a small neighborhood}
+\c{success=True} means the algorithm satisfied its own stopping conditions: the
+gradient is near zero and no further improvement is available nearby. That
+statement is correct at every one of those forty stopping points, including the
+one costing 111.22. Convergence is evidence about a neighborhood, never about
+the whole feasible domain. Multi-start is the cheapest honest defense, and the
+spread across starts is itself the diagnostic you should report.
+\end{ExplainBox}
+
+\hh{Simulated annealing accepts some worse moves}
+
+Metaheuristics escape local minima by sometimes moving uphill. Simulated
+annealing controls that willingness with a \textbf{temperature} that falls over
+the run: early on, worse candidates are frequently accepted so the search roams;
+later, they are almost always rejected so the search settles.
+
+A candidate that is worse by $\Delta$ is accepted with probability
+$e^{-\Delta / T}$.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Simulated annealing on a bounded box},
+    label={c20_annealing},
+    captionpos=b
+]
+import numpy as np
+
+SPANS = HIGHS - LOWS
+
+
+def simulated_annealing(cost, seed=7, evaluations=4000, start_temperature=20.0,
+                        cooling=0.999, step_fraction=0.12):
+    rng = np.random.default_rng(seed)
+    current = LOWS + rng.random(2) * SPANS
+    current_cost = cost(current)
+    best, best_cost = current.copy(), current_cost
+    temperature = start_temperature
+
+    for _ in range(evaluations - 1):
+        candidate = np.clip(
+            current + rng.normal(0, step_fraction * SPANS),
+            LOWS,
+            HIGHS,
+        )
+        candidate_cost = cost(candidate)
+        change = candidate_cost - current_cost
+
+        if change <= 0 or rng.random() < np.exp(-change / temperature):
+            current, current_cost = candidate, candidate_cost
+            if current_cost < best_cost:
+                best, best_cost = current.copy(), current_cost
+
+        temperature *= cooling
+
+    return best, best_cost
+\end{lstlisting}
+
+\begin{SyntaxBox}{Four parameters, each with a job}
+\begin{itemize}
+    \item \c{start_temperature} sets initial willingness to accept worse moves.
+          It should be comparable to the typical cost difference between
+          neighboring candidates, which here is a few units.
+    \item \c{cooling} multiplies the temperature each step. With 0.999 over 4000
+          steps the temperature falls to about 1.8 percent of its start.
+    \item \c{step_fraction} scales the proposal distance relative to each
+          variable's span, so both decisions move proportionally despite having
+          different units.
+    \item \c{seed} fixes the random stream. Without it the run is not
+          reproducible and the reported result cannot be checked.
+\end{itemize}
+Note that \c{best} is tracked separately from \c{current}: the walk is allowed
+to wander away from the best point it has seen, so the best must be recorded
+when it is found.
+\end{SyntaxBox}
+
+\begin{ExplainBox}{Why accepting a worse candidate can help}
+Strict descent can only leave a valley through a wall it is forbidden to climb.
+The acceptance rule makes climbing possible but expensive: the probability
+$e^{-\Delta/T}$ falls steeply as the candidate gets worse and as the temperature
+drops. Early in the run a shallow ridge is easy to cross; late in the run it is
+not. That schedule is what turns a random walk into a search. Cool too fast and
+the method is a slow local search; cool too slowly and the budget is spent
+wandering.
+\end{ExplainBox}
+
+\hh{A genetic algorithm evolves a population}
+
+Instead of one moving point, a genetic algorithm keeps a population of
+candidates and builds each new generation from the better members of the old
+one. Three operators do the work: \textbf{selection} favors good candidates,
+\textbf{crossover} combines two parents, and \textbf{mutation} introduces
+variation that selection alone would lose.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A genetic algorithm with tournament selection and elitism},
+    label={c20_genetic},
+    captionpos=b
+]
+import numpy as np
+
+
+def genetic_algorithm(cost, seed=7, population_size=40, generations=100,
+                      mutation_probability=0.25, mutation_fraction=0.08,
+                      elite_count=2):
+    rng = np.random.default_rng(seed)
+
+    def tournament(population, scores):
+        """Pick the best of three random candidates."""
+        contenders = rng.choice(len(population), 3, replace=False)
+        return population[contenders[scores[contenders].argmin()]]
+
+    population = LOWS + rng.random((population_size, 2)) * SPANS
+    scores = np.array([cost(row) for row in population])
+
+    for _ in range(generations - 1):
+        order = scores.argsort()
+        population, scores = population[order], scores[order]
+
+        children = [population[index].copy() for index in range(elite_count)]
+        while len(children) < population_size:
+            parent_a = tournament(population, scores)
+            parent_b = tournament(population, scores)
+            weight = rng.random()
+            child = weight * parent_a + (1 - weight) * parent_b
+            if rng.random() < mutation_probability:
+                child = child + rng.normal(0, mutation_fraction * SPANS)
+            children.append(np.clip(child, LOWS, HIGHS))
+
+        population = np.array(children)
+        scores = np.array([cost(row) for row in population])
+
+    best_index = scores.argmin()
+    return population[best_index], scores[best_index]
+\end{lstlisting}
+
+\begin{SyntaxBox}{Follow one generation}
+\begin{enumerate}
+    \item \c{scores.argsort()} orders the population from best to worst, which
+          makes elitism a slice rather than a search.
+    \item \c{elite_count} copies the two best candidates forward unchanged, so
+          the best cost can never get worse between generations.
+    \item \c{tournament()} samples three candidates and returns the best. Larger
+          tournaments increase selection pressure and reduce diversity.
+    \item Crossover takes a random weighted average of two parents, producing a
+          child somewhere on the segment between them.
+    \item Mutation adds Gaussian noise scaled to each variable's span, and
+          \c{np.clip()} returns the child to the feasible box.
+\end{enumerate}
+This costs \c{population_size} evaluations per generation, so the total budget
+is $40 \times 100 = 4000$ evaluations.
+\end{SyntaxBox}
+
+\begin{ExplainBox}{Selection pressure against diversity}
+A population search works because its members disagree. Crossover between two
+similar parents produces a similar child, so once diversity collapses the
+algorithm becomes an expensive local search. Every parameter here sits on that
+trade-off: stronger selection and more elitism converge faster but collapse
+sooner; more mutation preserves exploration but slows refinement. If a run
+converges immediately to a mediocre answer, suspect lost diversity before you
+suspect the objective.
+\end{ExplainBox}
+
+\hh{Particle swarm optimization shares one best position}
+
+Particle swarm optimization moves a set of candidates through the space with
+velocity. Each particle is pulled toward the best point it has personally found
+and toward the best point any particle has found.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Particle swarm optimization with inertia, memory, and sharing},
+    label={c20_swarm},
+    captionpos=b
+]
+import numpy as np
+
+
+def particle_swarm(cost, seed=7, particle_count=30, iterations=134,
+                   inertia=0.72, cognitive=1.5, social=1.5):
+    rng = np.random.default_rng(seed)
+    positions = LOWS + rng.random((particle_count, 2)) * SPANS
+    velocities = rng.normal(0, 0.08, (particle_count, 2)) * SPANS
+
+    personal_best = positions.copy()
+    personal_cost = np.array([cost(row) for row in positions])
+    global_best = personal_best[personal_cost.argmin()].copy()
+    global_cost = personal_cost.min()
+
+    for _ in range(iterations - 1):
+        toward_personal = rng.random((particle_count, 2))
+        toward_global = rng.random((particle_count, 2))
+        velocities = (
+            inertia * velocities
+            + cognitive * toward_personal * (personal_best - positions)
+            + social * toward_global * (global_best - positions)
+        )
+        positions = np.clip(positions + velocities, LOWS, HIGHS)
+
+        scores = np.array([cost(row) for row in positions])
+        improved = scores < personal_cost
+        personal_best[improved] = positions[improved]
+        personal_cost[improved] = scores[improved]
+
+        if personal_cost.min() < global_cost:
+            global_best = personal_best[personal_cost.argmin()].copy()
+            global_cost = personal_cost.min()
+
+    return global_best, global_cost
+\end{lstlisting}
+
+\begin{SyntaxBox}{Three forces in one velocity update}
+\begin{itemize}
+    \item \c{inertia * velocities} carries the particle onward, preventing an
+          immediate collapse onto the current best.
+    \item The \c{cognitive} term pulls each particle toward its own best
+          position: individual memory.
+    \item The \c{social} term pulls every particle toward the shared best
+          position: cooperation.
+    \item \c{toward_personal} and \c{toward_global} are fresh random arrays each
+          iteration, so the pulls vary per particle and per dimension. This
+          randomness is the exploration mechanism.
+\end{itemize}
+\c{improved} is a boolean mask used for the update, so personal bests are
+refreshed for the whole swarm without a Python loop.
+\end{SyntaxBox}
+
+\hh{Compare methods on one evaluation budget}
+
+Comparing an algorithm that used 40 evaluations with one that used 4000 measures
+the budget, not the method. Give every method the same budget, the same
+objective, and the same seed, and add random search as the baseline that any
+method must beat to justify its complexity.
+
+Random search is the honest baseline precisely because it has no strategy: it
+draws uniform candidates from the feasible box and keeps the best.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The baseline that every metaheuristic must beat},
+    label={c20_random_search},
+    captionpos=b
+]
+import numpy as np
+
+
+def random_search(cost, seed=7, evaluations=4000):
+    rng = np.random.default_rng(seed)
+    best = None
+    best_cost = np.inf
+    for _ in range(evaluations):
+        candidate = LOWS + rng.random(2) * SPANS
+        value = cost(candidate)
+        if value < best_cost:
+            best, best_cost = candidate, value
+    return best, best_cost
+\end{lstlisting}
+
+\c{LOWS + rng.random(2) * SPANS} maps two numbers drawn from $[0, 1)$ onto the
+feasible interval of each decision, which keeps every candidate feasible without
+clipping. Note that all four global searches in this chapter share the same
+\c{(cost, seed)} calling convention and return \c{(design, cost)}, so they can be
+swapped inside one comparison loop.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch20_metaheuristic_search.pdf}
+{The rugged objective contains many local minima; gradient descent from (0.65, 0.60) halts at cost 105.56 while the global searches continue improving, with the genetic algorithm and particle swarm reaching 83.57 and random search plateauing at 84.00.}
+{fig:ch20-metaheuristics}
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Method} & \textbf{Evaluations} & \textbf{Best cost (seed 7)} \\
+Gradient descent, fixed rate & 1600 & 105.56 \\
+L-BFGS-B, single start & 39 & 93.29 \\
+Random search & 4000 & 84.00 \\
+Simulated annealing & 4000 & 83.59 \\
+Genetic algorithm & 4000 & 83.57 \\
+Particle swarm & 4020 & 83.57 \\
+\end{tabular}
+\end{center}
+
+Two conclusions follow, and the second is the one most often skipped.
+
+First, on this objective every global method beats every local method by a wide
+margin, and the local methods are not merely slower -- they converge confidently
+to the wrong design.
+
+Second, plain random search reaches 84.00 against the metaheuristics' 83.57. The
+elaborate methods buy an improvement of roughly half a cost unit. Whether that
+is worth the added parameters, tuning effort, and explanation burden is an
+engineering judgment about your problem, not a fact about the algorithms. Report
+the baseline so that judgment is possible.
+
+\begin{ExplainBox}{No method wins everywhere}
+Averaged across all possible objectives, no search algorithm outperforms any
+other; a method earns its advantage only by matching the structure of a
+particular problem. Practically, this means published claims that one
+metaheuristic is superior are claims about a benchmark set, and your objective
+may not resemble it. Choose a method for a stated reason -- ruggedness, noise,
+discrete variables, evaluation cost -- and demonstrate the advantage on your own
+problem against random search.
+\end{ExplainBox}
+
+\hh{Use the SciPy global optimizers}
+
+SciPy provides tested implementations of two of these families. Prefer them for
+applied work, and reserve your own implementations for learning and for
+problems the library does not cover.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Two library global optimizers on the rugged objective},
+    label={c20_scipy_global},
+    captionpos=b
+]
+from scipy.optimize import differential_evolution, dual_annealing
+
+evolved = differential_evolution(rugged_facade_cost, bounds=BOUNDS, seed=7)
+annealed = dual_annealing(rugged_facade_cost, bounds=BOUNDS, seed=7)
+
+for name, result in (("differential_evolution", evolved), ("dual_annealing", annealed)):
+    print(f"{name}: x={result.x.round(4)} cost={result.fun:.4f} nfev={result.nfev}")
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Library global optimizers find the same design at different costs}, label={c20_scipy_output}, captionpos=b]
+differential_evolution: x=[0.2912 0.3155] cost=83.5663 nfev=291
+dual_annealing: x=[0.2912 0.3155] cost=83.5663 nfev=4061
+\end{lstlisting}
+
+\begin{SyntaxBox}{Bounds are required, not optional}
+Both functions take \c{bounds} rather than \c{x0}: they search a box instead of
+descending from a point, so the box defines the entire search space. Both accept
+\c{seed} for reproducibility and return the familiar result object. Note the
+evaluation counts -- \c{differential_evolution()} reached the same design here
+in 291 evaluations against 4061, which is the number that matters when each
+evaluation is a simulation run.
+\end{SyntaxBox}
+
+\hh{Report randomness honestly}
+
+A single run of a stochastic method is one sample, not a measurement. Repeat the
+run across several seeds and report the spread.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Measure run-to-run stability across seeds},
+    label={c20_stability},
+    captionpos=b
+]
+import numpy as np
+
+for name, search in (
+    ("random search", random_search),
+    ("simulated annealing", simulated_annealing),
+    ("genetic algorithm", genetic_algorithm),
+    ("particle swarm", particle_swarm),
+):
+    costs = [search(rugged_facade_cost, seed=seed)[1] for seed in range(1, 9)]
+    print(f"{name:<20} best={min(costs):.4f} worst={max(costs):.4f} "
+          f"mean={np.mean(costs):.4f}")
+\end{lstlisting}
+
+Over eight seeds on the rugged objective:
+
+\begin{center}
+\begin{tabular}{llll}
+\textbf{Method} & \textbf{Best} & \textbf{Worst} & \textbf{Mean} \\
+Random search & 83.5765 & 84.0278 & 83.7349 \\
+Simulated annealing & 83.5686 & 83.6068 & 83.5839 \\
+Genetic algorithm & 83.5663 & 83.5677 & 83.5667 \\
+Particle swarm & 83.5663 & 84.4631 & 83.6784 \\
+\end{tabular}
+\end{center}
+
+Particle swarm produced both the best result and the worst result in this study.
+Its worst run converged prematurely: 84.4631 is exactly the second-lowest local
+minimum of this objective, so the swarm agreed on the wrong basin before
+exploring enough of the box. Reporting only the best seed would have hidden
+that, and a reader who ran your code with a different seed would get a different
+design.
+
+\begin{TryBox}{Report a search result properly}
+Write a short paragraph reporting the genetic-algorithm result as you would in a
+design document. It must state the objective and its units, the bounds, the
+evaluation budget, the seed, the best cost, the spread across at least eight
+seeds, the random-search baseline for comparison, and one sentence on what the
+model omits.
+\end{TryBox}
+
+\hh{Applied example: facade design under a fixed evaluation budget}
+\label{sec:c20-application}
+
+The runnable program \c{examples/c20_facade_optimization.py} combines the
+chapter's methods into one comparison: it runs projected gradient descent on the
+smooth objective, applies all four global searches to the rugged objective under
+a shared budget, verifies feasibility, measures seed stability, and exports a
+convergence figure.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Run and verify a budgeted method comparison},
+    label={c20_application},
+    captionpos=b
+]
+EVALUATION_BUDGET = 4000
+
+searches = {
+    "random search": random_search,
+    "simulated annealing": simulated_annealing,
+    "genetic algorithm": genetic_algorithm,
+    "particle swarm": particle_swarm,
+}
+
+results = {}
+for name, search in searches.items():
+    decision, cost = search(rugged_facade_cost, seed=7)
+
+    if not np.all((decision >= LOWS) & (decision <= HIGHS)):
+        raise ValueError(f"{name} returned an infeasible design")
+    if abs(rugged_facade_cost(decision) - cost) > 1e-9:
+        raise ValueError(f"{name} reported a cost it cannot reproduce")
+
+    results[name] = (decision, cost)
+
+baseline_cost = results["random search"][1]
+for name, (decision, cost) in sorted(results.items(), key=lambda item: item[1][1]):
+    improvement = baseline_cost - cost
+    print(f"{name:<20} cost={cost:7.4f} vs random search: {improvement:+.4f} "
+          f"ratio={decision[0]:.3f} depth={decision[1]:.3f} m")
+\end{lstlisting}
+
+\begin{SyntaxBox}{Verification is part of the application, not an afterthought}
+\begin{enumerate}
+    \item Every returned design is checked against the bounds before it is
+          recorded, because a clipping mistake produces a plausible-looking
+          infeasible answer.
+    \item The reported cost is recomputed from the returned design. A mismatch
+          means the search returned a point and a score that do not correspond,
+          which is a real and easily hidden bug.
+    \item Results are compared against the random-search baseline rather than
+          against each other alone.
+    \item \c{sorted(..., key=lambda item: item[1][1])} orders the printout by
+          cost so the ranking is visible without rereading numbers.
+\end{enumerate}
+\end{SyntaxBox}
+
+\hh{Common mistakes and useful diagnoses}
+
+\begin{itemize}
+    \item \textbf{An analytic gradient is never checked.} Compare it against
+          \c{numerical_gradient()} at several points before trusting it.
+    \item \textbf{The iteration limit is treated as convergence.} Distinguish
+          "the step became small" from "the loop ran out" and report which
+          happened.
+    \item \textbf{One learning rate is tried.} Plot cost against iteration for a
+          range of rates before concluding the method does not work.
+    \item \textbf{A local result is reported as the global optimum.} Restart
+          from several points and report the spread, or use a global method.
+    \item \textbf{Methods are compared at different budgets.} Fix the number of
+          objective evaluations and count it.
+    \item \textbf{The random seed is unset or unreported.} A stochastic result
+          that cannot be reproduced cannot be reviewed.
+    \item \textbf{No random-search baseline is shown.} Without it, nobody can
+          tell whether the metaheuristic contributed anything.
+    \item \textbf{Metaheuristic parameters are copied from a tutorial.}
+          Population size, cooling rate, and inertia interact with your
+          objective's scale and bounds; state why you chose them.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read}
+
+In Listing~\ref{c20_descent}, identify the line that enforces the bounds, the
+line that measures progress, and the condition that ends the loop early.
+
+\hhh{Level 1 -- Modify}
+
+Run \c{gradient_descent} from \c{(0.15, 0.10)} instead of \c{(0.65, 0.60)} at
+rate 0.0025. Report the number of steps and the final design, and explain why the
+recommendation is unchanged while the path is not.
+
+\hhh{Level 2 -- Explain}
+
+Simulated annealing tracks \c{best} separately from \c{current}. Explain what
+would be lost if the function returned \c{current} instead, and describe a run in
+which the two differ substantially.
+
+\hhh{Level 3 -- Build}
+
+Write \c{multistart(cost, starts, learning_rate)} that runs projected gradient
+descent from each starting point in \c{starts} and returns the best design, its
+cost, and the list of all costs found. Use it on \c{rugged_facade_cost} with
+twenty random starts and compare against the genetic algorithm at the same total
+evaluation budget.
+
+\hhh{Level 4 -- Challenge}
+
+The shading depth is manufactured only in 0.05 m increments. Add a rounding step
+so every evaluated depth is a multiple of 0.05, then rerun gradient descent and
+one metaheuristic. Explain why the gradient method now fails structurally rather
+than merely converging poorly, and state which method you would recommend and
+why.
+
+\hh{Practice solutions}
+
+\textbf{Level 1:} The descent converges to the same design near
+\c{(0.2924, 0.3723)} because the smooth objective has one valley, and any
+feasible start descends into it. The path differs because the starting point sits
+on the other side of the minimum, and the count of steps differs because the
+initial gradient magnitude differs.
+
+\textbf{Level 2:} Returning \c{current} would report wherever the walk happened
+to be when the budget ended, not the best design found. Early in the run, high
+temperature makes uphill moves common, so \c{current} can be far worse than
+\c{best}. The two differ most when the temperature is still high at the end,
+which is exactly the symptom of a cooling schedule that is too slow for the
+budget.
+
+\textbf{Level 3}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A multi-start wrapper around any local method},
+    label={c20_solution_multistart},
+    captionpos=b
+]
+import numpy as np
+
+
+def multistart(cost, starts, learning_rate):
+    if len(starts) == 0:
+        raise ValueError("starts must contain at least one point")
+
+    costs = []
+    best_design = None
+    best_cost = np.inf
+
+    for start in starts:
+        design, _ = gradient_descent(
+            cost,
+            lambda point: numerical_gradient(cost, point),
+            start,
+            learning_rate,
+        )
+        value = cost(design)
+        costs.append(value)
+        if value < best_cost:
+            best_design, best_cost = design, value
+
+    return best_design, best_cost, costs
+\end{lstlisting}
+
+The function returns every cost, not only the winner, so the spread across
+starts can be reported as evidence about how rugged the objective is.
+
+\textbf{Level 4:} Rounding makes the objective a step function. Within one
+0.05 m interval the cost does not change with depth, so the partial derivative
+with respect to depth is zero almost everywhere and undefined at each step edge.
+A finite-difference estimate returns zero, descent takes no step in that
+direction, and the stopping rule fires immediately. This is not a tuning problem
+that a smaller learning rate can fix. A metaheuristic that proposes candidates
+and only compares their costs is unaffected, so simulated annealing, a genetic
+algorithm, or particle swarm is the correct choice for a discretized decision.
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item What does the gradient of an objective represent, and why does descent
+          use its negative?
+    \item How do you check a hand-derived gradient?
+    \item What are the two ways the descent loop can end, and why must you
+          distinguish them?
+    \item Describe the symptoms of a learning rate that is too large.
+    \item Why does \c{success=True} not mean the global optimum was found?
+    \item What does the temperature control in simulated annealing?
+    \item What roles do selection, crossover, and mutation play in a genetic
+          algorithm?
+    \item Which two attractions determine a particle's velocity?
+    \item Why must methods be compared at an equal evaluation budget?
+    \item What must always accompany a reported metaheuristic result?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item It is the direction of steepest increase, so its negative is the
+          direction of steepest decrease.
+    \item Compare it with a central finite-difference estimate at several
+          points; the values should agree closely.
+    \item The step fell below the tolerance, or the iteration limit was reached.
+          Only the first is convergence; the second is a failure to report.
+    \item The cost stops improving, oscillates between iterations, and the loop
+          exhausts its iteration limit while returning plausible numbers.
+    \item It reports that the algorithm's own stopping conditions were met near
+          the current point, which says nothing about distant regions.
+    \item The probability of accepting a worse candidate, which falls as the run
+          proceeds and shifts the search from exploring to refining.
+    \item Selection favors better candidates, crossover combines them, and
+          mutation restores diversity that selection removes.
+    \item Its own best position found so far and the best position found by the
+          whole swarm.
+    \item Otherwise the comparison measures how many objective evaluations each
+          method was allowed rather than how well it searched.
+    \item The seed, the evaluation budget, the spread across repeated runs, and
+          a random-search baseline.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+Gradient methods use local slope to descend quickly and cheaply, but they
+converge to the nearest valley and depend on a learning rate you must justify
+with evidence. Metaheuristics trade evaluations and determinism for the ability
+to escape local minima; each of simulated annealing, genetic algorithms, and
+particle swarm balances exploration against refinement with parameters you must
+choose deliberately. Compare every method against random search at an equal
+budget, and report seeds and run-to-run spread as part of the result.
+\booklink{ch:21}{Chapter 21} applies the same comparison discipline to
+classification, where the candidates being selected are models rather than
+designs.
+\end{tcolorbox}

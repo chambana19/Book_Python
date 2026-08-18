@@ -1,0 +1,521 @@
+% Part VI -- Geospatial Data and Applied Mapping
+% Chapter 16: geodatasets and applied mapping
+
+\h{GeoDatasets and Applied Mapping}
+\label{ch:16}
+
+Small hand-written coordinates are useful for learning, but applied spatial
+analysis needs documented data and repeatable acquisition. The
+\c{geodatasets} package provides a catalog and downloader for educational
+spatial datasets. GeoPandas then reads, analyzes, joins, and maps those files.
+This chapter combines Chicago community polygons with grocery locations to
+demonstrate a complete spatial workflow.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} Complete \booklink{ch:15}{Chapter 15} first. You should
+understand GeoDataFrames, geometry, CRS transformation, pandas grouping, and
+Matplotlib subplots. The first dataset request may need an internet connection;
+later runs can use the cached local copy.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item distinguish a dataset catalog from a spatial-analysis library;
+    \item retrieve a documented dataset path with \c{geodatasets.get_path()};
+    \item load vector files with \c{gpd.read_file()} and inspect their schema;
+    \item align layers in one projected CRS;
+    \item build a choropleth and overlay a point layer;
+    \item use a spatial join to attach polygon attributes to points;
+    \item aggregate joined records and place a map beside a comparison chart;
+          and
+    \item state important limits of a descriptive spatial result.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Know what each library contributes}
+
+The packages have separate responsibilities. \c{geodatasets} knows dataset
+names, source URLs, and local cache locations. GeoPandas reads spatial files
+and performs spatial operations. Matplotlib controls the final Figure and Axes.
+
+\begin{SyntaxBox}{Catalog, analysis, and presentation are separate stages}
+\begin{itemize}
+    \item \c{geodatasets.get_path(name)} obtains a usable local path, downloading
+          and caching the source when necessary.
+    \item \c{gpd.read_file(path)} converts the file into a GeoDataFrame.
+    \item GeoPandas methods transform, join, and plot the spatial records.
+    \item Matplotlib coordinates multiple panels, labels, and export.
+\end{itemize}
+Separating these roles makes failures easier to diagnose: acquisition, data
+interpretation, analysis, and presentation are not the same problem.
+\end{SyntaxBox}
+
+\begin{ExplainBox}{A dataset is evidence with provenance, not just a file}
+A defensible spatial result records who produced the data, what one feature
+represents, when and where it was collected, its coordinate reference system,
+important field definitions, and known omissions. A successful download proves
+only that bytes were obtained. Inspection and metadata are needed before those
+bytes can support a spatial claim. Cache paths improve reproducibility, but
+they do not guarantee that a source is complete, current, or suitable for the
+question.
+\end{ExplainBox}
+
+The package API and catalog are documented in the
+\href{https://geodatasets.readthedocs.io/en/latest/api.html}{official geodatasets API reference}.
+
+\hh{Discover, retrieve, and load a dataset}
+
+Use a catalog name rather than embedding an unstable download URL in every
+script. The following example requests Chicago community areas with population
+attributes.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Retrieve and inspect an educational spatial dataset},
+    label={c16_get_path},
+    captionpos=b
+]
+import geopandas as gpd
+import geodatasets
+
+dataset_name = "geoda.chicago_commpop"
+
+print(geodatasets.get_url(dataset_name))
+dataset_path = geodatasets.get_path(dataset_name)
+chicago = gpd.read_file(dataset_path)
+
+print(chicago.shape)
+print(chicago.columns.tolist())
+print(chicago.crs)
+print(chicago.geometry.geom_type.value_counts())
+\end{lstlisting}
+
+\begin{SyntaxBox}{Follow the data from identifier to GeoDataFrame}
+\begin{enumerate}
+    \item \c{dataset_name} is a catalog key, not a file path.
+    \item \c{get_url()} reveals the external source for provenance checking.
+    \item \c{get_path()} returns a local path and may download the file once.
+    \item \c{gpd.read_file()} parses attributes, geometry, and CRS into one object.
+    \item The final print statements verify dimensions, schema, CRS, and geometry.
+\end{enumerate}
+Cache behavior improves reproducibility, but it does not remove the obligation
+to record the dataset name, source, fields used, and analysis date.
+\end{SyntaxBox}
+
+At the time this example was prepared, the layer contained community names in
+\c{community}, 2010 population in \c{POP2010}, and Polygon or MultiPolygon
+geometry. Always inspect the downloaded version instead of assuming that a
+field name or record count can never change.
+
+\hh{Load a second layer and align both CRS values}
+
+The grocery dataset contains Point locations. Load both layers, then transform
+them to the same projected CRS before overlaying or joining them.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Load community polygons and grocery points in one CRS},
+    label={c16_align_layers},
+    captionpos=b
+]
+chicago = gpd.read_file(
+    geodatasets.get_path("geoda.chicago_commpop")
+)
+groceries = gpd.read_file(
+    geodatasets.get_path("geoda.groceries")
+)
+
+analysis_crs = "EPSG:26916"
+chicago = chicago.to_crs(analysis_crs)
+groceries = groceries.to_crs(chicago.crs)
+
+print(chicago.crs == groceries.crs)
+print(len(chicago), len(groceries))
+\end{lstlisting}
+
+The second \c{to_crs()} reuses \c{chicago.crs}, so the two layers cannot drift
+apart because of a repeated string typed differently. EPSG:26916 is a
+meter-based UTM CRS suitable for this Chicago-area demonstration. A different
+study location may require a different projected CRS.
+
+\begin{TryBox}{Check alignment before plotting}
+Print \c{chicago.total_bounds} and \c{groceries.total_bounds}. The grocery
+extent should fall broadly inside the community extent, and both arrays should
+have coordinates of a similar magnitude. Matching CRS labels alone do not
+prove that the source data were declared correctly.
+\end{TryBox}
+
+\hh{Build a choropleth and point overlay}
+
+A choropleth assigns polygon color from a numeric attribute. It is effective
+for showing geographic variation, but its legend, variable definition, and
+boundary context must be clear.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Map population and grocery locations together},
+    label={c16_choropleth},
+    captionpos=b
+]
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(7, 7), layout="constrained")
+
+chicago.plot(
+    column="POP2010",
+    cmap="Blues",
+    legend=True,
+    edgecolor="white",
+    linewidth=0.35,
+    legend_kwds={"label": "Population in 2010", "shrink": 0.75},
+    ax=ax,
+)
+groceries.plot(
+    ax=ax,
+    color="tab:orange",
+    edgecolor="black",
+    linewidth=0.25,
+    markersize=10,
+    zorder=3,
+)
+
+ax.set_title("Population and mapped grocery locations")
+ax.set_axis_off()
+plt.show()
+plt.close(fig)
+\end{lstlisting}
+
+\begin{SyntaxBox}{Separate data mapping from map decoration}
+\c{column="POP2010"} connects data values to polygon color, while
+\c{cmap="Blues"} chooses one ordered color scale. \c{legend=True} exposes the
+numeric scale. Polygon edges remain thin and neutral so the orange grocery
+points retain emphasis. Both calls receive the same \c{ax}; \c{zorder=3} keeps
+the smaller point symbols visible above the polygons.
+\end{SyntaxBox}
+
+The
+\href{https://geopandas.org/en/stable/docs/user_guide/mapping.html}{official GeoPandas mapping guide}
+provides additional parameters and classification options.
+
+\hh{Attach community names with a spatial join}
+
+The grocery table does not need to contain a community name already. A spatial
+join can determine which community Polygon contains each grocery Point and
+copy the selected polygon attributes to the point rows.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Join each grocery point to its containing community},
+    label={c16_spatial_join},
+    captionpos=b
+]
+joined = gpd.sjoin(
+    groceries,
+    chicago[["community", "geometry"]],
+    how="left",
+    predicate="within",
+)
+
+print(joined[["community", "geometry"]].head())
+print("Unmatched points:", joined["community"].isna().sum())
+
+counts = (
+    joined.dropna(subset=["community"])
+    .groupby("community")
+    .size()
+    .sort_values(ascending=False)
+)
+print(counts.head(10))
+\end{lstlisting}
+
+\begin{SyntaxBox}{Read the join and aggregation precisely}
+\begin{itemize}
+    \item The left object is the point layer whose rows should be retained.
+    \item The right object supplies only \c{community} and \c{geometry}, reducing
+          unnecessary duplicate columns.
+    \item \c{how="left"} keeps every grocery row, including unmatched points.
+    \item \c{predicate="within"} matches a Point when it lies inside a community
+          geometry.
+    \item \c{dropna()}, \c{groupby()}, and \c{size()} then count matched points by
+          community.
+\end{itemize}
+Inspect unmatched rows before dropping them. A point can be unmatched because
+of boundary precision, incomplete coverage, or an incorrect CRS.
+\end{SyntaxBox}
+
+The full method contract appears in the
+\href{https://geopandas.org/en/stable/docs/reference/api/geopandas.sjoin.html}{official GeoPandas spatial-join reference}.
+
+\hh{Applied example: combine a map and a ranked chart}
+\label{sec:c16-application}
+
+The final application integrates acquisition, inspection, CRS alignment,
+spatial joining, aggregation, visualization, and export. One panel preserves
+geographic context; the other makes the largest counts easier to compare.
+
+A runnable copy is provided in \c{examples/c16_chicago_mapping.py}.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create a Chicago population and grocery-location analysis},
+    label={c16_chicago_application},
+    captionpos=b
+]
+from pathlib import Path
+
+import geopandas as gpd
+import geodatasets
+import matplotlib.pyplot as plt
+
+# 1. Retrieve and load the two documented layers.
+community_path = geodatasets.get_path("geoda.chicago_commpop")
+grocery_path = geodatasets.get_path("geoda.groceries")
+
+chicago = gpd.read_file(community_path)
+groceries = gpd.read_file(grocery_path)
+
+# 2. Inspect the minimum assumptions used later.
+required_columns = {"community", "POP2010", "geometry"}
+missing = required_columns.difference(chicago.columns)
+if missing:
+    raise ValueError(f"Missing Chicago columns: {sorted(missing)}")
+if chicago.crs is None or groceries.crs is None:
+    raise ValueError("Both layers must have a CRS")
+
+# 3. Align the layers in a projected Chicago-area CRS.
+chicago = chicago.to_crs("EPSG:26916")
+groceries = groceries.to_crs(chicago.crs)
+
+# 4. Attach a community name to each grocery point.
+joined = gpd.sjoin(
+    groceries,
+    chicago[["community", "geometry"]],
+    how="left",
+    predicate="within",
+)
+
+# 5. Calculate the ten largest mapped-location counts.
+top_counts = (
+    joined.dropna(subset=["community"])
+    .groupby("community")
+    .size()
+    .sort_values(ascending=False)
+    .head(10)
+    .sort_values()
+)
+
+# 6. Coordinate a map and a comparison chart.
+fig, axes = plt.subplots(
+    1,
+    2,
+    figsize=(10.8, 5.4),
+    layout="constrained",
+)
+
+chicago.plot(
+    column="POP2010",
+    cmap="Blues",
+    legend=True,
+    edgecolor="white",
+    linewidth=0.35,
+    legend_kwds={"label": "Population in 2010", "shrink": 0.72},
+    ax=axes[0],
+)
+groceries.plot(
+    ax=axes[0],
+    color="tab:orange",
+    edgecolor="black",
+    linewidth=0.25,
+    markersize=9,
+    zorder=3,
+)
+axes[0].set_title("Population and grocery locations")
+axes[0].set_axis_off()
+
+top_counts.plot.barh(ax=axes[1], color="tab:blue")
+axes[1].set(
+    title="Communities with the most mapped groceries",
+    xlabel="Mapped grocery locations",
+    ylabel="Community",
+)
+axes[1].grid(axis="x", alpha=0.2)
+
+# 7. Record the source and export the complete Figure.
+fig.text(
+    0.5,
+    0.01,
+    "Source: GeoDa Center datasets distributed through geodatasets",
+    ha="center",
+    fontsize=8,
+)
+output_folder = Path("study_figures")
+output_folder.mkdir(exist_ok=True)
+fig.savefig(
+    output_folder / "chicago_population_groceries.png",
+    dpi=200,
+    bbox_inches="tight",
+)
+plt.show()
+plt.close(fig)
+\end{lstlisting}
+
+\bookfigure[0.98\textwidth]{Figures/Generated/c16_chicago_mapping.pdf}
+{Rendered application: geographic context on the left and a ranked comparison of joined point counts on the right.}
+{fig:c15-chicago-mapping}
+
+\begin{SyntaxBox}{Trace the complete application by responsibility}
+\begin{enumerate}
+    \item \textbf{Acquire:} catalog names resolve to cached local paths.
+    \item \textbf{Load and validate:} both GeoDataFrames and required fields are
+          checked before analysis.
+    \item \textbf{Transform:} a common projected CRS makes the geometries align.
+    \item \textbf{Relate:} \c{sjoin()} transfers a community name to each point.
+    \item \textbf{Summarize:} a pandas pipeline counts, ranks, and orders matches.
+    \item \textbf{Communicate:} the map answers \emph{where}; the bar chart answers
+          \emph{which communities have the largest mapped counts}.
+    \item \textbf{Document:} a source note and deterministic file name accompany
+          the exported Figure.
+\end{enumerate}
+Validation belongs inside the script because a visually plausible map can still
+be based on missing columns, absent CRS metadata, or unmatched features.
+\end{SyntaxBox}
+
+\hh{Interpret responsibly}
+
+The right panel counts mapped grocery records within community boundaries. It
+does \emph{not} measure grocery access, store quality, food affordability, or
+locations per resident. A larger community or a more populous community may
+naturally contain more records. A defensible analysis should consider area or
+population normalization, travel networks, dataset vintage, missing locations,
+and the modifiable areal unit problem before making policy claims.
+
+\begin{ExplainBox}{A map is an argument, not just an image}
+Polygon boundaries define aggregation units; color encodes one selected
+variable; symbol size and order direct attention; and missing records influence
+the apparent pattern. State these choices and limitations so readers can
+evaluate the evidence rather than treating the map as neutral.
+\end{ExplainBox}
+
+\hh{Common mistakes and useful diagnoses}
+
+\begin{itemize}
+    \item \textbf{The first run cannot obtain data.} Confirm internet access and
+          print \c{geodatasets.get_url(name)} to identify the source.
+    \item \textbf{A field name raises \c{KeyError}.} Print \c{columns.tolist()}
+          and inspect the actual schema before analysis.
+    \item \textbf{A spatial join returns many missing values.} Check both CRS
+          values, extents, geometry validity, and predicate direction.
+    \item \textbf{Points disappear below polygons.} Plot polygons first, points
+          second, and assign the points a higher \c{zorder}.
+    \item \textbf{Counts are interpreted as rates.} Choose a defensible
+          denominator and explain what the normalized measure means.
+    \item \textbf{A map has no provenance.} Record dataset names, source notes,
+          relevant dates, variables, transformations, and exclusions.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Read}
+
+Identify which four lines in Listing~\ref{c16_get_path} perform discovery,
+retrieval, loading, and inspection.
+
+\hhh{Level 1 -- Modify}
+
+Change the choropleth from \c{POP2010} to \c{POPCH}. Update the legend and title
+so a reader can understand what the field represents after inspecting its data.
+
+\hhh{Level 2 -- Explain}
+
+Explain why \c{how="left"} is preferable to \c{how="inner"} when diagnosing
+unmatched grocery points.
+
+\hhh{Level 3 -- Build}
+
+Join grocery points to communities and calculate
+\c{groceries_per_10000 = count / POP2010 * 10000}. Exclude or flag any community
+with a nonpositive or missing population before division.
+
+\hhh{Level 4 -- Challenge}
+
+Write a function \c{spatial_count(points, polygons, group_column)} that checks
+CRS compatibility, performs a left spatial join, reports unmatched points, and
+returns a sorted count Series without mutating either input.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} \c{get_url()} discovers the source, \c{get_path()} retrieves a
+local path, \c{read_file()} loads it, and the print calls inspect the result.
+
+\textbf{Level 2:} A left join retains unmatched input points with missing polygon
+attributes, making the problem visible. An inner join would silently remove them.
+
+\textbf{Level 3}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One population-normalized comparison},
+    label={c16_solution_level3},
+    captionpos=b
+]
+counts = (
+    joined.dropna(subset=["community"])
+    .groupby("community")
+    .size()
+    .rename("grocery_count")
+)
+
+rates = chicago[["community", "POP2010"]].merge(
+    counts,
+    on="community",
+    how="left",
+)
+rates["grocery_count"] = rates["grocery_count"].fillna(0)
+rates = rates[rates["POP2010"] > 0].copy()
+rates["groceries_per_10000"] = (
+    rates["grocery_count"] / rates["POP2010"] * 10_000
+)
+print(rates.sort_values("groceries_per_10000", ascending=False).head())
+\end{lstlisting}
+
+This rate adjusts only for population count. It still does not represent travel
+time, store capacity, price, or individual access.
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item What role does \c{geodatasets} play in the workflow?
+    \item Which function converts a spatial file path into a GeoDataFrame?
+    \item Why transform both layers to a shared CRS before a spatial join?
+    \item What does \c{predicate="within"} mean when points are on the left?
+    \item Why inspect unmatched rows after a left join?
+    \item What question does a choropleth answer differently from a bar chart?
+    \item Why is a mapped grocery count not automatically an access measure?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item It catalogs, downloads, and caches documented educational datasets.
+    \item \c{gpd.read_file()}.
+    \item Spatial relations require geometry expressed in a consistent coordinate system.
+    \item Each point is matched to a polygon that spatially contains it.
+    \item Unmatched records may reveal CRS, coverage, boundary, or data-quality issues.
+    \item A choropleth shows geographic variation; a bar chart supports direct ranking.
+    \item Count ignores population, area, travel, price, quality, and missing records.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Part VI summary,colframe=orange,colback=white,arc=2mm]
+GeoPandas connects table reasoning to geometry, CRS, spatial predicates, and
+layered maps. \c{geodatasets} supports reproducible access to teaching data,
+while spatial joins connect observations through location. A sound applied
+workflow acquires, inspects, transforms, validates, analyzes, visualizes, and
+qualifies its conclusions in that order.
+\end{tcolorbox}

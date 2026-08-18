@@ -2,10 +2,10 @@
 
 This repository contains the LaTeX source for an independent-study Python
 textbook covering programming foundations, algorithms, NumPy, pandas,
-Matplotlib, GeoPandas, numerical optimization including gradient descent and
-metaheuristics, and machine learning from regression through classification,
-model selection, and neural networks. Compile `main.tex` in Overleaf or with a
-compatible LaTeX engine.
+Matplotlib, structured and unstructured data handling, GeoPandas, numerical
+optimization including gradient descent and metaheuristics, and machine
+learning from regression through classification, model selection, and neural
+networks. Compile `main.tex` in Overleaf or with a compatible LaTeX engine.
 
 ## Learning figures
 
@@ -26,24 +26,25 @@ named outputs.
 
 ## Runnable applications
 
-The longer applications printed in Chapters 13--21 are also available as
+The longer applications printed in Chapters 13--22 are also available as
 complete scripts in `examples`. Run them from the repository root after
 installing `requirements-figures.txt`:
 
 ```powershell
 python examples/c13_building_performance_dashboard.py
-python examples/c14_site_service_areas.py
-python examples/c15_chicago_mapping.py
-python examples/c16_search_algorithms.py
-python examples/c17_daylight_energy_optimization.py
-python examples/c18_building_energy_ml.py
-python examples/c19_facade_optimization.py
-python examples/c20_comfort_complaint_classification.py
-python examples/c21_neural_network_comfort.py
+python examples/c14_building_data_pipeline.py
+python examples/c15_site_service_areas.py
+python examples/c16_chicago_mapping.py
+python examples/c17_search_algorithms.py
+python examples/c18_daylight_energy_optimization.py
+python examples/c19_building_energy_ml.py
+python examples/c20_facade_optimization.py
+python examples/c21_comfort_complaint_classification.py
+python examples/c22_neural_network_comfort.py
 ```
 
 Each script writes a high-resolution PNG to the ignored `study_figures`
-folder. The Chapter 15 script may download its documented teaching datasets on
+folder. The Chapter 16 script may download its documented teaching datasets on
 the first run.
 
 ## Accessibility

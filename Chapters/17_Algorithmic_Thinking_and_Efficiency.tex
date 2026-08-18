@@ -1,0 +1,443 @@
+% Part VII -- Algorithms, Optimization, and Machine Learning
+% Chapter 17: Algorithmic thinking and efficiency
+
+\h{Algorithmic Thinking and Efficiency}
+\label{ch:17}
+
+Programming syntax tells Python what to execute. An \emph{algorithm} is the
+finite, ordered method that explains how a problem will be solved. Two programs
+can produce the same answer while requiring very different amounts of work.
+This chapter develops the habits used throughout computer science: specify the
+problem, trace state, argue correctness, count important operations, and choose
+a data structure that supports the algorithm.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand lists, indexing, loops,
+conditionals, functions, exceptions, and the idea of a loop invariant from
+\booklink{ch:05}{Chapter 5}.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item distinguish a problem specification, an algorithm, and a program;
+    \item state preconditions, postconditions, and useful edge cases;
+    \item trace linear and binary search by hand;
+    \item explain why binary search requires sorted input;
+    \item use a loop invariant as a concise correctness argument;
+    \item compare constant, logarithmic, linear, and quadratic growth;
+    \item explain an educational sorting algorithm and use Python's stable
+          \c{sorted()} function in applications; and
+    \item validate two implementations against the same contract.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Separate the problem, algorithm, and program}
+
+Suppose the problem is ``find the position of a requested room identifier.'' A
+complete \emph{specification} defines the input, expected output, and behavior
+when the identifier is absent. An \emph{algorithm} describes the ordered search
+strategy. A Python \emph{program} expresses that strategy using variables,
+loops, comparisons, and returns.
+
+\begin{SyntaxBox}{Write the contract before the loop}
+For the search functions in this chapter:
+\begin{itemize}
+    \item the input is a sequence \c{values} and one \c{target};
+    \item the output is the first matching index, or \c{-1} if absent;
+    \item inputs may be empty; and
+    \item binary search additionally requires ascending sorted order.
+\end{itemize}
+The contract is language-independent. It lets us compare algorithms without
+changing the question they answer.
+\end{SyntaxBox}
+
+\begin{ExplainBox}{Correctness, efficiency, and implementation are separate claims}
+Correctness asks whether every permitted input produces an output that satisfies
+the contract. Efficiency asks how required time or storage grows as the input
+grows. Implementation quality asks whether the Python expression is readable,
+testable, and appropriate for its environment. A fast program can be wrong; a
+correct algorithm can be implemented inefficiently; and two correct programs
+can differ greatly in clarity. Evaluate each claim with its own evidence.
+\end{ExplainBox}
+
+\hh{Use test cases that represent different paths}
+
+One successful example is not evidence that an algorithm is correct. A small
+search test set should include the first item, a middle item, the last item, a
+missing target, repeated values, and an empty sequence.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Describe search cases before implementing the algorithm},
+    label={c17_search_cases},
+    captionpos=b
+]
+test_cases = [
+    ([4, 9, 13], 4, 0),
+    ([4, 9, 13], 9, 1),
+    ([4, 9, 13], 13, 2),
+    ([4, 9, 13], 8, -1),
+    ([], 8, -1),
+]
+\end{lstlisting}
+
+Each tuple stores one input sequence, one target, and the expected index. The
+cases become reusable evidence when several implementations share the same
+contract.
+
+\hh{Linear search: inspect candidates in order}
+
+Linear search begins at index zero and stops at the first match. It works on
+sorted or unsorted sequences.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Return the first matching index with linear search},
+    label={c17_linear_search},
+    captionpos=b
+]
+def linear_search(values, target):
+    for index, value in enumerate(values):
+        if value == target:
+            return index
+    return -1
+
+print(linear_search([18, 24, 15, 31], 15))
+print(linear_search([18, 24, 15, 31], 20))
+\end{lstlisting}
+
+\begin{SyntaxBox}{An early return ends a successful search}
+\c{enumerate(values)} supplies both the current index and value. The equality
+comparison asks one question per candidate. When a match occurs, \c{return}
+immediately ends the function. The final \c{return -1} is reached only after
+the loop has ruled out every position.
+\end{SyntaxBox}
+
+\begin{ExplainBox}{Linear-search invariant}
+At the beginning of iteration \c{index}, the target has not appeared in any
+earlier position. The comparison either finds it at the current position or
+extends that fact by one position. If the loop ends, every position has been
+ruled out, so returning \c{-1} satisfies the contract.
+\end{ExplainBox}
+
+\hh{Binary search: discard half of a sorted range}
+
+Sorted order provides additional information. Compare the target with the
+middle item. If the middle item is too small, every item on its left is also
+too small. If it is too large, every item on its right is also too large.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Search an ascending sequence by repeatedly halving the range},
+    label={c17_binary_search},
+    captionpos=b
+]
+def binary_search(sorted_values, target):
+    low = 0
+    high = len(sorted_values) - 1
+
+    while low <= high:
+        mid = (low + high) // 2
+        candidate = sorted_values[mid]
+
+        if candidate == target:
+            return mid
+        if candidate < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+
+    return -1
+\end{lstlisting}
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch17_binary_search_trace.pdf}
+{Binary search for 36 compares a middle value, discards the impossible half, and preserves only the range that can still contain the target.}
+{fig:ch17-binary-search}
+
+\begin{SyntaxBox}{Track the inclusive search interval}
+\begin{itemize}
+    \item \c{low} and \c{high} are the first and last possible indices.
+    \item \c{// 2} produces an integer midpoint index.
+    \item \c{low = mid + 1} removes the midpoint and everything below it.
+    \item \c{high = mid - 1} removes the midpoint and everything above it.
+    \item \c{low > high} means no possible index remains.
+\end{itemize}
+The invariant is: if the target exists, it lies somewhere from \c{low} through
+\c{high}, inclusive. Every update must preserve that statement.
+\end{SyntaxBox}
+
+\begin{TryBox}{Expose the precondition}
+Run binary search on \c{[18, 4, 31, 9]} without sorting. A returned answer may
+be wrong even though the code raises no exception. Sort a copy first with
+\c{sorted(values)}, run again, and explain why an algorithm can be syntactically
+valid while violating its contract.
+\end{TryBox}
+
+\hh{Compare efficiency by order of growth}
+
+Exact runtime depends on hardware, Python version, input layout, and many other
+details. Algorithm analysis first asks how the number of important operations
+grows as input size $n$ grows.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch17_algorithm_growth.pdf}
+{Constant, logarithmic, linear, and quadratic operation counts respond very differently as input size grows; the table makes the orders comparable at larger values.}
+{fig:ch17-growth}
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Growth} & \textbf{Notation} & \textbf{Typical example} \\
+Constant & $O(1)$ & read one list item by index \\
+Logarithmic & $O(\log n)$ & binary search \\
+Linear & $O(n)$ & linear search \\
+Quadratic & $O(n^2)$ & compare many pairs in nested loops \\
+\end{tabular}
+\end{center}
+
+Big-O notation describes an upper-order growth pattern, not a stopwatch time.
+Linear search may be perfectly appropriate for a short unsorted list. Binary
+search becomes valuable when the data are already sorted or will be searched
+many times. Sorting once also has a cost, so the complete workflow matters.
+
+\hh{Sorting reveals nested-loop reasoning}
+
+Selection sort is useful for learning because its invariant is visible: before
+iteration \c{start}, every earlier position contains its final smallest value.
+The algorithm scans the remaining suffix, finds its smallest element, and swaps
+that element into position.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Implement selection sort for study},
+    label={c17_selection_sort},
+    captionpos=b
+]
+def selection_sort(values):
+    result = values.copy()
+
+    for start in range(len(result)):
+        smallest = start
+
+        for index in range(start + 1, len(result)):
+            if result[index] < result[smallest]:
+                smallest = index
+
+        result[start], result[smallest] = (
+            result[smallest],
+            result[start],
+        )
+
+    return result
+\end{lstlisting}
+
+The outer loop chooses the next output position. The inner loop scans the
+remaining candidates, producing quadratic growth. The parallel assignment
+swaps two values without losing either one.
+
+\begin{NoteBox}
+\textbf{Use the standard tool in real applications.} Python's \c{sorted()}
+returns a new list and uses a highly engineered stable sorting algorithm. The
+educational implementation above is for tracing and complexity analysis, not
+for replacing the standard library.
+\end{NoteBox}
+
+\hh{Sort records with a key function}
+
+Algorithms often need a rule for comparing structured records. A key function
+returns the comparison value for each item.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Sort room records by area without changing the originals},
+    label={c17_sorted_key},
+    captionpos=b
+]
+rooms = [
+    {"name": "Studio", "area_m2": 31.0},
+    {"name": "Office", "area_m2": 18.0},
+    {"name": "Lobby", "area_m2": 24.0},
+]
+
+by_area = sorted(rooms, key=lambda room: room["area_m2"])
+print(by_area)
+\end{lstlisting}
+
+\c{lambda room: room["area_m2"]} is a small anonymous function. For each room,
+it returns the numeric field used as the sort key. Stability means records with
+equal keys preserve their earlier relative order. The official Python
+\href{https://docs.python.org/3/howto/sorting.html}{Sorting HOWTO} explains
+keys, stability, and multi-level sorting.
+
+\hh{Applied example: validate and compare two searches}
+\label{sec:c17-application}
+
+The complete companion program is
+\c{examples/c17_search_algorithms.py}. It gives both algorithms the same
+contract, counts comparisons, asserts that they return the same index, and
+plots operation counts for growing inputs.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Count comparisons without changing the search result},
+    label={c17_counted_search},
+    captionpos=b
+]
+def linear_search(values, target):
+    comparisons = 0
+    for index, value in enumerate(values):
+        comparisons += 1
+        if value == target:
+            return index, comparisons
+    return -1, comparisons
+
+
+def binary_search(sorted_values, target):
+    low = 0
+    high = len(sorted_values) - 1
+    comparisons = 0
+
+    while low <= high:
+        mid = (low + high) // 2
+        comparisons += 1
+        candidate = sorted_values[mid]
+
+        if candidate == target:
+            return mid, comparisons
+        if candidate < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+
+    return -1, comparisons
+
+
+room_ids = [104, 112, 119, 125, 131, 144, 152, 167, 181]
+target_id = 167
+
+linear_result = linear_search(room_ids, target_id)
+binary_result = binary_search(room_ids, target_id)
+
+print("Linear:", linear_result)
+print("Binary:", binary_result)
+assert linear_result[0] == binary_result[0]
+\end{lstlisting}
+
+\begin{SyntaxBox}{Instrumentation should preserve the contract}
+The functions now return a tuple containing the answer and a measurement.
+Incrementing \c{comparisons} immediately before each equality test defines what
+is being counted. The \c{assert} is an executable claim that both algorithms
+locate the same target. If measurement code changes the algorithm's answer, the
+experiment is invalid.
+\end{SyntaxBox}
+
+\hh{Common mistakes and useful diagnoses}
+
+\begin{itemize}
+    \item \textbf{Binary search receives unsorted data.} Validate the
+          precondition or sort a copy when that cost is appropriate.
+    \item \textbf{The interval never shrinks.} Update past \c{mid} with
+          \c{mid + 1} or \c{mid - 1}; otherwise the loop may repeat forever.
+    \item \textbf{Only successful cases are tested.} Include absent targets and
+          empty inputs.
+    \item \textbf{Big-O is treated as an exact duration.} It describes growth,
+          not milliseconds on one computer.
+    \item \textbf{A teaching sort replaces \c{sorted()}.} Use the standard
+          implementation unless the learning goal is the algorithm itself.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Trace}
+
+Trace binary search for target 9 in \c{[4, 9, 13, 18, 22, 27, 31]}. Record
+\c{low}, \c{high}, \c{mid}, and the candidate after every comparison.
+
+\hhh{Level 1 -- Modify}
+
+Change both search functions to return \c{None} rather than \c{-1} when the
+target is absent. Update the tests so the contract remains explicit.
+
+\hhh{Level 2 -- Explain}
+
+Explain why binary search is $O(\log n)$ and selection sort is $O(n^2)$ without
+referring to their Python syntax.
+
+\hhh{Level 3 -- Build}
+
+Write \c{is_sorted(values)} that returns \c{True} for an empty or one-item
+sequence and otherwise checks every neighboring pair.
+
+\hhh{Level 4 -- Challenge}
+
+Modify binary search to return the first index of a repeated target. State the
+new invariant and test cases before writing the loop.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The midpoints contain 18, then 9; the second comparison finds
+the target.
+
+\textbf{Level 2:} Binary search halves the remaining candidates, so doubling
+the input adds approximately one comparison. Selection sort repeatedly scans a
+large remaining suffix, producing a total proportional to the square of the
+input size.
+
+\textbf{Level 3}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One adjacent-pair sortedness check},
+    label={c17_solution_sorted},
+    captionpos=b
+]
+def is_sorted(values):
+    for index in range(1, len(values)):
+        if values[index] < values[index - 1]:
+            return False
+    return True
+\end{lstlisting}
+
+The loop begins at index one because every comparison needs a previous item.
+The function returns early at the first inversion and returns \c{True} only
+after ruling out every inversion.
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item How does a specification differ from an algorithm and a program?
+    \item What is the additional precondition for binary search?
+    \item State the linear-search invariant.
+    \item Why must binary search update past the midpoint?
+    \item What do $O(1)$, $O(\log n)$, $O(n)$, and $O(n^2)$ compare?
+    \item Why is selection sort useful educationally but not the normal Python choice?
+    \item What does a sorting key function return?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item A specification defines the required behavior, an algorithm defines
+          the method, and a program expresses that method in a language.
+    \item The sequence must be sorted according to the same comparison rule.
+    \item Before each comparison, no earlier position contains the target.
+    \item The compared midpoint is no longer a possible candidate.
+    \item How important operation counts grow with input size.
+    \item It exposes invariants and nested-loop growth; \c{sorted()} is more
+          capable and efficient for applications.
+    \item The comparison value extracted from one record.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+Algorithmic thinking begins with a contract and edge cases, continues through
+a state trace and correctness invariant, and ends with an efficiency argument.
+Syntax implements the method, but the method is the transferable knowledge.
+These habits prepare you to formulate search problems over continuous values
+in \booklink{ch:18}{Chapter 18}.
+\end{tcolorbox}

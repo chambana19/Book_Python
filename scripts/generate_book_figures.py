@@ -711,6 +711,170 @@ def generate_building_dashboard() -> None:
     save(fig, "c13_building_dashboard")
 
 
+def generate_data_spectrum() -> None:
+    fig, ax = blank_canvas(11, 4.9)
+    ax.text(0.5, 0.95, "Structure is a spectrum, and it decides who does the work",
+            ha="center", fontsize=15, weight="bold", color=DARK)
+
+    classes = [
+        ("Structured", "the file carries the schema",
+         "BMS sensor logs, meter\nreadings, CSV exports",
+         "Work: validate types,\nhandle missing values"),
+        ("Semi-structured", "the file describes itself,\nbut irregularly",
+         "JSON, XML, IFC/BIM,\nGeoJSON",
+         "Work: flatten nested\nrecords into a table"),
+        ("Unstructured", "nothing carries a schema\nfor the payload",
+         "work orders, photos,\npoint clouds, PDFs",
+         "Work: extract features\nyou choose and define"),
+    ]
+    xs = [0.03, 0.36, 0.69]
+    for x, (title, carrier, examples, work) in zip(xs, classes):
+        rounded_box(ax, (x, 0.44), 0.28, 0.30, title, DARK, subtitle=carrier)
+        ax.text(x + 0.14, 0.35, examples, ha="center", va="top", fontsize=8.5, color="#52647C")
+        ax.text(x + 0.14, 0.17, work, ha="center", va="top", fontsize=8.5,
+                color=DARK, weight="bold")
+
+    ax.annotate("", xy=(0.97, 0.83), xytext=(0.03, 0.83),
+                arrowprops=dict(arrowstyle="-|>", linewidth=1.6, color=ORANGE))
+    ax.text(0.5, 0.865, "more of the structuring work falls on you",
+            ha="center", fontsize=9, weight="bold", color=ORANGE)
+    ax.text(0.5, 0.045,
+            '"Unstructured" does not mean without structure. It means the structure is not in the file, so you must impose it.',
+            ha="center", fontsize=9.5, color="#52647C")
+    save(fig, "ch14_data_spectrum")
+
+
+def generate_handling_paths() -> None:
+    fig, ax = blank_canvas(11, 5.2)
+    ax.text(0.5, 0.96, "Three kinds of source, three kinds of work, one destination",
+            ha="center", fontsize=15, weight="bold", color=DARK)
+
+    sources = [
+        (0.76, "Structured", "sensor log CSV"),
+        (0.50, "Semi-structured", "asset record JSON"),
+        (0.24, "Unstructured", "work orders, photos"),
+    ]
+    operations = [
+        (0.76, "Validate", "check dtypes,\nfill or drop gaps"),
+        (0.50, "Flatten", "json_normalize,\nexplode records"),
+        (0.24, "Extract features", "keyword flags,\nimage descriptors"),
+    ]
+    for (y, title, subtitle), (_, op_title, op_subtitle) in zip(sources, operations):
+        rounded_box(ax, (0.02, y - 0.085), 0.24, 0.17, title, DARK, fontsize=10,
+                    subtitle=subtitle)
+        rounded_box(ax, (0.34, y - 0.085), 0.24, 0.17, op_title, DARK, fontsize=10,
+                    subtitle=op_subtitle)
+        arrow(ax, (0.265, y), (0.335, y))
+        arrow(ax, (0.585, y), (0.70, 0.50))
+
+    rounded_box(ax, (0.70, 0.385), 0.28, 0.23, "One feature table", ORANGE,
+                subtitle="rows = samples\ncolumns = features")
+    ax.text(0.84, 0.31, "the X matrix Chapters 19 to 22 require",
+            ha="center", fontsize=8.5, color=ORANGE, weight="bold")
+    ax.text(0.5, 0.04,
+            "Every path ends in the same shape. What differs is how much work it takes to get there.",
+            ha="center", fontsize=9.5, color="#52647C")
+    save(fig, "ch14_handling_paths")
+
+
+def generate_json_flatten() -> None:
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.4), layout="constrained")
+    fig.suptitle("Flattening turns a nested record into rows and columns",
+                 fontsize=15, weight="bold", color=DARK)
+    for ax in axes:
+        ax.axis("off")
+
+    axes[0].set_title("Nested JSON as stored", color=DARK, weight="bold")
+    nested = (
+        '{\n'
+        '  "asset_id": "AHU-3",\n'
+        '  "location": {\n'
+        '    "building": "Link Hall",\n'
+        '    "floor": 2\n'
+        '  },\n'
+        '  "filters": [\n'
+        '    {"stage": 1, "type": "MERV8"},\n'
+        '    {"stage": 2, "type": "MERV13"}\n'
+        '  ]\n'
+        '}'
+    )
+    axes[0].text(0.02, 0.93, nested, family="monospace", fontsize=9.5,
+                 va="top", color=DARK)
+    axes[0].text(0.02, 0.08, "One asset, two filters, two levels of nesting.",
+                 fontsize=9, color="#52647C")
+
+    axes[1].set_title("After json_normalize with record_path", color=DARK, weight="bold")
+    rows = [["1", "MERV8", "AHU-3", "Link Hall"], ["2", "MERV13", "AHU-3", "Link Hall"]]
+    table = axes[1].table(
+        cellText=rows,
+        colLabels=["stage", "type", "asset_id", "location.building"],
+        cellLoc="center",
+        bbox=[0.02, 0.45, 0.96, 0.36],
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(9.5)
+    for (row, _col), cell_obj in table.get_celld().items():
+        cell_obj.set_edgecolor(MID)
+        cell_obj.set_facecolor("#E8F2FC" if row == 0 else "white")
+        if row == 0:
+            cell_obj.set_text_props(weight="bold", color=DARK)
+    axes[1].text(0.02, 0.30,
+                 "record_path picks the repeating list;\n"
+                 "meta carries the parent fields down to every row.",
+                 fontsize=9, color="#52647C", va="top")
+    save(fig, "ch14_json_flatten")
+
+
+def generate_image_to_features() -> None:
+    rng = np.random.default_rng(7)
+    panel = np.zeros((48, 64, 3), dtype=np.int16)
+    panel[:, :, 0], panel[:, :, 1], panel[:, :, 2] = 40, 60, 90
+    rows_idx, cols_idx = np.ogrid[:48, :64]
+    hot = ((rows_idx - 14) ** 2 + (cols_idx - 46) ** 2) < 90
+    panel[hot] = [235, 175, 95]
+    panel = np.clip(panel + rng.integers(-8, 9, panel.shape), 0, 255).astype(np.uint8)
+    gray = panel.mean(axis=2)
+
+    fig, axes = plt.subplots(1, 3, figsize=(11.2, 4.2), layout="constrained")
+    fig.suptitle("An image is already an array; a descriptor turns it into one table row",
+                 fontsize=14.5, weight="bold", color=DARK)
+
+    axes[0].imshow(panel)
+    axes[0].set_title("Synthetic thermal panel", color=DARK, weight="bold", fontsize=11)
+    axes[0].set_xlabel("width: 64 pixels")
+    axes[0].set_ylabel("height: 48 pixels")
+    axes[0].set_xticks([0, 32, 63])
+    axes[0].set_yticks([0, 24, 47])
+
+    axes[1].imshow(gray > 140, cmap="gray")
+    axes[1].set_title("Pixels above the hot threshold", color=DARK, weight="bold", fontsize=11)
+    axes[1].set_xlabel("9.28 percent of pixels")
+    axes[1].set_xticks([])
+    axes[1].set_yticks([])
+
+    axes[2].axis("off")
+    axes[2].set_title("One row of features", color=DARK, weight="bold", fontsize=11,
+                      y=0.84)
+    rows = [
+        ["shape", "(48, 64, 3)"],
+        ["mean_intensity", "73.06"],
+        ["max_intensity", "175.00"],
+        ["hot_fraction", "0.0928"],
+    ]
+    table = axes[2].table(cellText=rows, cellLoc="left", bbox=[0.02, 0.32, 0.96, 0.46])
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    for (_row, col), cell_obj in table.get_celld().items():
+        cell_obj.set_edgecolor(MID)
+        cell_obj.set_facecolor("white")
+        if col == 0:
+            cell_obj.set_text_props(weight="bold", color=DARK)
+    axes[2].text(0.02, 0.24,
+                 "You choose these features.\nA different question would\nproduce a different row.",
+                 fontsize=9, color="#52647C", va="top")
+    save(fig, "ch14_image_to_features")
+
+
 def generate_geodataframe_model() -> None:
     fig, ax = blank_canvas(10.8, 4.2)
     ax.text(0.5, 0.93, "A GeoDataFrame adds spatial meaning to a table", ha="center", fontsize=16, weight="bold", color=DARK)
@@ -720,7 +884,7 @@ def generate_geodataframe_model() -> None:
     arrow(ax, (0.29, 0.53), (0.38, 0.53))
     arrow(ax, (0.62, 0.53), (0.71, 0.53))
     ax.text(0.5, 0.17, "The highlighted geometry column adds spatial methods; ordinary pandas operations still work on the rest of the table.", ha="center", color="#52647C")
-    save(fig, "ch14_geodataframe_model")
+    save(fig, "ch15_geodataframe_model")
 
 
 def generate_site_buffer_map() -> None:
@@ -744,7 +908,7 @@ def generate_site_buffer_map() -> None:
     ax.set_aspect("equal")
     ax.grid(alpha=0.18)
     chart_finish(ax)
-    save(fig, "c14_site_buffers")
+    save(fig, "c15_site_buffers")
 
 
 def generate_chicago_mapping_application() -> None:
@@ -766,7 +930,7 @@ def generate_chicago_mapping_application() -> None:
     axes[1].grid(axis="x", alpha=0.2)
     chart_finish(axes[1])
     fig.text(0.5, 0.01, "Source: GeoDa Center datasets distributed through geodatasets", ha="center", fontsize=8, color="#52647C")
-    save(fig, "c15_chicago_mapping")
+    save(fig, "c16_chicago_mapping")
 
 
 def generate_algorithm_growth() -> None:
@@ -792,7 +956,7 @@ def generate_algorithm_growth() -> None:
         cell_obj.set_facecolor("#E8F2FC" if row == 0 else "white")
         if row == 0:
             cell_obj.set_text_props(weight="bold", color=DARK)
-    save(fig, "ch16_algorithm_growth")
+    save(fig, "ch17_algorithm_growth")
 
 
 def generate_binary_search_trace() -> None:
@@ -814,7 +978,7 @@ def generate_binary_search_trace() -> None:
         relation = "too small" if values[mid] < 36 else "found"
         ax.text(-0.62, 0.53, f"Step {step}", ha="right", va="center", weight="bold", color=DARK)
         ax.text(len(values) - 0.35, 0.53, f"mid={mid}: {values[mid]} ({relation})", ha="left", va="center", color=ORANGE)
-    save(fig, "ch16_binary_search_trace")
+    save(fig, "ch17_binary_search_trace")
 
 
 def generate_optimization_model() -> None:
@@ -833,7 +997,7 @@ def generate_optimization_model() -> None:
     for left, right in zip(xs[:-1], xs[1:]):
         arrow(ax, (left + 0.17, 0.54), (right, 0.54))
     ax.text(0.5, 0.15, "A solver optimizes the model you wrote; it cannot repair an unrealistic objective or missing constraint.", ha="center", color="#52647C")
-    save(fig, "ch17_optimization_model")
+    save(fig, "ch18_optimization_model")
 
 
 def window_objective(ratio: float) -> float:
@@ -863,7 +1027,7 @@ def generate_optimization_application() -> None:
     ax.grid(alpha=0.2)
     ax.legend(fontsize=8)
     chart_finish(ax)
-    save(fig, "ch17_window_optimization")
+    save(fig, "ch18_window_optimization")
 
 
 def generate_ml_workflow() -> None:
@@ -882,7 +1046,7 @@ def generate_ml_workflow() -> None:
     for left, right in zip(xs[:-1], xs[1:]):
         arrow(ax, (left + 0.17, 0.565), (right, 0.565))
     ax.text(0.5, 0.18, "Do not use test outcomes to choose features, clean data, or tune the model; that leaks answers into evaluation.", ha="center", color="#52647C")
-    save(fig, "ch18_ml_workflow")
+    save(fig, "ch19_ml_workflow")
 
 
 def make_building_energy_data(seed: int = 42, sample_count: int = 240) -> tuple[pd.DataFrame, np.ndarray]:
@@ -931,7 +1095,7 @@ def generate_ml_diagnostics() -> None:
     for ax in axes:
         ax.grid(alpha=0.2)
         chart_finish(ax)
-    save(fig, "ch18_regression_diagnostics")
+    save(fig, "ch19_regression_diagnostics")
 
 
 FACADE_BOUNDS = [(0.10, 0.70), (0.00, 1.20)]
@@ -1129,7 +1293,7 @@ def generate_search_method_map() -> None:
                 subtitle="random search is the honest baseline")
     for x in (0.165, 0.495, 0.83):
         arrow(ax, (x, 0.52), (x, 0.38))
-    save(fig, "ch19_search_methods")
+    save(fig, "ch20_search_methods")
 
 
 def generate_gradient_descent_figure() -> None:
@@ -1176,7 +1340,7 @@ def generate_gradient_descent_figure() -> None:
     axes[1].grid(alpha=0.2)
     axes[1].legend(fontsize=7.5)
     chart_finish(axes[1])
-    save(fig, "ch19_gradient_descent")
+    save(fig, "ch20_gradient_descent")
 
 
 def generate_metaheuristic_comparison() -> None:
@@ -1254,7 +1418,7 @@ def generate_metaheuristic_comparison() -> None:
     axes[1].grid(alpha=0.2, which="both")
     axes[1].legend(fontsize=7.5, loc="upper right")
     chart_finish(axes[1])
-    save(fig, "ch19_metaheuristic_search")
+    save(fig, "ch20_metaheuristic_search")
 
 
 def make_comfort_complaint_data(seed: int = 42, sample_count: int = 900):
@@ -1311,7 +1475,7 @@ def generate_classification_workflow() -> None:
     ax.text(0.5, 0.14,
             "Accuracy alone hides the minority class: a majority-class rule scores 0.76 here and finds no complaint at all.",
             ha="center", color="#52647C", fontsize=9)
-    save(fig, "ch20_classification_workflow")
+    save(fig, "ch21_classification_workflow")
 
 
 def generate_model_selection_figure() -> None:
@@ -1386,7 +1550,7 @@ def generate_model_selection_figure() -> None:
     axes[1].grid(alpha=0.2)
     axes[1].legend(fontsize=8, loc="lower right")
     chart_finish(axes[1])
-    save(fig, "ch20_model_selection")
+    save(fig, "ch21_model_selection")
 
 
 def generate_threshold_figure() -> None:
@@ -1449,7 +1613,7 @@ def generate_threshold_figure() -> None:
     axes[1].grid(alpha=0.2)
     axes[1].legend(fontsize=7.5, loc="upper center", ncol=2, framealpha=0.95)
     chart_finish(axes[1])
-    save(fig, "ch20_threshold_tradeoff")
+    save(fig, "ch21_threshold_tradeoff")
 
 
 def sigmoid(values: np.ndarray) -> np.ndarray:
@@ -1539,7 +1703,7 @@ def generate_neuron_anatomy() -> None:
     ax.text(0.5, 0.07,
             "so a stack of linear layers can express nothing that one linear layer cannot.",
             ha="center", color="#52647C")
-    save(fig, "ch21_neuron_anatomy")
+    save(fig, "ch22_neuron_anatomy")
 
 
 def generate_activation_functions() -> None:
@@ -1582,7 +1746,7 @@ def generate_activation_functions() -> None:
     axes[1].grid(alpha=0.2)
     axes[1].legend(fontsize=8.5, loc="upper left")
     chart_finish(axes[1])
-    save(fig, "ch21_activations")
+    save(fig, "ch22_activations")
 
 
 def generate_network_training() -> None:
@@ -1666,7 +1830,7 @@ def generate_network_training() -> None:
                 xlabel="Setpoint deviation (C)", ylabel="Occupant density")
     axes[1].legend(fontsize=7, loc="upper center", ncol=2, framealpha=0.92)
     chart_finish(axes[1])
-    save(fig, "ch21_network_training")
+    save(fig, "ch22_network_training")
 
 
 def generate_network_capacity() -> None:
@@ -1741,7 +1905,7 @@ def generate_network_capacity() -> None:
     axes[1].grid(alpha=0.2)
     axes[1].legend(fontsize=8, loc="lower right")
     chart_finish(axes[1])
-    save(fig, "ch21_network_capacity")
+    save(fig, "ch22_network_capacity")
 
 
 def main() -> None:
@@ -1765,6 +1929,10 @@ def main() -> None:
     generate_result_plots()
     generate_visualization_showcase()
     generate_building_dashboard()
+    generate_data_spectrum()
+    generate_handling_paths()
+    generate_json_flatten()
+    generate_image_to_features()
     generate_geodataframe_model()
     generate_site_buffer_map()
     generate_chicago_mapping_application()

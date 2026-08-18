@@ -1,0 +1,955 @@
+% Part VII -- Algorithms, Optimization, and Machine Learning
+% Chapter 21: Classification and model selection
+
+\h{Classification and Model Selection}
+\label{ch:21}
+
+\booklink{ch:19}{Chapter 19} fitted one regression model and evaluated it once.
+Real work is not one model. It is a search: several algorithms, several settings,
+several thresholds, all competing for one recommendation. That search is an
+optimization problem in the sense of \booklink{ch:20}{Chapter 20}, with one
+difference that changes everything -- the score you are optimizing is measured on
+data, so every comparison you run risks fitting the evaluation itself. This
+chapter builds a classification workflow that survives that risk.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand NumPy arrays, pandas DataFrames,
+plotting, and the supervised-learning vocabulary of \booklink{ch:19}{Chapter 19}:
+features $X$, target $y$, protected test data, baselines, and leakage. The
+comfort-complaint dataset is reproducible synthetic data, used so the workflow
+can be studied without privacy concerns.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item explain why accuracy misleads on an imbalanced target;
+    \item build a majority-class baseline and read its confusion matrix;
+    \item define precision, recall, and F1, and choose between them from the decision cost;
+    \item assemble preprocessing and an estimator into one \c{Pipeline};
+    \item separate a predicted probability from a predicted label;
+    \item interpret ROC-AUC as ranking quality rather than accuracy;
+    \item compare candidate models with \c{StratifiedKFold} cross-validation;
+    \item read a validation curve to locate overfitting;
+    \item tune hyperparameters with \c{GridSearchCV} without touching the test set;
+    \item select a decision threshold from the relative cost of each error; and
+    \item measure feature contribution with permutation importance and state its limits.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Classification predicts a category, and categories are rarely balanced}
+
+A classifier maps features to a category. The running example predicts whether a
+room will generate an occupant comfort complaint in a given month, from
+building and operating characteristics available before the complaint occurs.
+
+The essential first measurement is not a model score. It is the share of rows in
+each class.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Generate the reproducible comfort-complaint dataset},
+    label={c21_data},
+    captionpos=b
+]
+import numpy as np
+import pandas as pd
+
+
+def make_comfort_data(seed=42, sample_count=900):
+    """Return synthetic features and a binary complaint target."""
+    rng = np.random.default_rng(seed)
+    features = pd.DataFrame({
+        "floor_area_m2": rng.uniform(60, 520, sample_count),
+        "glazing_ratio": rng.uniform(0.10, 0.68, sample_count),
+        "occupant_density": rng.uniform(0.02, 0.16, sample_count),
+        "setpoint_deviation_c": rng.normal(0.0, 2.4, sample_count),
+        "outdoor_temp_c": rng.uniform(-8, 34, sample_count),
+        "months_since_service": rng.integers(0, 36, sample_count),
+    })
+    risk = (
+        -9.0
+        + 1.10 * np.abs(features["setpoint_deviation_c"])
+        + 4.5 * features["glazing_ratio"] * (features["outdoor_temp_c"] > 26)
+        + 30.0 * features["occupant_density"]
+        + 0.11 * features["months_since_service"]
+        + rng.normal(0, 0.30, sample_count)
+    )
+    probability = 1 / (1 + np.exp(-risk))
+    target = pd.Series(
+        (rng.random(sample_count) < probability).astype(int),
+        name="complaint",
+    )
+    return features, target
+
+
+X, y = make_comfort_data()
+print("Rows:", len(X))
+print("Complaint rate:", round(y.mean(), 3))
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={An imbalanced target}, label={c21_data_output}, captionpos=b]
+Rows: 900
+Complaint rate: 0.239
+\end{lstlisting}
+
+\begin{SyntaxBox}{What the generator states explicitly}
+\begin{itemize}
+    \item \c{seed} makes the dataset reproducible, so every number in this
+          chapter can be checked.
+    \item \c{np.abs(setpoint_deviation_c)} means complaints rise when the room
+          is too warm \emph{or} too cold. A straight line in that feature cannot
+          represent this, which is why model choice will matter.
+    \item The glazing term is multiplied by \c{(outdoor_temp_c > 26)}, so glazing
+          only matters on hot days. That is an interaction.
+    \item \c{rng.normal(0, 0.30, ...)} adds unexplained variation, so no model
+          can reach perfect performance.
+    \item The target is drawn from the probability rather than thresholded, so
+          two identical rooms may differ. Real outcomes behave this way.
+\end{itemize}
+Because you wrote the rule, you know which features are real drivers
+(\c{setpoint_deviation_c}, \c{occupant_density}, \c{months_since_service}, and
+\c{glazing_ratio} on hot days) and which is pure noise (\c{floor_area_m2}).
+Keep that answer key; you will check the model against it later.
+\end{SyntaxBox}
+
+\hh{Stratify the split so both classes survive it}
+
+With 24 percent positives, an unlucky random split can leave the test set with a
+noticeably different complaint rate than the training set. Stratifying preserves
+the class proportions in both parts.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Split once, stratified by the target},
+    label={c21_split},
+    captionpos=b
+]
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.25,
+    random_state=42,
+    stratify=y,
+)
+
+print("Training rows:", len(y_train), "positives:", int(y_train.sum()))
+print("Test rows:", len(y_test), "positives:", int(y_test.sum()))
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Both parts keep the same complaint rate}, label={c21_split_output}, captionpos=b]
+Training rows: 675 positives: 161
+Test rows: 225 positives: 54
+\end{lstlisting}
+
+\c{stratify=y} is the one argument beginners most often omit. Without it, the
+minority class count in the test set becomes another source of random variation,
+and 54 positives is already a small number on which to base a claim.
+
+\hh{Accuracy is the wrong first metric}
+
+Before any model, measure what a rule with no information achieves. For
+classification the honest baseline predicts the majority class every time.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The majority-class baseline and its confusion matrix},
+    label={c21_baseline},
+    captionpos=b
+]
+from sklearn.dummy import DummyClassifier
+from sklearn.metrics import confusion_matrix
+
+baseline = DummyClassifier(strategy="most_frequent")
+baseline.fit(X_train, y_train)
+
+print("Baseline accuracy:", round(baseline.score(X_test, y_test), 3))
+print(confusion_matrix(y_test, baseline.predict(X_test)))
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={High accuracy, zero usefulness}, label={c21_baseline_output}, captionpos=b]
+Baseline accuracy: 0.76
+[[171   0]
+ [ 54   0]]
+\end{lstlisting}
+
+\begin{ExplainBox}{Why 76 percent accuracy is worth nothing here}
+The baseline predicts "no complaint" for all 225 test rooms. It is right about
+all 171 rooms that had no complaint and wrong about all 54 that did, giving
+$171/225 = 0.76$. Accuracy rewards it for ignoring the only cases anyone cares
+about. Whenever one class dominates, accuracy is close to the majority share
+regardless of skill, so a model must be judged on how it treats the minority
+class. Report the baseline first, every time; it converts an impressive-sounding
+score into a comparison.
+\end{ExplainBox}
+
+\hh{Read a confusion matrix before any single number}
+
+The confusion matrix counts the four possible outcomes of a binary decision.
+scikit-learn orders rows by actual label and columns by predicted label, both
+ascending.
+
+\begin{center}
+\begin{tabular}{lll}
+ & \textbf{Predicted 0} & \textbf{Predicted 1} \\
+\textbf{Actual 0} & true negative & false positive \\
+\textbf{Actual 1} & false negative & true positive \\
+\end{tabular}
+\end{center}
+
+Name the two errors in the language of the problem before choosing a metric. A
+false positive here means an unnecessary inspection visit: minor cost, wasted
+technician time. A false negative means a room whose occupants complain with no
+warning: the failure the system exists to prevent. Those two errors are not
+equally bad, so no single symmetric score can rank models correctly on its own.
+
+\hh{Precision, recall, and F1 answer different questions}
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Metric} & \textbf{Question it answers} & \textbf{Formula} \\
+Precision & Of the rooms we flagged, how many were right? & $TP / (TP + FP)$ \\
+Recall & Of the rooms that complained, how many did we find? & $TP / (TP + FN)$ \\
+F1 & One number balancing the two & harmonic mean \\
+\end{tabular}
+\end{center}
+
+Precision protects the technician's time. Recall protects the occupants. Raising
+one usually lowers the other, so state which matters more in your application
+before you compare models. F1 is a reasonable default only when you genuinely
+have no preference.
+
+\hh{Put preprocessing inside a pipeline}
+
+Logistic regression is sensitive to feature scale: \c{floor_area_m2} spans
+hundreds while \c{glazing_ratio} spans less than one. Standardizing fixes that,
+but standardizing before the split leaks test information into the training
+data, exactly the error described in \booklink{ch:19}{Chapter 19}. A
+\c{Pipeline} solves both problems at once.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One object that scales and classifies},
+    label={c21_pipeline},
+    captionpos=b
+]
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+logistic = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", LogisticRegression(max_iter=1000)),
+])
+
+logistic.fit(X_train, y_train)
+print("Test accuracy:", round(logistic.score(X_test, y_test), 3))
+\end{lstlisting}
+
+\begin{SyntaxBox}{A pipeline is one estimator with several steps}
+\begin{itemize}
+    \item The argument is a list of \c{(name, step)} pairs. Every step except
+          the last must transform; the last one predicts.
+    \item \c{fit()} calls \c{fit_transform()} on each transformer using training
+          data only, then fits the final estimator on the transformed result.
+    \item \c{predict()} calls \c{transform()} with the parameters learned during
+          fitting, so test rows are scaled using training means and standard
+          deviations, never their own.
+    \item Cross-validation refits the entire pipeline inside each fold, which is
+          the only way to keep scaling honest during model selection.
+\end{itemize}
+Fitting a scaler on \c{X} and then splitting produces higher scores and a model
+that will disappoint in deployment. The pipeline makes the correct order the
+easy one.
+\end{SyntaxBox}
+
+\hh{Separate the predicted probability from the predicted label}
+
+\c{predict()} returns labels. \c{predict_proba()} returns, for each row, the
+estimated probability of each class. The label is produced from the probability
+by comparing it with a threshold, and scikit-learn's default threshold is 0.5.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The label is a decision made from a probability},
+    label={c21_proba},
+    captionpos=b
+]
+probabilities = logistic.predict_proba(X_test)[:, 1]
+labels = logistic.predict(X_test)
+
+print("First three probabilities:", probabilities[:3].round(3))
+print("Same rows as labels:", labels[:3])
+print("Identical to a manual threshold:",
+      np.array_equal(labels, (probabilities >= 0.5).astype(int)))
+\end{lstlisting}
+
+\c{[:, 1]} selects the second column, the probability of class 1, because
+\c{predict_proba()} returns one column per class in the order given by
+\c{model.classes_}. The final line prints \c{True}: the default classifier is
+exactly the probability model plus a 0.5 cut. That cut is a business decision
+you are allowed to change, and later in this chapter you will.
+
+\hh{ROC-AUC measures ranking, not decisions}
+
+Because the threshold is adjustable, a metric that judges the probabilities
+themselves is useful. ROC-AUC is the probability that a randomly chosen
+complaining room receives a higher score than a randomly chosen
+non-complaining room. It is 1.0 for a perfect ranking, 0.5 for chance, and it
+does not depend on the threshold.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Threshold-free and threshold-dependent metrics together},
+    label={c21_metrics},
+    captionpos=b
+]
+from sklearn.metrics import classification_report, roc_auc_score
+
+print("ROC-AUC:", round(roc_auc_score(y_test, probabilities), 3))
+print(classification_report(y_test, labels, digits=3))
+\end{lstlisting}
+
+For the logistic pipeline this reports ROC-AUC 0.776, accuracy 0.831, precision
+0.750, and recall 0.444. Read those together: the model ranks rooms far better
+than chance, and it is right three times in four when it does flag a room, but
+at the default threshold it misses more than half of the complaints. Accuracy
+0.831 against the 0.760 baseline barely registers that failure.
+
+\begin{ExplainBox}{A good ranking and a bad decision are different problems}
+ROC-AUC only asks whether complaining rooms score above non-complaining rooms.
+It says nothing about where you cut the list. A model can have excellent ROC-AUC
+and terrible recall at threshold 0.5, which is precisely what happens on an
+imbalanced target: the estimated probabilities are informative but mostly below
+0.5, so almost nothing crosses the default line. Diagnose ranking with ROC-AUC,
+then set the threshold separately.
+\end{ExplainBox}
+
+\hh{Compare candidates with cross-validation, not with the test set}
+
+You now want to know whether a different model would do better. Every answer you
+get from the test set spends some of its independence: after ten comparisons, the
+winner is partly the model that happened to suit those 225 rows.
+Cross-validation answers the question inside the training data instead.
+
+$k$-fold cross-validation splits the training rows into $k$ parts, fits on
+$k-1$ of them, scores on the held-out part, and repeats so every row is scored
+once. Stratified folds preserve the class balance in each part.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch21_classification_workflow.pdf}
+{Candidate models and hyperparameters are compared with cross-validation inside the training data; the test set is opened once, at the end, to report the chosen model.}
+{fig:ch21-workflow}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Score three candidates on the same folds},
+    label={c21_crossval},
+    captionpos=b
+]
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.tree import DecisionTreeClassifier
+
+folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+candidates = {
+    "logistic pipeline": logistic,
+    "decision tree (depth 5)": DecisionTreeClassifier(max_depth=5, random_state=42),
+    "random forest": RandomForestClassifier(n_estimators=300, random_state=42),
+}
+
+for name, estimator in candidates.items():
+    scores = cross_val_score(estimator, X_train, y_train, cv=folds, scoring="roc_auc")
+    print(f"{name:<24} ROC-AUC {scores.mean():.3f} +/- {scores.std():.3f}")
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Cross-validated comparison on training data only}, label={c21_crossval_output}, captionpos=b]
+logistic pipeline        ROC-AUC 0.766 +/- 0.071
+decision tree (depth 5)  ROC-AUC 0.741 +/- 0.034
+random forest            ROC-AUC 0.836 +/- 0.041
+\end{lstlisting}
+
+\begin{SyntaxBox}{The spread is part of the result}
+\c{cross_val_score()} returns one score per fold, so \c{scores.std()} measures how
+much the estimate moves when the data change slightly. The logistic pipeline
+varies by 0.071 across folds -- its individual fold scores range from 0.692 to
+0.882. A gap between two models that is smaller than this spread is not evidence
+of a difference. The forest's advantage of 0.07 over the logistic pipeline is
+about one standard deviation, which is suggestive rather than decisive; more
+folds or repeated cross-validation would sharpen it.
+\end{SyntaxBox}
+
+The forest wins because the target depends on the \emph{absolute} setpoint
+deviation and on an interaction that only applies above 26 degrees. Trees split
+on ranges, so they can represent both. Logistic regression fits one coefficient
+per feature and cannot, which is why its ranking is weaker despite correct
+scaling.
+
+\hh{Read a validation curve to locate overfitting}
+
+A hyperparameter that controls model flexibility -- here the maximum tree depth
+-- can be swept while watching training and validation scores separately.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch21_model_selection.pdf}
+{Training ROC-AUC rises to 1.000 as the tree deepens while cross-validated ROC-AUC peaks at depth 5 and then falls, and the tuned random forest ranks test rooms better than the logistic pipeline at every operating point.}
+{fig:ch21-selection}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Sweep one hyperparameter and watch both curves},
+    label={c21_validation_curve},
+    captionpos=b
+]
+import numpy as np
+from sklearn.model_selection import validation_curve
+
+depths = np.arange(1, 16)
+train_scores, valid_scores = validation_curve(
+    DecisionTreeClassifier(random_state=42),
+    X_train,
+    y_train,
+    param_name="max_depth",
+    param_range=depths,
+    cv=folds,
+    scoring="roc_auc",
+)
+
+for depth, train_mean, valid_mean in zip(
+    depths, train_scores.mean(axis=1), valid_scores.mean(axis=1)
+):
+    print(f"depth {depth:>2}  training {train_mean:.3f}  validation {valid_mean:.3f}")
+\end{lstlisting}
+
+Selected rows of the output:
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Maximum depth} & \textbf{Training ROC-AUC} & \textbf{Validation ROC-AUC} \\
+1 & 0.651 & 0.574 \\
+3 & 0.809 & 0.705 \\
+5 & 0.905 & 0.741 \\
+9 & 0.992 & 0.620 \\
+15 & 1.000 & 0.611 \\
+\end{tabular}
+\end{center}
+
+\begin{ExplainBox}{Both ends of the curve are failures}
+At depth 1 the tree can ask one question, so it fits the training data poorly
+and generalizes poorly. That is \textbf{underfitting}. At depth 15 it separates
+the training rows perfectly -- ROC-AUC 1.000 -- by carving out regions that
+contain a handful of rows each, and validation performance collapses to 0.611.
+That is \textbf{overfitting}, and the widening gap between the two curves is its
+signature. The useful setting is the peak of the validation curve, depth 5, not
+the peak of the training curve. A model evaluated only on the data it was fitted
+to will always recommend the most complex option available.
+\end{ExplainBox}
+
+\hh{Ensembles average away part of the variance}
+
+A single deep tree memorizes its training rows. A random forest fits many trees,
+each on a bootstrap sample of the rows and choosing among a random subset of
+features at each split, then averages their predicted probabilities. The
+individual trees still overfit, but their errors are partly independent, so the
+average is more stable. This is why the forest scored 0.836 where the tuned
+single tree scored 0.741.
+
+The cost is interpretability: you can read one depth-3 tree, but not 300 of them.
+The permutation-importance measurement later in this chapter recovers part of
+that explanation.
+
+\hh{Tune hyperparameters on training data only}
+
+\c{GridSearchCV} fits every combination of the requested settings with
+cross-validation, keeps the best by mean validation score, and refits that
+combination on the whole training set.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Search a small, justified grid},
+    label={c21_gridsearch},
+    captionpos=b
+]
+from sklearn.model_selection import GridSearchCV
+
+search = GridSearchCV(
+    RandomForestClassifier(random_state=42),
+    param_grid={
+        "n_estimators": [200, 400],
+        "max_depth": [4, 8, None],
+        "min_samples_leaf": [1, 5],
+    },
+    cv=folds,
+    scoring="roc_auc",
+    n_jobs=-1,
+)
+search.fit(X_train, y_train)
+
+print("Best settings:", search.best_params_)
+print("Best cross-validated ROC-AUC:", round(search.best_score_, 3))
+
+tuned = search.best_estimator_
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Twelve combinations, five folds, one winner}, label={c21_gridsearch_output}, captionpos=b]
+Best settings: {'max_depth': 8, 'min_samples_leaf': 5, 'n_estimators': 400}
+Best cross-validated ROC-AUC: 0.841
+\end{lstlisting}
+
+\begin{SyntaxBox}{What the search actually costs and returns}
+\begin{itemize}
+    \item The grid has $2 \times 3 \times 2 = 12$ combinations, and each is
+          cross-validated over 5 folds, so 60 models are fitted.
+    \item \c{scoring="roc_auc"} states the objective. Leaving it unset would
+          optimize accuracy, which this chapter has already shown to be a poor
+          target on an imbalanced problem.
+    \item \c{n_jobs=-1} uses all available processor cores.
+    \item \c{best_score_} is a \emph{cross-validated} score, not a test score.
+    \item \c{best_estimator_} has already been refitted on all training rows, so
+          it is ready to predict.
+\end{itemize}
+Grid size grows multiplicatively. Prefer a small grid you can justify, or
+\c{RandomizedSearchCV} when the space is large.
+\end{SyntaxBox}
+
+\begin{ExplainBox}{Selection bias hides inside the best score}
+\c{best_score_} is the maximum over twelve candidates, and a maximum over
+candidates is optimistically biased: some of that 0.841 is the luck of matching
+these particular folds. The test set exists to remove that bias, which is why the
+test evaluation must come after tuning and must happen once. If you tune, look at
+the test score, and then tune again, the test set has silently become a
+validation set. Reporting an honest estimate of a tuning procedure requires
+nested cross-validation, where the whole search runs inside an outer fold.
+\end{ExplainBox}
+
+\hh{Open the test set once}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The single final evaluation},
+    label={c21_final_eval},
+    captionpos=b
+]
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
+
+tuned_probabilities = tuned.predict_proba(X_test)[:, 1]
+
+print("Test ROC-AUC:", round(roc_auc_score(y_test, tuned_probabilities), 3))
+print(confusion_matrix(y_test, tuned.predict(X_test)))
+print(classification_report(y_test, tuned.predict(X_test), digits=3))
+\end{lstlisting}
+
+The tuned forest reaches test ROC-AUC 0.917 with accuracy 0.876, precision
+0.861, and recall 0.574 at the default threshold. Its confusion matrix is 166
+true negatives, 5 false positives, 23 false negatives, and 31 true positives.
+
+Note that the test ROC-AUC of 0.917 is higher than the cross-validated 0.841.
+That is not evidence that the model improved; the test rows simply turned out to
+be easier than the training folds. With 54 positive test rows, the sampling
+variation is large. Report both numbers and do not present the more flattering
+one alone.
+
+\hh{Choose the threshold from the cost of each error}
+\label{sec:c21-threshold}
+
+Recall 0.574 means the model misses 23 of 54 complaints. That is a property of
+the threshold, not of the model, and the threshold is yours to set.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch21_threshold_tradeoff.pdf}
+{At threshold 0.50 the tuned forest flags 36 rooms and finds 31 of 54 complaints; lowering the threshold trades precision for recall along a curve whose F1 peaks near 0.38.}
+{fig:ch21-threshold}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Score several thresholds against the same probabilities},
+    label={c21_threshold},
+    captionpos=b
+]
+from sklearn.metrics import precision_recall_fscore_support
+
+for threshold in (0.2, 0.3, 0.4, 0.5, 0.6):
+    predicted = (tuned_probabilities >= threshold).astype(int)
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        y_test,
+        predicted,
+        average="binary",
+        zero_division=0,
+    )
+    print(f"threshold {threshold:.1f}  precision {precision:.3f}  "
+          f"recall {recall:.3f}  F1 {f1:.3f}")
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={One model, five classifiers}, label={c21_threshold_output}, captionpos=b]
+threshold 0.2  precision 0.516  recall 0.907  F1 0.658
+threshold 0.3  precision 0.632  recall 0.796  F1 0.705
+threshold 0.4  precision 0.809  recall 0.704  F1 0.752
+threshold 0.5  precision 0.861  recall 0.574  F1 0.689
+threshold 0.6  precision 1.000  recall 0.222  F1 0.364
+\end{lstlisting}
+
+Threshold 0.4 finds 38 of the 54 complaints instead of 31, at the price of some
+additional unnecessary inspections. Whether that trade is right depends on the
+cost of a visit against the cost of an unresolved complaint -- a question for the
+facilities team, not the classifier.
+
+\begin{ExplainBox}{Select the threshold without spending the test set}
+The table above was computed on test data for teaching, so you could see the
+mechanism. In real work, choose the threshold on validation folds or on a
+separate calibration split, then apply it unchanged to the test set. Otherwise
+the reported precision and recall describe a threshold that was chosen to look
+good on exactly those rows. The same discipline that governs model selection
+governs threshold selection.
+\end{ExplainBox}
+
+\hh{Ask which features the model actually used}
+\label{sec:c21-importance}
+
+Permutation importance shuffles one feature's values, breaking its relationship
+with the target, and measures how much the score falls. A large drop means the
+model relied on that feature.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Measure reliance by breaking one feature at a time},
+    label={c21_importance},
+    captionpos=b
+]
+from sklearn.inspection import permutation_importance
+
+importance = permutation_importance(
+    tuned,
+    X_test,
+    y_test,
+    n_repeats=20,
+    random_state=42,
+    scoring="roc_auc",
+)
+
+for index in importance.importances_mean.argsort()[::-1]:
+    print(f"{X.columns[index]:<22} {importance.importances_mean[index]:+.4f} "
+          f"+/- {importance.importances_std[index]:.4f}")
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Measured reliance, ranked}, label={c21_importance_output}, captionpos=b]
+setpoint_deviation_c   +0.1492 +/- 0.0177
+occupant_density       +0.1282 +/- 0.0262
+months_since_service   +0.0938 +/- 0.0171
+outdoor_temp_c         +0.0149 +/- 0.0062
+glazing_ratio          +0.0016 +/- 0.0034
+floor_area_m2          -0.0033 +/- 0.0033
+\end{lstlisting}
+
+Compare this with the answer key from Listing~\ref{c21_data}. The three main
+drivers are recovered in the right order, and \c{floor_area_m2}, which the
+generator never used, scores essentially zero. A small negative value simply
+means shuffling a useless feature happened to help slightly; it is noise, not a
+finding.
+
+\begin{ExplainBox}{Importance is about the model, not about the building}
+This measurement answers "how much does this fitted model rely on this column?"
+It does not answer "how much does this quantity affect comfort?" Three cautions
+follow. Correlated features share importance and can both look weak. A feature
+the model never learned to use will score zero even if it matters physically.
+And a high score never establishes that changing the feature would change the
+outcome -- that is a causal claim requiring a different study design.
+\end{ExplainBox}
+
+\hh{Applied example: comfort-complaint triage}
+\label{sec:c21-application}
+
+The runnable program \c{examples/c21_comfort_complaint_classification.py}
+performs the complete workflow: it generates the data, splits it stratified,
+measures the majority-class baseline, cross-validates three candidates, tunes
+the forest, evaluates the test set once, sweeps the threshold, computes
+permutation importance, and exports a diagnostic figure.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={The workflow in the order it must be executed},
+    label={c21_application},
+    captionpos=b
+]
+# 1. Protect the test set before anything else touches the data.
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
+folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+# 2. Establish the no-information baseline.
+baseline = DummyClassifier(strategy="most_frequent").fit(X_train, y_train)
+baseline_accuracy = baseline.score(X_test, y_test)
+
+# 3. Compare candidates with cross-validation, inside training data.
+for name, estimator in candidates.items():
+    scores = cross_val_score(estimator, X_train, y_train, cv=folds, scoring="roc_auc")
+    print(f"{name:<24} ROC-AUC {scores.mean():.3f} +/- {scores.std():.3f}")
+
+# 4. Tune the leading candidate, still inside training data.
+search = GridSearchCV(
+    RandomForestClassifier(random_state=42),
+    param_grid={
+        "n_estimators": [200, 400],
+        "max_depth": [4, 8, None],
+        "min_samples_leaf": [1, 5],
+    },
+    cv=folds,
+    scoring="roc_auc",
+    n_jobs=-1,
+).fit(X_train, y_train)
+tuned = search.best_estimator_
+
+# 5. Open the test set once and report against the baseline.
+probabilities = tuned.predict_proba(X_test)[:, 1]
+print(f"Baseline accuracy {baseline_accuracy:.3f}")
+print(f"Cross-validated ROC-AUC {search.best_score_:.3f}")
+print(f"Test ROC-AUC {roc_auc_score(y_test, probabilities):.3f}")
+\end{lstlisting}
+
+\begin{SyntaxBox}{The order is the method}
+\begin{enumerate}
+    \item Splitting first means no later step can consult test outcomes.
+    \item The baseline is computed before any model, so the comparison cannot be
+          quietly dropped when it is unflattering.
+    \item Candidates and hyperparameters are both judged on the same folds,
+          which makes the comparison fair.
+    \item The tuned estimator is refitted on all training rows automatically.
+    \item The test set is read once, and both the cross-validated and test scores
+          are reported so the reader can see the gap.
+\end{enumerate}
+Rearranging these steps does not produce a worse model. It produces a model
+whose reported performance cannot be believed.
+\end{SyntaxBox}
+
+\hh{Document intended use, limits, and fairness}
+
+A classification model that triggers an action needs written scope alongside its
+metrics:
+
+\begin{itemize}
+    \item the decision it supports, who acts on it, and what they do;
+    \item the data source, period, sampling rule, exclusions, and class balance;
+    \item features available at prediction time and the exact target definition;
+    \item the split strategy, baseline, cross-validated and test scores;
+    \item the operating threshold and the cost reasoning behind it;
+    \item precision and recall for groups that matter, not only overall, since a
+          model can be accurate in aggregate and unreliable for one building
+          type, floor, or occupant population;
+    \item known distribution shifts, such as a new control system or a changed
+          complaint-reporting policy, that invalidate the model; and
+    \item the monitoring, retraining, and human-review requirements.
+\end{itemize}
+
+Every number in this chapter comes from synthetic data. They demonstrate that
+the code recovers a rule that was deliberately planted; they are not evidence
+about any real building.
+
+\hh{Common mistakes and useful diagnoses}
+
+\begin{itemize}
+    \item \textbf{Accuracy is reported without a baseline.} On this data a
+          useless rule scores 0.760. Always show the comparison.
+    \item \textbf{\c{stratify} is omitted.} The minority class count then varies
+          randomly between the split parts.
+    \item \textbf{Scaling happens before the split.} Put transformers in a
+          \c{Pipeline} so they are refitted inside every fold.
+    \item \textbf{The test set is consulted repeatedly.} Each look spends
+          independence; use cross-validation for development.
+    \item \textbf{Only the tuned score is reported.} \c{best_score_} is a maximum
+          over candidates and is optimistically biased.
+    \item \textbf{Threshold 0.5 is treated as fixed.} It is a default, not a
+          decision; choose it from the cost of each error.
+    \item \textbf{ROC-AUC is read as accuracy.} It measures ranking quality and
+          is independent of the threshold.
+    \item \textbf{Importance is read as causation.} It measures model reliance
+          on a column, nothing more.
+    \item \textbf{Fold-to-fold spread is ignored.} A difference smaller than the
+          spread is not a result.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Identify}
+
+In the comfort example, identify the samples, the six features, the target, the
+class balance, the baseline, the three candidate models, and the two scores that
+must both be reported.
+
+\hhh{Level 1 -- Modify}
+
+Change \c{scoring} in the cross-validation from \c{"roc_auc"} to \c{"accuracy"}
+and rerun the three candidates. Report the new ranking and explain which
+comparison you would trust for this problem.
+
+\hhh{Level 2 -- Explain}
+
+The tuned forest scores 0.841 in cross-validation and 0.917 on the test set.
+Explain two distinct reasons the test score could be higher, and state what
+additional evidence would let you distinguish them.
+
+\hhh{Level 3 -- Build}
+
+Write \c{summarize_classifier(model, X_test, y_test, threshold)} that returns a
+dictionary containing precision, recall, F1, ROC-AUC, and the four confusion
+matrix counts at the given threshold. Use it to reproduce the threshold table.
+
+\hhh{Level 4 -- Challenge}
+
+An unresolved complaint costs roughly eight times an unnecessary inspection
+visit. Write a function that computes the expected cost at each threshold from
+0.05 to 0.95 and returns the cheapest threshold. Select it using cross-validated
+probabilities from the training data only, then apply that threshold once to the
+test set and report the result. Explain why selecting it directly on the test
+set would overstate the saving.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} Samples are synthetic room-months; the features are floor
+area, glazing ratio, occupant density, setpoint deviation, outdoor temperature,
+and months since service; the target is the binary complaint flag; the class
+balance is 23.9 percent positive; the baseline is the majority-class rule at
+0.760 accuracy; the candidates are the logistic pipeline, a depth-5 decision
+tree, and a random forest; both the cross-validated ROC-AUC and the single test
+ROC-AUC must be reported.
+
+\textbf{Level 2:} First, the test set contains only 54 positive rows, so the
+score has large sampling variation and this split may simply be easier than the
+average training fold. Second, cross-validated models are each fitted on 80
+percent of the training data while the final model is refitted on all of it, so
+the final model is slightly better trained than any fold model. Repeated
+cross-validation with several random splits would separate these: if the gap
+persists across many splits it reflects the refitting, and if it varies widely it
+reflects sampling.
+
+\textbf{Level 3}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One reusable classification summary},
+    label={c21_solution_summary},
+    captionpos=b
+]
+from sklearn.metrics import (
+    confusion_matrix,
+    precision_recall_fscore_support,
+    roc_auc_score,
+)
+
+
+def summarize_classifier(model, X_test, y_test, threshold=0.5):
+    if not 0.0 < threshold < 1.0:
+        raise ValueError("threshold must lie strictly between 0 and 1")
+
+    probabilities = model.predict_proba(X_test)[:, 1]
+    predicted = (probabilities >= threshold).astype(int)
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        y_test,
+        predicted,
+        average="binary",
+        zero_division=0,
+    )
+    true_negative, false_positive, false_negative, true_positive = (
+        confusion_matrix(y_test, predicted, labels=[0, 1]).ravel()
+    )
+    return {
+        "threshold": threshold,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "roc_auc": roc_auc_score(y_test, probabilities),
+        "true_negative": int(true_negative),
+        "false_positive": int(false_positive),
+        "false_negative": int(false_negative),
+        "true_positive": int(true_positive),
+    }
+\end{lstlisting}
+
+\c{labels=[0, 1]} forces the two-by-two shape even when a threshold produces no
+predictions of one class, which would otherwise make \c{ravel()} fail. ROC-AUC is
+computed from the probabilities, so it is the same at every threshold -- which is
+exactly the point of including it.
+
+\textbf{Level 4:} Choosing the threshold on the test set optimizes a parameter
+against the same 225 rows used to report the saving, so the reported cost is a
+minimum over thresholds rather than an estimate of future cost. Selecting it from
+cross-validated training probabilities and then applying it unchanged keeps the
+test evaluation independent.
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item Why is accuracy misleading when one class holds 76 percent of the rows?
+    \item What does \c{stratify=y} protect?
+    \item What question does precision answer, and what question does recall answer?
+    \item Why must a scaler live inside a \c{Pipeline} rather than run before the split?
+    \item What is the relationship between \c{predict_proba()} and \c{predict()}?
+    \item What does ROC-AUC measure, and what does it deliberately ignore?
+    \item Why is cross-validation preferred to the test set for comparing models?
+    \item What are the two signatures of overfitting on a validation curve?
+    \item Why is \c{best_score_} an optimistic estimate?
+    \item What does permutation importance measure, and what does it not establish?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item A rule that always predicts the majority class already scores 0.760
+          while finding none of the cases of interest.
+    \item It keeps the class proportions of the full dataset in both the training
+          and test parts.
+    \item Precision: of the rows flagged, how many were correct. Recall: of the
+          rows that were truly positive, how many were found.
+    \item So the scaling parameters are learned from training rows only, and are
+          refitted inside each cross-validation fold.
+    \item \c{predict()} is \c{predict_proba()} compared against a threshold,
+          which defaults to 0.5.
+    \item It measures how well the model ranks positives above negatives, and it
+          ignores where the decision threshold is placed.
+    \item Because every comparison made on the test set reduces its independence,
+          and the final score would then reflect selection rather than
+          generalization.
+    \item The training score keeps rising toward 1.0 while the validation score
+          falls, and the gap between the curves widens.
+    \item It is the maximum over many candidates, so part of it is the luck of
+          matching those particular folds.
+    \item How much a fitted model relies on a column; it does not establish
+          physical importance or causation.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+Classification is a decision built from a ranking, and the two must be judged
+separately: use ROC-AUC and cross-validation to choose the model, then choose
+the threshold from the cost of each error. Model selection is itself a search,
+so it must run inside the training data; the test set is opened once, reported
+beside the cross-validated score, and never used to pick anything.
+\booklink{ch:22}{Chapter 22} adds one more candidate to this comparison -- a
+neural network -- and holds it to exactly the same standard of evidence.
+\end{tcolorbox}

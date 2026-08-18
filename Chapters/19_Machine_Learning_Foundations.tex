@@ -1,0 +1,601 @@
+% Part VII -- Algorithms, Optimization, and Machine Learning
+% Chapter 19: Machine learning foundations
+
+\h{Machine Learning Foundations}
+\label{ch:19}
+
+Machine learning uses data to estimate a rule that can make predictions or
+organize new observations. The foundational challenge is not calling
+\c{fit()}. It is defining a legitimate target, protecting evaluation data,
+choosing a baseline, measuring error, checking residuals, and limiting claims
+to the population and conditions represented by the data.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should understand functions, NumPy arrays, pandas
+DataFrames, plots, and algorithm contracts. This chapter uses reproducible
+synthetic building data so the computational workflow can be studied without
+privacy or licensing concerns.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item distinguish regression, classification, and clustering;
+    \item identify samples, features $X$, and target $y$;
+    \item split training and test data reproducibly;
+    \item explain why preprocessing and feature decisions must not use test answers;
+    \item compare a fitted model with a simple baseline;
+    \item fit and predict with \c{LinearRegression};
+    \item interpret mean absolute error, $R^2$, and residual plots;
+    \item recognize overfitting, leakage, and distribution shift; and
+    \item document the limits and intended use of a predictive model.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Choose the learning task from the output}
+
+The type of answer determines the task.
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Task} & \textbf{Output} & \textbf{Example} \\
+Regression & numerical value & predict annual energy use \\
+Classification & category & flag likely comfort complaint \\
+Clustering & group without target labels & explore similar operating profiles \\
+\end{tabular}
+\end{center}
+
+Regression and classification are \emph{supervised}: training rows include a
+target answer. Clustering is \emph{unsupervised}: an algorithm groups rows from
+feature similarity, but the resulting groups do not automatically have a
+meaningful real-world interpretation.
+
+\begin{ExplainBox}{A learned model is an estimated mapping}
+Training selects parameter values for a mapping from features $X$ to an output.
+The mapping summarizes patterns in the training sample under a chosen model
+family and loss function. It does not store scientific truth, establish cause,
+or guarantee performance on a different population. Independent test data
+estimate how the completed workflow generalizes under conditions represented
+by that test sample.
+\end{ExplainBox}
+
+\begin{SyntaxBox}{Samples are rows; features and targets have different roles}
+\begin{itemize}
+    \item One \textbf{sample} is one observation, usually one DataFrame row.
+    \item A \textbf{feature} is an input variable available when a prediction is made.
+    \item The \textbf{target} is the outcome the supervised model learns to predict.
+    \item $X$ conventionally stores a two-dimensional feature table.
+    \item $y$ conventionally stores a one-dimensional target sequence.
+\end{itemize}
+A variable measured after the target outcome occurs is usually not a legitimate
+feature for an earlier prediction.
+\end{SyntaxBox}
+
+\hh{Install and import scikit-learn}
+
+Install scikit-learn in the environment that runs the script.
+
+\begin{verbatim}
+python -m pip install scikit-learn
+\end{verbatim}
+
+Import estimators and evaluation tools from their focused modules.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Import the regression workflow components},
+    label={c19_imports},
+    captionpos=b
+]
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.model_selection import train_test_split
+\end{lstlisting}
+
+The official documentation describes
+\href{https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html}{train-test splitting},
+\href{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html}{linear regression},
+and
+\href{https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html}{mean absolute error}.
+
+\hh{Protect the final test before fitting}
+
+The test set simulates unseen data. If its target values influence cleaning,
+feature selection, model choice, or tuning, the final evaluation is no longer
+independent.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch19_ml_workflow.pdf}
+{A defensible workflow defines features and target, protects a test set, fits only on training data, predicts unseen test rows, and evaluates against a baseline.}
+{fig:ch19-workflow}
+
+The features and target used from here on are the synthetic building data
+defined in Section~\ref{sec:c19-application}; the generator is repeated in
+Listing~\ref{c19_application} so the chapter runs top to bottom.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Create the features and target used throughout this chapter},
+    label={c19_dataset},
+    captionpos=b
+]
+import numpy as np
+import pandas as pd
+
+
+def make_building_data(seed=42, sample_count=240):
+    rng = np.random.default_rng(seed)
+    X = pd.DataFrame({
+        "floor_area_m2": rng.uniform(80, 520, sample_count),
+        "glazing_ratio": rng.uniform(0.12, 0.65, sample_count),
+        "occupants": rng.integers(2, 45, sample_count),
+        "outdoor_temp_c": rng.uniform(-5, 31, sample_count),
+    })
+    noise = rng.normal(0, 10, sample_count)
+    y = (
+        28
+        + 0.24 * X["floor_area_m2"]
+        + 66 * X["glazing_ratio"]
+        + 1.35 * X["occupants"]
+        - 2.1 * X["outdoor_temp_c"]
+        + noise
+    )
+    return X, y
+
+
+X, y = make_building_data()
+print("features:", X.shape, "target:", y.shape)
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={240 samples described by four features}, label={c19_dataset_output}, captionpos=b]
+features: (240, 4) target: (240,)
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Split features and target reproducibly},
+    label={c19_split},
+    captionpos=b
+]
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.25,
+    random_state=42,
+)
+
+print("training rows:", len(y_train), "test rows:", len(y_test))
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={One quarter of the rows are set aside}, label={c19_split_output}, captionpos=b]
+training rows: 180 test rows: 60
+\end{lstlisting}
+
+\begin{SyntaxBox}{One call returns four aligned objects}
+\c{test_size=0.25} assigns one quarter of the rows to testing. A fixed
+\c{random_state} makes the random split reproducible for study and debugging.
+Feature rows and target values are shuffled together, preserving alignment.
+Fit transformations and models on \c{X_train} and \c{y_train}; use the test
+objects only for final prediction and evaluation.
+\end{SyntaxBox}
+
+For time-ordered or grouped observations, random row splitting may leak future
+or related information. Choose a splitting algorithm that reflects how the
+model will encounter new data.
+
+\hh{Establish a baseline before fitting a model}
+
+A model should improve on a simple, relevant rule. For regression, predicting
+the training-target mean for every test row is a useful starting baseline.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Evaluate a training-mean baseline},
+    label={c19_baseline},
+    captionpos=b
+]
+import numpy as np
+
+baseline_predictions = np.full(
+    len(y_test),
+    y_train.mean(),
+)
+baseline_mae = mean_absolute_error(
+    y_test,
+    baseline_predictions,
+)
+print("Baseline MAE:", baseline_mae)
+\end{lstlisting}
+
+The baseline uses only \c{y_train} to determine its constant prediction. Using
+the test-target mean would leak test answers into the benchmark.
+
+\hh{Fit parameters on training data}
+
+Linear regression estimates an intercept and one coefficient per feature. Its
+prediction is a weighted sum:
+
+\[
+\hat{y} = b_0 + b_1x_1 + b_2x_2 + \cdots + b_px_p.
+\]
+
+The fitting algorithm chooses coefficients that minimize the sum of squared
+training residuals.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Fit a linear model and predict unseen rows},
+    label={c19_fit_predict},
+    captionpos=b
+]
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+predictions = model.predict(X_test)
+
+print("Intercept:", model.intercept_)
+print("Coefficients:", model.coef_)
+\end{lstlisting}
+
+\begin{SyntaxBox}{Estimator objects separate configuration, fitting, and use}
+\begin{enumerate}
+    \item \c{LinearRegression()} constructs an unfitted estimator.
+    \item \c{fit(X_train, y_train)} learns parameters and stores them on the object.
+    \item Names ending in an underscore, such as \c{coef_}, are learned attributes.
+    \item \c{predict(X_test)} applies the learned rule without changing the test targets.
+\end{enumerate}
+The test feature table must contain the same variables with the same meaning
+and units as the training feature table.
+\end{SyntaxBox}
+
+\hh{Evaluate magnitude and explanatory fit}
+
+No single metric describes every failure. This chapter pairs mean absolute
+error with $R^2$ and a residual plot.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Calculate two complementary regression metrics},
+    label={c19_metrics},
+    captionpos=b
+]
+mae = mean_absolute_error(y_test, predictions)
+r2 = r2_score(y_test, predictions)
+
+print(f"Model MAE: {mae:.2f}")
+print(f"Test R2: {r2:.3f}")
+\end{lstlisting}
+
+Mean absolute error is the average absolute prediction error in the target's
+units. Lower is better; zero is perfect. $R^2$ compares squared error with a
+constant-mean reference: 1 is perfect, 0 is comparable to that reference, and a
+negative value is worse on the evaluated data. Neither metric proves causality
+or fairness.
+
+\hh{Inspect residuals rather than trusting one score}
+
+A residual is actual minus predicted. A useful residual plot has points
+scattered around zero without a strong curve, funnel, or separated group. A
+pattern can indicate nonlinearity, changing variance, omitted features, data
+errors, or distinct populations.
+
+\bookfigure[0.96\textwidth]{Figures/Generated/ch19_regression_diagnostics.pdf}
+{On protected test data, predicted values follow the equality line and residuals are centered near zero; the displayed metrics summarize but do not replace visual diagnosis.}
+{fig:ch19-diagnostics}
+
+The synthetic example performs well because its target was deliberately
+generated from a mostly linear relationship. Real building data contain sensor
+errors, schedules, weather dependence, interactions, and operational changes.
+
+\hh{Applied example: building-energy regression}
+\label{sec:c19-application}
+
+The runnable program \c{examples/c19_building_energy_ml.py} generates documented
+synthetic data, protects a test set, calculates a baseline, fits linear
+regression, prints coefficients, evaluates metrics, plots residuals, and exports
+the diagnostic figure.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Build and evaluate a reproducible regression workflow},
+    label={c19_application},
+    captionpos=b
+]
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.model_selection import train_test_split
+
+
+def make_building_data(seed=42, sample_count=240):
+    rng = np.random.default_rng(seed)
+    X = pd.DataFrame({
+        "floor_area_m2": rng.uniform(80, 520, sample_count),
+        "glazing_ratio": rng.uniform(0.12, 0.65, sample_count),
+        "occupants": rng.integers(2, 45, sample_count),
+        "outdoor_temp_c": rng.uniform(-5, 31, sample_count),
+    })
+    noise = rng.normal(0, 10, sample_count)
+    y = (
+        28
+        + 0.24 * X["floor_area_m2"]
+        + 66 * X["glazing_ratio"]
+        + 1.35 * X["occupants"]
+        - 2.1 * X["outdoor_temp_c"]
+        + noise
+    )
+    return X, y
+
+
+X, y = make_building_data()
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.25,
+    random_state=42,
+)
+
+baseline = np.full(len(y_test), y_train.mean())
+baseline_mae = mean_absolute_error(y_test, baseline)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+
+mae = mean_absolute_error(y_test, predictions)
+r2 = r2_score(y_test, predictions)
+
+print(f"Baseline MAE: {baseline_mae:.2f}")
+print(f"Model MAE: {mae:.2f}")
+print(f"Test R2: {r2:.3f}")
+print(pd.Series(model.coef_, index=X.columns))
+\end{lstlisting}
+
+\begin{SyntaxBox}{Trace the application by responsibility}
+\begin{enumerate}
+    \item The generator makes provenance, random seed, features, target rule,
+          and noise explicit.
+    \item The split protects test rows before model fitting.
+    \item The training-mean baseline establishes minimum useful performance.
+    \item \c{fit()} learns coefficients from training pairs only.
+    \item \c{predict()} produces one numeric estimate per test row.
+    \item MAE, $R^2$, and residual plots evaluate different aspects of error.
+    \item Coefficients are printed with feature names so their units can be interpreted.
+\end{enumerate}
+Synthetic data prove that the code can recover a known pattern; they do not
+validate performance on real buildings.
+\end{SyntaxBox}
+
+\hh{Understand coefficients without claiming causality}
+
+With other features held fixed, a coefficient is the model's estimated change
+in prediction for one unit increase in that feature. This interpretation assumes
+the linear form is appropriate and features are measured consistently. Correlated
+features can make individual coefficients unstable. An observational predictive
+coefficient does not prove that changing the feature will cause the target to
+change by that amount.
+
+\hh{Recognize overfitting and leakage}
+
+\textbf{Overfitting} occurs when a model learns training-specific detail that
+does not generalize. Training performance may improve while test performance
+worsens. \textbf{Leakage} occurs when training uses information unavailable at
+prediction time or information derived from protected test outcomes.
+
+Common leakage examples include:
+
+\begin{itemize}
+    \item filling missing values using means calculated from the full dataset;
+    \item choosing features after comparing many options on the final test set;
+    \item including a post-outcome inspection result as a predictor; and
+    \item placing records from the same building in both training and test sets
+          when deployment concerns entirely new buildings.
+\end{itemize}
+
+Use a scikit-learn \c{Pipeline} when preprocessing must learn parameters. Fit
+the pipeline on training data so each transformation follows the same boundary
+as the estimator.
+
+\hh{Preview classification and clustering}
+
+The estimator interface remains consistent across different algorithms.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Recognize the common estimator interface},
+    label={c19_other_tasks},
+    captionpos=b
+]
+from sklearn.cluster import KMeans
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
+
+# A binary label derived from the same rows: is energy use above the median?
+high_use = (y > y.median()).astype(int)
+high_use_train, high_use_test = train_test_split(
+    high_use,
+    test_size=0.25,
+    random_state=42,
+)
+
+# Classification: learn labeled categories.
+classifier = LogisticRegression(max_iter=1000)
+classifier.fit(X_train, high_use_train)
+predicted_labels = classifier.predict(X_test)
+print(confusion_matrix(high_use_test, predicted_labels))
+
+# Clustering: discover feature-space groups without target labels.
+clusterer = KMeans(n_clusters=3, random_state=42, n_init=10)
+cluster_labels = clusterer.fit_predict(X)
+print("cluster sizes:", np.bincount(cluster_labels))
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={The same estimator interface, three different tasks}, label={c19_other_tasks_output}, captionpos=b]
+[[27  3]
+ [ 2 28]]
+cluster sizes: [69 85 86]
+\end{lstlisting}
+
+Reusing \c{random_state=42} and the same row count makes this split select
+exactly the same rows as the earlier one, so \c{high_use_train} lines up with
+\c{X_train}. Deriving a label by thresholding the target is a teaching
+convenience, not a modeling recommendation: it discards information and invents
+a boundary the data never had.
+
+Classification evaluation must examine which classes are confused, not only
+overall accuracy. Clustering labels are arbitrary identifiers; a domain expert
+must inspect whether groups are stable, useful, and ethically appropriate. The
+official scikit-learn
+\href{https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html}{KMeans reference}
+documents the estimator's parameters and learned attributes.
+
+\hh{Document intended use and limitations}
+
+Every applied model should record:
+
+\begin{itemize}
+    \item the decision or prediction question and intended users;
+    \item data source, dates, sample definition, exclusions, and missingness;
+    \item features available at prediction time and the target definition;
+    \item split strategy, baseline, metrics, and uncertainty;
+    \item performance for important subgroups and failure cases;
+    \item known distribution shifts and prohibited uses; and
+    \item when retraining, monitoring, or human review is required.
+\end{itemize}
+
+Prediction is not explanation, and a high test score does not transfer
+automatically to a different city, building type, season, sensor system, or
+population.
+
+\hh{Common mistakes and useful diagnoses}
+
+\begin{itemize}
+    \item \textbf{$X$ is one-dimensional.} Supervised estimators normally expect
+          a table shaped \c{(samples, features)}.
+    \item \textbf{Feature order changes.} Preserve DataFrame column names and
+          order between fitting and prediction.
+    \item \textbf{The test set is consulted repeatedly.} Use training and
+          validation procedures for development; reserve the test for final evaluation.
+    \item \textbf{Only $R^2$ is reported.} Include an error magnitude in target
+          units, a baseline, and residual diagnostics.
+    \item \textbf{Random splitting ignores structure.} Use time, group, or
+          spatial splits when those relationships define deployment.
+    \item \textbf{Association becomes a causal claim.} State predictive scope
+          and avoid intervention language without a causal design.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Identify}
+
+In the building example, identify the samples, four features, target, estimator,
+baseline, and two evaluation metrics.
+
+\hhh{Level 1 -- Modify}
+
+Change \c{test_size} to 0.20 while keeping \c{random_state=42}. Report the new
+train and test row counts and compare the metrics.
+
+\hhh{Level 2 -- Explain}
+
+Explain why calculating a missing-value mean from the full dataset before the
+split is leakage, even though no target column is used.
+
+\hhh{Level 3 -- Build}
+
+Write \c{evaluate_regression(y_true, predictions, baseline_predictions)} that
+returns a dictionary containing baseline MAE, model MAE, and $R^2$.
+
+\hhh{Level 4 -- Challenge}
+
+Create a grouped split in which all rows from one building identifier remain in
+only training or test data. Compare the result with a random row split and
+explain which deployment question each split represents.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} Rows are synthetic buildings; the features are floor area,
+glazing ratio, occupants, and outdoor temperature; the target is energy; the
+estimator is linear regression; the baseline is the training-target mean; the
+metrics are MAE and $R^2$.
+
+\textbf{Level 2:} The full-dataset mean contains information from the protected
+test feature distribution. A preprocessing decision has therefore used data
+that should have remained unseen.
+
+\textbf{Level 3}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One reusable regression evaluation function},
+    label={c19_solution_evaluate},
+    captionpos=b
+]
+from sklearn.metrics import mean_absolute_error, r2_score
+
+def evaluate_regression(y_true, predictions, baseline_predictions):
+    return {
+        "baseline_mae": mean_absolute_error(
+            y_true,
+            baseline_predictions,
+        ),
+        "model_mae": mean_absolute_error(y_true, predictions),
+        "r2": r2_score(y_true, predictions),
+    }
+\end{lstlisting}
+
+The function receives predictions rather than fitting a model, so evaluation
+remains independent of the training algorithm.
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item How do regression, classification, and clustering differ?
+    \item What shapes do $X$ and $y$ conventionally have?
+    \item Why is a test set protected before fitting?
+    \item Why should a baseline use training information only?
+    \item What does MAE measure, and in what units?
+    \item What can a residual plot reveal that one metric cannot?
+    \item What is leakage, and how does it differ from overfitting?
+    \item Why does predictive association not establish causality?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item They predict numbers, predict categories, and discover unlabeled groups.
+    \item $X$ is samples by features; $y$ contains one target per sample.
+    \item To provide independent evidence about unseen-data performance.
+    \item Otherwise test answers influence the comparison.
+    \item Average absolute prediction error in the target's units.
+    \item Systematic curves, changing spread, subgroups, and outliers.
+    \item Leakage exposes unavailable or protected information; overfitting
+          learns training detail that fails to generalize.
+    \item Observed relationships may reflect confounding, selection, or measurement.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+Machine learning estimates a rule from data, and the estimate is only as
+trustworthy as the workflow around it: a legitimate target, a protected test
+set, a baseline that uses training information only, metrics paired with
+residual diagnostics, and stated limits on population and use.
+\booklink{ch:20}{Chapter 20} opens the solvers that fit such models, and
+\booklink{ch:21}{Chapter 21} extends this workflow to classification, where
+several candidate models compete and the comparison itself must be protected
+from the test set.
+\end{tcolorbox}

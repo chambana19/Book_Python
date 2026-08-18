@@ -1,0 +1,727 @@
+% Part V -- Structured and Unstructured Data
+% Chapter 14: Structured and unstructured data
+
+\h{Structured and Unstructured Data}
+\label{ch:14}
+
+Every chapter so far has assumed the data already arrived as a table. Real
+engineering projects rarely start there. A building performance study might
+draw on a sensor log that is already a clean table, an asset record stored as
+nested JSON, a stack of maintenance work orders written in prose, and a folder
+of thermal photographs. These are not four difficulties of the same kind. They
+differ in one specific way -- where the structure comes from -- and that
+difference determines what you have to do before any analysis can begin.
+
+\begin{NoteBox}
+\textbf{Prerequisites.} You should be comfortable with dictionaries and lists
+from \booklink{ch:03}{Chapter 3}, reading files and JSON from
+\booklink{ch:10}{Chapter 10}, NumPy arrays from
+\booklink{ch:11}{Chapter 11}, and pandas DataFrames from
+\booklink{ch:12}{Chapter 12}. All data in this chapter is small and written
+directly in the listings, so nothing needs to be downloaded.
+\end{NoteBox}
+
+\begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
+After completing this chapter, you should be able to:
+\begin{itemize}
+    \item place a data source on the structured-to-unstructured spectrum;
+    \item explain what "unstructured" actually means, and what it does not mean;
+    \item state which schema a structured source must satisfy, and validate it;
+    \item flatten a nested JSON record with \c{pd.json_normalize()};
+    \item use \c{record_path} and \c{meta} to expand a repeating list;
+    \item convert free text into a numeric feature table you have defined;
+    \item describe an image as a NumPy array and reduce it to a feature row;
+    \item explain why every path ends in one rectangular feature table; and
+    \item state the judgment and information loss that feature extraction involves.
+\end{itemize}
+\end{tcolorbox}
+
+\hh{Structure is a spectrum, not a binary}
+
+The useful question about a data source is not "is it structured?" but "who
+supplies the schema, and how much work is left for me?"
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch14_data_spectrum.pdf}
+{Structured files carry their own schema, semi-structured files describe themselves irregularly, and unstructured payloads carry no schema at all, so the work of imposing structure shifts steadily onto the analyst.}
+{fig:ch14-spectrum}
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Class} & \textbf{Where the schema lives} & \textbf{Building example} \\
+Structured & in the file, fixed and known & BMS sensor log, meter export \\
+Semi-structured & in the file, but irregular & asset record JSON, IFC, GeoJSON \\
+Unstructured & nowhere; you define it & work orders, photos, point clouds \\
+\end{tabular}
+\end{center}
+
+\begin{ExplainBox}{"Unstructured" is a statement about the file, not the content}
+A maintenance work order is not meaningless. It has grammar, vocabulary,
+conventions, and a great deal of meaning that a technician reads instantly. What
+it lacks is a schema that a program can rely on: no guaranteed fields, no
+declared types, no fixed number of values per record. The same is true of a
+photograph, which is highly structured as a grid of pixels but carries no
+statement of what those pixels mean.
+
+So "unstructured" means the structure needed for analysis is not supplied by the
+storage format. Somebody has to impose it, and in a data project that somebody
+is you. This matters because the choice is then yours to defend: two analysts
+can extract different features from the same photographs and reach different
+conclusions, and neither file format will tell you which was right.
+\end{ExplainBox}
+
+\hh{All three paths end at the same destination}
+
+Whatever the source, analysis needs a rectangular table: one row per sample, one
+column per feature. That is what pandas operates on, what the charts in
+\booklink{ch:13}{Chapter 13} consume, and exactly the $X$ matrix that
+\booklink{ch:19}{Chapter 19} and \booklink{ch:21}{Chapter 21} require.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch14_handling_paths.pdf}
+{Structured sources need validation, semi-structured sources need flattening, and unstructured sources need feature extraction, but all three converge on one rectangular feature table.}
+{fig:ch14-paths}
+
+The three classes therefore do not need three different mindsets. They need
+three different amounts of work to reach the same shape.
+
+\hh{Structured data: state the schema and check it}
+
+Structured data arrives with columns and types already decided. The risk is not
+that you cannot read it; it is that you assume it is correct.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A structured sensor log},
+    label={c14_structured},
+    captionpos=b
+]
+import pandas as pd
+
+readings = pd.DataFrame({
+    "timestamp": pd.to_datetime([
+        "2026-03-01 08:00", "2026-03-01 09:00", "2026-03-01 10:00",
+        "2026-03-01 11:00", "2026-03-01 12:00",
+    ]),
+    "room_id": ["R101", "R101", "R101", "R101", "R101"],
+    "temp_c": [20.4, 21.1, 24.8, 22.0, None],
+    "co2_ppm": [612, 705, 1180, 890, 830],
+})
+
+print(readings)
+print("rows, columns:", readings.shape)
+print("missing values:", int(readings.isna().sum().sum()))
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Clean shape, one gap}, label={c14_structured_output}, captionpos=b]
+            timestamp room_id  temp_c  co2_ppm
+0 2026-03-01 08:00:00    R101    20.4      612
+1 2026-03-01 09:00:00    R101    21.1      705
+2 2026-03-01 10:00:00    R101    24.8     1180
+3 2026-03-01 11:00:00    R101    22.0      890
+4 2026-03-01 12:00:00    R101     NaN      830
+rows, columns: (5, 4)
+missing values: 1
+\end{lstlisting}
+
+Being structured did not make the data complete: one temperature reading is
+missing. Structure guarantees a shape, never a fact.
+
+\hhh{Validate against a stated schema}
+
+A \textbf{schema} is a written statement of which columns must exist and what
+kind of value each holds. Checking it turns a silent wrong answer into a loud
+error at the moment the data arrives.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Validate column presence and type kind},
+    label={c14_validate},
+    captionpos=b
+]
+import pandas as pd
+
+EXPECTED = {
+    "timestamp": "datetime",
+    "room_id": "string",
+    "temp_c": "number",
+    "co2_ppm": "number",
+}
+
+CHECKS = {
+    "datetime": pd.api.types.is_datetime64_any_dtype,
+    "string": lambda column: (
+        pd.api.types.is_string_dtype(column)
+        or pd.api.types.is_object_dtype(column)
+    ),
+    "number": pd.api.types.is_numeric_dtype,
+}
+
+
+def validate_schema(frame, expected):
+    """Return a list of schema problems; an empty list means the frame passed."""
+    problems = []
+    for name, kind in expected.items():
+        if name not in frame.columns:
+            problems.append(f"missing column: {name}")
+        elif not CHECKS[kind](frame[name]):
+            problems.append(f"{name} is {frame[name].dtype}, expected {kind}")
+    return problems
+
+
+print("as loaded:", validate_schema(readings, EXPECTED))
+
+damaged = readings.astype({"co2_ppm": "str"})
+print("after damage:", validate_schema(damaged, EXPECTED))
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={A schema check that catches a real defect}, label={c14_validate_output}, captionpos=b]
+as loaded: []
+after damage: ['co2_ppm is str, expected number']
+\end{lstlisting}
+
+\begin{SyntaxBox}{Check the kind of type, not its exact name}
+It is tempting to compare \c{str(frame[name].dtype)} against a literal such as
+\c{"int64"}. Resist it. The exact dtype string depends on the pandas and NumPy
+versions, the platform's integer width, and whether missing values forced a
+column to float. A check written that way fails on a colleague's machine for
+reasons that have nothing to do with the data.
+
+The \c{pd.api.types} predicates ask the question you actually mean -- is this
+numeric, is this a datetime -- and stay correct across versions. Returning a
+list of problems rather than raising immediately lets the caller report every
+defect at once instead of fixing them one run at a time.
+\end{SyntaxBox}
+
+\begin{TryBox}{Make the check earn its place}
+Delete the \c{co2_ppm} column entirely and rerun \c{validate_schema}. Then add
+an unexpected extra column and rerun it again. Explain why the second case
+reports no problem, and decide whether that is the right behaviour for a study
+whose input files come from an instrument you do not control.
+\end{TryBox}
+
+\hh{Semi-structured data: flatten what describes itself}
+
+Semi-structured data carries its field names along with its values, so it can
+change shape from record to record. JSON is the common case; IFC building
+models, GeoJSON, and XML behave the same way. The difficulty is nesting: a value
+may itself be an object or a list, and a DataFrame column cannot usefully hold
+either.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A nested asset record},
+    label={c14_nested},
+    captionpos=b
+]
+asset = {
+    "asset_id": "AHU-3",
+    "location": {"building": "Link Hall", "floor": 2, "room": "M204"},
+    "commissioned": "2019-06-14",
+    "filters": [
+        {"stage": 1, "type": "MERV8", "last_changed": "2026-01-10"},
+        {"stage": 2, "type": "MERV13", "last_changed": "2025-11-02"},
+    ],
+}
+
+print("top-level keys:", list(asset))
+\end{lstlisting}
+
+This one record mixes three shapes: plain values, a nested object
+(\c{location}), and a list of objects (\c{filters}). Each needs different
+handling.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch14_json_flatten.pdf}
+{A nested JSON asset record becomes a rectangular table when json\_normalize expands the repeating filter list and carries the parent fields down to every row.}
+{fig:ch14-flatten}
+
+\hhh{Flatten nested objects with a separator}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Nested objects become dotted column names},
+    label={c14_normalize},
+    captionpos=b
+]
+import pandas as pd
+
+flat = pd.json_normalize(asset, sep=".")
+
+print("columns:", list(flat.columns))
+print("floor value:", flat.loc[0, "location.floor"])
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Objects flatten; lists do not}, label={c14_normalize_output}, captionpos=b]
+columns: ['asset_id', 'commissioned', 'filters', 'location.building', 'location.floor', 'location.room']
+floor value: 2
+\end{lstlisting}
+
+Read that output carefully. The nested \c{location} object became three ordinary
+columns, but \c{filters} is still a single column holding a Python list. Nesting
+of objects flattened; nesting of \emph{records} did not.
+
+\hhh{Expand a repeating list into rows}
+
+A list of records is not a wider table, it is a taller one. \c{record_path}
+names the repeating list, and \c{meta} names the parent fields to copy onto
+every resulting row.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One row per filter, with parent context preserved},
+    label={c14_record_path},
+    captionpos=b
+]
+filters = pd.json_normalize(
+    asset,
+    record_path="filters",
+    meta=["asset_id", ["location", "building"]],
+)
+
+print(filters)
+print("shape:", filters.shape)
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Two filters become two rows}, label={c14_record_path_output}, captionpos=b]
+   stage    type last_changed asset_id location.building
+0      1   MERV8   2026-01-10    AHU-3         Link Hall
+1      2  MERV13   2025-11-02    AHU-3         Link Hall
+shape: (2, 5)
+\end{lstlisting}
+
+\begin{SyntaxBox}{Reading the two arguments that do the work}
+\begin{itemize}
+    \item \c{record_path="filters"} tells pandas that this list is the unit of
+          observation, so the result has one row per filter rather than one row
+          per asset.
+    \item \c{meta=["asset_id", ["location", "building"]]} lists parent fields to
+          repeat on every row. A plain string names a top-level key; a nested
+          list of strings names a path down through nested objects.
+    \item Without \c{meta}, the rows would carry no indication of which asset
+          they belong to, which is the most common way this operation quietly
+          destroys information.
+\end{itemize}
+Choosing \c{record_path} is choosing what one row means. That decision belongs
+to your research question, not to the file.
+\end{SyntaxBox}
+
+\begin{ExplainBox}{Flattening always chooses a grain}
+The original record describes one asset that has two filters. The flattened
+table describes two filters that share one asset. Both are faithful; they answer
+different questions. If you want to count assets, the second table will
+double-count unless you aggregate first.
+
+This is the central hazard of flattening, and it is not a pandas quirk -- it is
+what happens whenever hierarchical information is forced into a rectangle. State
+the grain of every table you produce: "one row per filter", "one row per
+room-hour". Chapter~\ref{ch:12}'s grouping operations exist largely to move
+between grains deliberately.
+\end{ExplainBox}
+
+\hh{Unstructured text: define the features yourself}
+
+Free text carries no schema. To analyze it you must decide what about it
+matters, and that decision is the analysis.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Turn work orders into a numeric feature table},
+    label={c14_text_features},
+    captionpos=b
+]
+import re
+
+import pandas as pd
+
+work_orders = [
+    "Occupant reports room too warm all afternoon; VAV box not responding.",
+    "Chilled water valve leaking near AHU-3, water on floor.",
+    "Room too cold in the morning, occupants using space heaters.",
+    "Filter change overdue; airflow reduced and room warm.",
+]
+
+VOCABULARY = ["warm", "cold", "leak", "filter", "valve", "airflow"]
+
+
+def text_features(documents, vocabulary):
+    """Return one row per document with a flag per vocabulary term."""
+    rows = []
+    for text in documents:
+        tokens = re.findall(r"[a-z]+", text.lower())
+        row = {
+            f"has_{word}": int(any(token.startswith(word) for token in tokens))
+            for word in vocabulary
+        }
+        row["word_count"] = len(tokens)
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+features = text_features(work_orders, VOCABULARY)
+print(features)
+print("shape:", features.shape)
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Four documents become four rows of numbers}, label={c14_text_features_output}, captionpos=b]
+   has_warm  has_cold  has_leak  has_filter  has_valve  has_airflow  word_count
+0         1         0         0           0          0            0          11
+1         0         0         1           0          1            0           9
+2         0         1         0           0          0            0          10
+3         1         0         0           1          0            1           8
+shape: (4, 7)
+\end{lstlisting}
+
+\begin{SyntaxBox}{Each line makes a decision you could defend differently}
+\begin{itemize}
+    \item \c{text.lower()} treats "Warm" and "warm" as the same word. That is
+          usually right, and it destroys the distinction permanently.
+    \item \c{re.findall(r"[a-z]+", ...)} keeps runs of letters and discards
+          punctuation and digits, so the asset identifier \c{AHU-3} survives
+          only as \c{ahu}. Every reference to a numbered unit collapses onto the
+          same token.
+    \item \c{token.startswith(word)} makes "leaking" match "leak". It would also
+          make "filtered" match "filter", and "coldest" match "cold".
+    \item \c{VOCABULARY} is the whole model. A symptom nobody put on that list
+          is invisible to every downstream analysis.
+\end{itemize}
+\end{SyntaxBox}
+
+\begin{ExplainBox}{Feature extraction is lossy, and that is the point}
+Four sentences became twenty-eight numbers. You cannot reconstruct the sentences
+from the table, and you were never meant to: the table keeps what you decided
+was relevant and discards the rest, which is exactly what makes it comparable
+across thousands of records.
+
+The danger is forgetting that a decision was made. A report that says
+"31 percent of work orders concern temperature" is really saying "31 percent
+contained one of the words I chose, matched by the rule I wrote." Publish the
+vocabulary and the matching rule alongside the number, and the claim becomes
+checkable. This is the same discipline \booklink{ch:21}{Chapter 21} applies to
+model selection: the result is only meaningful together with the procedure that
+produced it.
+\end{ExplainBox}
+
+\hh{Unstructured images: an array you summarize}
+
+An image needs no conversion to become numeric -- it already is a NumPy array.
+What it needs is reduction: from thousands of pixels to a handful of features.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Build a small synthetic thermal panel},
+    label={c14_image},
+    captionpos=b
+]
+import numpy as np
+
+rng = np.random.default_rng(7)
+
+panel = np.zeros((48, 64, 3), dtype=np.int16)
+panel[:, :, 0], panel[:, :, 1], panel[:, :, 2] = 40, 60, 90
+
+rows, columns = np.ogrid[:48, :64]
+hot_spot = ((rows - 14) ** 2 + (columns - 46) ** 2) < 90
+panel[hot_spot] = [235, 175, 95]
+
+panel = np.clip(panel + rng.integers(-8, 9, panel.shape), 0, 255)
+panel = panel.astype(np.uint8)
+
+print("shape:", panel.shape, "dtype:", panel.dtype)
+print("one pixel:", panel[14, 46])
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={Height, width, and three colour channels}, label={c14_image_output}, captionpos=b]
+shape: (48, 64, 3) dtype: uint8
+one pixel: [235 172  98]
+\end{lstlisting}
+
+\begin{SyntaxBox}{Reading an image's shape}
+\c{(48, 64, 3)} is 48 rows of pixels, 64 columns, and 3 colour channels. Two
+details trip up beginners repeatedly. The first number is the height, not the
+width, because arrays are indexed row-first. And \c{uint8} holds whole numbers
+from 0 to 255, so arithmetic on it wraps around silently -- which is why the
+noise is added while the array is the wider \c{int16} type and only converted
+back after \c{np.clip()} has bounded the result.
+\end{SyntaxBox}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Reduce an image to one row of features},
+    label={c14_descriptor},
+    captionpos=b
+]
+HOT_THRESHOLD = 140.0
+
+grayscale = panel.mean(axis=2)
+
+descriptor = {
+    "mean_intensity": round(float(grayscale.mean()), 2),
+    "max_intensity": round(float(grayscale.max()), 2),
+    "hot_fraction": round(float((grayscale > HOT_THRESHOLD).mean()), 4),
+}
+
+print(descriptor)
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={3,072 pixels reduced to three numbers}, label={c14_descriptor_output}, captionpos=b]
+{'mean_intensity': 73.06, 'max_intensity': 175.0, 'hot_fraction': 0.0928}
+\end{lstlisting}
+
+\bookfigure[0.98\textwidth]{Figures/Generated/ch14_image_to_features.pdf}
+{The synthetic panel is a 48 by 64 by 3 array; thresholding its grayscale version isolates the warm region, and summarizing that region reduces 3,072 pixels to three comparable numbers.}
+{fig:ch14-image}
+
+\c{grayscale.mean()} averages the three colour channels into one intensity per
+pixel; \c{(grayscale > HOT_THRESHOLD).mean()} then exploits the fact that the
+mean of a boolean array is the fraction of \c{True} values. The hot fraction of
+0.0928 says just under ten percent of the panel exceeds the threshold.
+
+\begin{ExplainBox}{The threshold is a modeling choice with consequences}
+\c{HOT_THRESHOLD = 140.0} is not measured; it is chosen. Raise it and the hot
+fraction falls; lower it and ordinary variation starts counting as a defect. The
+number 0.0928 is meaningless without it, exactly as an optimization result is
+meaningless without its objective in \booklink{ch:18}{Chapter 18}.
+
+Note also what these three features cannot express. They do not record where the
+warm region sits, whether it is one blob or many, or what shape it has -- a
+photograph with the same hot fraction spread thinly across the whole panel would
+produce identical numbers. If position or shape matters to your question, the
+descriptor must be extended to capture it.
+\end{ExplainBox}
+
+\hh{Bringing the paths together}
+
+Each source contributed differently, and they combine into one row describing
+one room.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One row per room, assembled from three kinds of source},
+    label={c14_combined},
+    captionpos=b
+]
+import pandas as pd
+
+combined = pd.DataFrame([{
+    "room_id": "R101",
+    "mean_temp_c": round(float(readings["temp_c"].mean()), 2),
+    "max_co2_ppm": int(readings["co2_ppm"].max()),
+    "filter_stages": int(filters.shape[0]),
+    "warm_reports": int(features["has_warm"].sum()),
+    "hot_fraction": descriptor["hot_fraction"],
+}])
+
+print(combined.to_string(index=False))
+print("shape:", combined.shape)
+\end{lstlisting}
+
+Expected output:
+
+\begin{lstlisting}[language=text, style=block, caption={The destination every path was heading toward}, label={c14_combined_output}, captionpos=b]
+room_id  mean_temp_c  max_co2_ppm  filter_stages  warm_reports  hot_fraction
+   R101        22.07         1180              2             2        0.0928
+shape: (1, 6)
+\end{lstlisting}
+
+\c{readings["temp_c"].mean()} skips the missing value automatically, so
+\c{mean_temp_c} is the mean of four readings, not five. That is a reasonable
+default and a silent one; with many gaps you would want to record how many
+values each average was based on.
+
+\hh{Choosing a storage format}
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Format} & \textbf{Best for} & \textbf{Main limitation} \\
+CSV & flat tables, sharing, archiving & no types, no nesting \\
+JSON & nested records, APIs & verbose, no types, whole-file reads \\
+Parquet & large analytic tables & needs a library; not human-readable \\
+SQLite & queries and relationships & schema must be designed first \\
+\end{tabular}
+\end{center}
+
+Reach for a database once relationships and repeated queries matter more than
+portability -- when several tables reference each other, when files exceed
+memory, or when many people read the data concurrently. Below that threshold, a
+documented CSV or Parquet file is easier to share and to reproduce.
+
+\hh{Common mistakes and useful diagnoses}
+
+\begin{itemize}
+    \item \textbf{Assuming structured means correct.} A schema guarantees shape,
+          not accuracy or completeness. Check for missing values and impossible
+          readings.
+    \item \textbf{Comparing dtypes as literal strings.} Use the
+          \c{pd.api.types} predicates so the check survives a version change.
+    \item \textbf{Flattening without stating the grain.} Record what one row
+          means, and aggregate before counting entities.
+    \item \textbf{Dropping \c{meta} when using \c{record_path}.} The expanded
+          rows then lose all parent identity.
+    \item \textbf{Treating a keyword vocabulary as neutral.} It is the model;
+          publish it with the results.
+    \item \textbf{Reporting extracted features without the extraction rule.}
+          "31 percent mention temperature" is only checkable alongside the
+          vocabulary and matching rule.
+    \item \textbf{Confusing image height and width.} The array shape is
+          \c{(height, width, channels)}.
+    \item \textbf{Doing arithmetic on \c{uint8} pixels.} Values wrap around
+          silently; widen the type first.
+\end{itemize}
+
+\hh{Practice ladder}
+
+\hhh{Level 0 -- Identify}
+
+For each of these, name the class and the work required: a CSV of hourly meter
+readings; a GeoJSON of building footprints; a folder of PDF inspection reports;
+an IFC model exported from BIM software.
+
+\hhh{Level 1 -- Modify}
+
+Add \c{"heater"} to \c{VOCABULARY} and rerun \c{text_features}. Report which
+work orders change, and explain why \c{"space heaters"} in the third order was
+invisible before.
+
+\hhh{Level 2 -- Explain}
+
+The flattened \c{filters} table has two rows for one physical asset. Describe a
+question that this table answers correctly and a question it answers wrongly,
+and state the operation that fixes the second case.
+
+\hhh{Level 3 -- Build}
+
+Write \c{summarize_documents(documents, vocabulary)} that returns a one-row
+DataFrame containing the document count, the mean word count, and the share of
+documents matching each vocabulary term. Validate that the shares lie between 0
+and 1.
+
+\hhh{Level 4 -- Challenge}
+
+Extend the image descriptor so it also reports the row and column of the
+brightest pixel and the number of separate hot regions. Then construct a second
+panel with the same \c{hot_fraction} but a different arrangement, and show that
+your extended descriptor distinguishes them while the original does not.
+
+\hh{Practice solutions}
+
+\textbf{Level 0:} The meter CSV is structured and needs validation. The GeoJSON
+is semi-structured and needs flattening, with geometry handled as in
+\booklink{ch:15}{Chapter 15}. The PDF reports are unstructured and need text
+extraction followed by feature definition. The IFC model is semi-structured:
+deeply nested and self-describing, so it needs a chosen grain and flattening.
+
+\textbf{Level 2:} The table answers "how many filter stages are of type MERV13?"
+correctly, because its grain is one row per filter. It answers "how many assets
+are in Link Hall?" wrongly, returning two instead of one, because the asset is
+repeated once per filter. Aggregating with
+\c{filters.groupby("asset_id")} before counting restores the asset grain.
+
+\textbf{Level 3}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={One reusable document summary},
+    label={c14_solution_summary},
+    captionpos=b
+]
+import pandas as pd
+
+
+def summarize_documents(documents, vocabulary):
+    if len(documents) == 0:
+        raise ValueError("documents must not be empty")
+
+    features = text_features(documents, vocabulary)
+    summary = {
+        "document_count": len(documents),
+        "mean_word_count": round(float(features["word_count"].mean()), 2),
+    }
+    for word in vocabulary:
+        summary[f"share_{word}"] = round(float(features[f"has_{word}"].mean()), 4)
+
+    shares = [value for name, value in summary.items() if name.startswith("share_")]
+    if not all(0.0 <= share <= 1.0 for share in shares):
+        raise ValueError("a share fell outside the range 0 to 1")
+
+    return pd.DataFrame([summary])
+\end{lstlisting}
+
+The shares are means of columns holding only 0 and 1, so each is the fraction of
+documents that matched. The validation is cheap and would catch a future change
+that accidentally counted occurrences instead of flagging presence.
+
+\hh{Chapter checkpoint}
+
+\begin{enumerate}
+    \item What distinguishes structured, semi-structured, and unstructured data?
+    \item What does "unstructured" actually claim about a file?
+    \item What does a schema guarantee, and what does it not guarantee?
+    \item Why check the kind of a dtype rather than its exact name?
+    \item What does \c{record_path} decide?
+    \item What does \c{meta} preserve, and what breaks without it?
+    \item What is the grain of a table, and why must it be stated?
+    \item Why is feature extraction from text necessarily lossy?
+    \item What does the shape \c{(48, 64, 3)} describe?
+    \item What must be published alongside any extracted-feature result?
+\end{enumerate}
+
+\hh{Checkpoint answers}
+
+\begin{enumerate}
+    \item Where the schema lives: fixed in the file, self-described but
+          irregular in the file, or nowhere at all.
+    \item That the storage format supplies no schema for the payload, so the
+          analyst must impose one. It says nothing about whether the content is
+          meaningful.
+    \item It guarantees which columns exist and what types they hold; it
+          guarantees nothing about accuracy, completeness, or plausibility.
+    \item Exact dtype names vary with library version and platform, so a literal
+          comparison fails for reasons unrelated to the data.
+    \item Which repeating list becomes the unit of observation, and therefore
+          what one row of the result means.
+    \item Parent fields copied onto every expanded row; without it the rows lose
+          all identification of which parent record they came from.
+    \item What one row represents. Without it, counts and averages silently
+          answer a different question than the one asked.
+    \item Because it keeps only the aspects you chose to measure and discards
+          everything else, which is what makes records comparable.
+    \item 48 pixel rows, 64 pixel columns, and 3 colour channels: height first,
+          then width.
+    \item The extraction rule itself -- vocabulary, thresholds, and matching
+          logic -- because the number is not checkable without it.
+\end{enumerate}
+
+\begin{tcolorbox}[title=Part V summary,colframe=orange,colback=white,arc=2mm]
+Data sources differ in where their structure comes from, not in whether they
+have any. Structured files carry a schema you should still validate;
+semi-structured files describe themselves but must be flattened to a stated
+grain; unstructured payloads carry no schema, so you define the features and own
+that choice. All three paths converge on one rectangular feature table, which is
+what every later chapter consumes. Because the last path is a judgment rather
+than a conversion, publish the vocabulary, thresholds, and rules that produced
+the numbers. \booklink{ch:15}{Chapter 15} takes up a data type that sits between
+these classes: geometry, which is semi-structured in storage and demands its own
+coordinate discipline.
+\end{tcolorbox}
