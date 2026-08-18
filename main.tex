@@ -26,6 +26,7 @@ may be added as the material develops. Major changes are recorded below, with
 the most recent change first.
 
 \begin{itemize}
+\item[] \textbf{August 18, 2026}: Unified every diagram to a black-outline, white-fill style and verified every arrow gap and box-text fit against actual rendered geometry, fixing all remaining overlaps and overflows; replaced the footer's Reader roadmap link with the running chapter title and added restrained margin corner marks.
 \item[] \textbf{August 18, 2026}: Added Chapter 14 on structured and unstructured data as a new Part V, and renumbered the geospatial, algorithms, optimization, and machine-learning chapters accordingly.
 \item[] \textbf{August 18, 2026}: Added Chapter 20 on gradient-based and metaheuristic optimization, Chapter 21 on classification and model selection, and Chapter 22 on neural networks, with companion scripts and generated figures.
 \item[] \textbf{August 17, 2026}: Enlarged code, distributed additional visual explanations, added accessibility support, and introduced algorithms, optimization, and machine-learning Chapters 17--19.
@@ -54,6 +55,10 @@ the most recent change first.
 
 \input{Chapters/00_Reader_Roadmap}
 \newpage
+
+% Corner marks start here, after the bespoke front matter and before the
+% instructional content begins.
+\AddToShipoutPictureBG{\pagecornermarks}
 
 \part{Part I: Getting Started}
 \input{Chapters/01_Your_First_Python_Program}

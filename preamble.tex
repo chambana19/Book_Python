@@ -1,6 +1,26 @@
 % Project-wide additions loaded after the LiX-based textbook class.
 
 \usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{eso-pic}
+
+% Short corner marks at the four corners of the text block, matching the
+% textbook.cls geometry (top=30mm, bottom=30mm, left=24mm, right=24mm). A
+% restrained, print-shop-style cue for where the margin begins, activated
+% from Part I onward in main.tex so the bespoke cover, imprint, table of
+% contents, and roadmap pages stay exactly as designed.
+\newcommand{\pagecornermarks}{%
+    \begin{tikzpicture}[overlay, line width=0.5pt, color=black!55]
+        \draw ([xshift=24mm,yshift=-30mm]current page.north west) -- ++(8mm,0);
+        \draw ([xshift=24mm,yshift=-30mm]current page.north west) -- ++(0,-8mm);
+        \draw ([xshift=-24mm,yshift=-30mm]current page.north east) -- ++(-8mm,0);
+        \draw ([xshift=-24mm,yshift=-30mm]current page.north east) -- ++(0,-8mm);
+        \draw ([xshift=24mm,yshift=30mm]current page.south west) -- ++(8mm,0);
+        \draw ([xshift=24mm,yshift=30mm]current page.south west) -- ++(0,8mm);
+        \draw ([xshift=-24mm,yshift=30mm]current page.south east) -- ++(-8mm,0);
+        \draw ([xshift=-24mm,yshift=30mm]current page.south east) -- ++(0,8mm);
+    \end{tikzpicture}%
+}
 
 % Two accents serve the entire book: orange for chapter-level outcomes and
 % summaries, and a restrained blue for navigation, code, and study prompts.

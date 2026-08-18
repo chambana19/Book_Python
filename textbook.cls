@@ -49,19 +49,22 @@
 \setlength{\headsep}{5mm}%
 \pagestyle{fancy}%
 \renewcommand{\headrulewidth}{0pt}%
+\renewcommand{\footrulewidth}{0.4pt}%
 \renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}%
 \fancyhead[L]{%
-    % Long chapter names collided with the page counter. Keep the running
-    % header compact; the full title remains in the chapter heading and TOC.
     \small\scshape\color{darkgray} \chaptername\ \thechapter%
 }
 \fancyhead[R]{%
-    \small\scshape\color{darkgray} Page \thepage\ of \pageref{LastPage}% <<< keep \pageref
+    % The page counter now lives in the footer, which is what previously
+    % collided with a long chapter title here. A smaller size gives even the
+    % longest chapter titles (e.g. Chapter 20) room against the left tag.
+    \footnotesize\scshape\color{darkgray} \leftmark%
 }
-\fancyfoot[C]{%
-    \footnotesize\color{darkgray}%
-    \hyperref[book:toc]{Contents}\quad|\quad%
-    \hyperref[reader:roadmap]{Reader roadmap}%
+\fancyfoot[L]{%
+    \footnotesize\color{darkgray}\hyperref[book:toc]{Contents}%
+}
+\fancyfoot[R]{%
+    \footnotesize\color{darkgray} Page \thepage\ of \pageref{LastPage}% <<< keep \pageref
 }
 
 % HEADINGS: --------------------------------------------------------------------
@@ -81,8 +84,9 @@
 \titleformat{\chapter}[display]{%
     \normalsize%
 }{% Prefix.
+    % The page counter lives in the footer on every other page; this opening
+    % page uses \thispagestyle{empty} below, so it stays deliberately quiet.
     \hspace{1pt}\small\scshape\color{darkgray}\chaptertitlename \ \thechapter%
-    \hfill Page \thepage\ of \pageref{LastPage}% <<< keep \pageref
 }{% Vertical space between.
     \ifnum\numColumns=1%
         4pt%

@@ -4,6 +4,7 @@ tmp/
 .python-deps/
 .geo-deps/
 study_figures/
+__pycache__/
 
 # Common TeX intermediates
 *.aux

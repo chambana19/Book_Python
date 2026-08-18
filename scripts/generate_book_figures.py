@@ -24,8 +24,16 @@ ORANGE = "#E68619"
 GREEN = "#3A9158"
 PURPLE = "#7554A3"
 DARK = "#263248"
-LIGHT = "#F4F7FB"
 MID = "#D9E3F0"
+
+# Explanatory box-and-arrow diagrams are strictly monochrome: black outline on
+# white fill by default, inverted to black fill with white text for the one
+# box a diagram exists to highlight. Chart-style figures keep the separate
+# tab:blue/orange/green data-series palette defined above.
+INK = "#000000"
+PAPER = "#FFFFFF"
+MUTED = "#4D4D4D"
+HILITE_SUBTITLE = "#E6E6E6"
 
 plt.rcParams.update(
     {
@@ -60,16 +68,31 @@ def blank_canvas(width: float = 10, height: float = 4) -> tuple[plt.Figure, plt.
     return fig, ax
 
 
-def rounded_box(ax, xy, width, height, text, color, fontsize=11, subtitle=None):
+def rounded_box(ax, xy, width, height, text, fontsize=11, subtitle=None, fill=False):
+    """A black-outline, white-fill box. Set fill=True to invert it (black
+    fill, white text) for the single box a diagram exists to highlight."""
     x, y = xy
+    face_color = INK if fill else PAPER
+    title_color = PAPER if fill else INK
+    subtitle_color = HILITE_SUBTITLE if fill else MUTED
     patch = FancyBboxPatch(
         (x, y),
         width,
         height,
-        boxstyle="round,pad=0.012,rounding_size=0.02",
-        linewidth=1.6,
-        edgecolor=color,
-        facecolor=LIGHT,
+        # boxstyle's "pad" visually expands the rendered outline this far
+        # beyond the (x, y, width, height) given, on every side -- confirmed
+        # empirically via patch.get_extents(). At the old pad=0.012 that is
+        # ~9.5pt on an 11in-wide figure, which is *larger* than arrow()'s
+        # shrink and was the real cause of arrows rendering as touching or
+        # overlapping the outline even when their coordinates looked fine.
+        # Every box here is already sized with deliberate internal margin
+        # around its centered text, so this expansion is pure unwanted
+        # padding; kept small (not zero) only to preserve the rounded-corner
+        # look at this box scale.
+        boxstyle="round,pad=0.003,rounding_size=0.02",
+        linewidth=1.4,
+        edgecolor=INK,
+        facecolor=face_color,
     )
     ax.add_patch(patch)
     ax.text(
@@ -80,7 +103,7 @@ def rounded_box(ax, xy, width, height, text, color, fontsize=11, subtitle=None):
         va="center",
         fontsize=fontsize,
         weight="bold",
-        color=DARK,
+        color=title_color,
     )
     if subtitle:
         ax.text(
@@ -90,27 +113,44 @@ def rounded_box(ax, xy, width, height, text, color, fontsize=11, subtitle=None):
             ha="center",
             va="center",
             fontsize=8.5,
-            color="#52647C",
+            color=subtitle_color,
         )
     return patch
 
 
-def arrow(ax, start, end, color=DARK, connectionstyle="arc3"):
+def arrow(ax, start, end, connectionstyle="arc3", linestyle="-", shrink=9):
+    """A black arrow. Use linestyle="--" for the secondary path of a genuine
+    two-outcome branch (the primary/expected path stays solid).
+
+    `shrink` (points) pulls both the tail and head back *along the arrow's
+    own direction* from the exact coordinates given. For an arrow that meets
+    a box edge head-on this becomes a clean perpendicular gap; for a
+    diagonal arrow meeting an edge at a shallow angle, the perpendicular
+    component falls off with the sine of that angle and can round to
+    nothing, so those cases also need a small manual offset baked into the
+    coordinates (see the style guide). Either way, `shrink` must exceed
+    rounded_box()'s ~2.4pt pad expansion (at pad=0.003, 11in-wide figure)
+    just to reach the box's true rendered edge before it can clear it; the
+    default leaves roughly 6.6pt of real gap while still safely fitting the
+    shortest arrows in the book (~36pt end to end)."""
     ax.add_patch(
         FancyArrowPatch(
             start,
             end,
             arrowstyle="-|>",
             mutation_scale=14,
-            linewidth=1.6,
-            color=color,
+            linewidth=1.4,
+            color=INK,
+            linestyle=linestyle,
             connectionstyle=connectionstyle,
+            shrinkA=shrink,
+            shrinkB=shrink,
         )
     )
 
 
 def generate_workflow_diagram() -> None:
-    fig, ax = blank_canvas(11, 3.9)
+    fig, ax = blank_canvas(11, 4.3)
     ax.text(
         0.5,
         0.93,
@@ -122,28 +162,28 @@ def generate_workflow_diagram() -> None:
         color=DARK,
     )
     labels = [
-        ("1. Edit", "Change one idea", DARK),
-        ("2. Save", "Write the file", DARK),
-        ("3. Run", "Ask Python", DARK),
-        ("4. Read", "Output or error", DARK),
-        ("5. Revise", "Explain and improve", DARK),
+        ("1. Edit", "Change one idea"),
+        ("2. Save", "Write the file"),
+        ("3. Run", "Ask Python"),
+        ("4. Read", "Output or error"),
+        ("5. Revise", "Explain and improve"),
     ]
     xs = np.linspace(0.04, 0.8, len(labels))
-    for x, (title, subtitle, color) in zip(xs, labels):
-        rounded_box(ax, (x, 0.38), 0.16, 0.28, title, color, subtitle=subtitle)
+    for x, (title, subtitle) in zip(xs, labels):
+        rounded_box(ax, (x, 0.38), 0.14, 0.28, title, subtitle=subtitle)
     for left, right in zip(xs[:-1], xs[1:]):
-        arrow(ax, (left + 0.16, 0.52), (right, 0.52))
+        arrow(ax, (left + 0.14, 0.52), (right, 0.52))
     arrow(
         ax,
-        (0.88, 0.32),
-        (0.12, 0.31),
-        color=ORANGE,
-        connectionstyle="arc3,rad=-0.22",
+        (0.88, 0.34),
+        (0.12, 0.33),
+        connectionstyle="arc3,rad=-0.13",
+        linestyle="--",
     )
-    ax.text(0.5, 0.27, "loop back and revise", ha="center", color=ORANGE, fontsize=9, weight="bold")
+    ax.text(0.5, 0.29, "loop back and revise", ha="center", color=DARK, fontsize=9, weight="bold")
     ax.text(
         0.5,
-        0.05,
+        0.03,
         "A surprising result is information: compare it with your prediction, then change one thing.",
         ha="center",
         color="#52647C",
@@ -163,13 +203,13 @@ def generate_function_anatomy() -> None:
         weight="bold",
         color=DARK,
     )
-    rounded_box(ax, (0.04, 0.37), 0.21, 0.32, "Arguments", BLUE, subtitle="width=10.5, depth=20.0")
-    rounded_box(ax, (0.36, 0.24), 0.30, 0.55, "calculate_area(width, depth)", PURPLE, subtitle="area = width * depth\nreturn area")
-    rounded_box(ax, (0.77, 0.37), 0.19, 0.32, "Return value", GREEN, subtitle="210.0")
-    arrow(ax, (0.25, 0.53), (0.36, 0.53), BLUE)
-    arrow(ax, (0.66, 0.53), (0.77, 0.53), GREEN)
-    ax.text(0.305, 0.59, "bind to\nparameters", ha="center", color=BLUE, fontsize=9)
-    ax.text(0.715, 0.59, "send back to\ncaller", ha="center", color=GREEN, fontsize=9)
+    rounded_box(ax, (0.04, 0.37), 0.21, 0.32, "Arguments", subtitle="width=10.5, depth=20.0")
+    rounded_box(ax, (0.36, 0.24), 0.30, 0.55, "calculate_area(width, depth)", subtitle="area = width * depth\nreturn area")
+    rounded_box(ax, (0.77, 0.37), 0.19, 0.32, "Return value", subtitle="210.0")
+    arrow(ax, (0.25, 0.53), (0.36, 0.53))
+    arrow(ax, (0.66, 0.53), (0.77, 0.53))
+    ax.text(0.305, 0.59, "bind to\nparameters", ha="center", color=MUTED, fontsize=9)
+    ax.text(0.715, 0.59, "send back to\ncaller", ha="center", color=MUTED, fontsize=9)
     ax.text(
         0.5,
         0.10,
@@ -185,16 +225,16 @@ def generate_builtin_toolbox() -> None:
     fig, ax = blank_canvas(10.5, 5.0)
     ax.text(0.5, 0.94, "Choose a built-in function from the task", ha="center", fontsize=16, weight="bold", color=DARK)
     groups = [
-        ("Measure", "len(), min(), max(), sum()", DARK),
-        ("Reorder", "sorted(), reversed()", DARK),
-        ("Decide", "any(), all()", DARK),
-        ("Pair", "enumerate(), zip()", DARK),
-        ("Convert", "int(), float(), str(), list()", DARK),
-        ("Inspect", "type(), help()", DARK),
+        ("Measure", "len(), min(), max(), sum()"),
+        ("Reorder", "sorted(), reversed()"),
+        ("Decide", "any(), all()"),
+        ("Pair", "enumerate(), zip()"),
+        ("Convert", "int(), float(), str(), list()"),
+        ("Inspect", "type(), help()"),
     ]
     positions = [(0.06, 0.58), (0.37, 0.58), (0.68, 0.58), (0.06, 0.22), (0.37, 0.22), (0.68, 0.22)]
-    for (title, functions, color), position in zip(groups, positions):
-        rounded_box(ax, position, 0.26, 0.22, title, color, subtitle=functions)
+    for (title, functions), position in zip(groups, positions):
+        rounded_box(ax, position, 0.26, 0.22, title, subtitle=functions)
     ax.text(
         0.5,
         0.07,
@@ -209,14 +249,14 @@ def generate_traceback_anatomy() -> None:
     fig, ax = blank_canvas(10.5, 4.8)
     ax.text(0.5, 0.94, "Read a traceback from the bottom upward", ha="center", fontsize=16, weight="bold", color=DARK)
     rows = [
-        (0.68, "Where Python was running", 'File "room_check.py", line 8, in <module>', DARK),
-        (0.45, "The instruction that failed", "area = width * depth", DARK),
-        (0.22, "Error type and message", "TypeError: can't multiply sequence by non-int", DARK),
+        (0.68, "Where Python was running", 'File "room_check.py", line 8, in <module>'),
+        (0.45, "The instruction that failed", "area = width * depth"),
+        (0.22, "Error type and message", "TypeError: can't multiply sequence by non-int"),
     ]
-    for y, title, code, color in rows:
-        rounded_box(ax, (0.16, y), 0.68, 0.15, title, color, subtitle=code)
-    arrow(ax, (0.09, 0.27), (0.09, 0.75), PURPLE)
-    ax.text(0.06, 0.50, "read upward", rotation=90, ha="center", va="center", color=PURPLE, weight="bold")
+    for y, title, code in rows:
+        rounded_box(ax, (0.16, y), 0.68, 0.15, title, subtitle=code)
+    arrow(ax, (0.09, 0.27), (0.09, 0.75))
+    ax.text(0.06, 0.50, "read upward", rotation=90, ha="center", va="center", color=DARK, weight="bold")
     ax.text(0.5, 0.07, "Start with the last line: it names the problem. Then locate the failing instruction.", ha="center", color="#52647C")
     save(fig, "ch08_traceback_anatomy")
 
@@ -233,27 +273,28 @@ def generate_copying_models() -> None:
         ax.set_title(title, color=DARK, weight="bold")
         ax.text(0.5, 0.88, subtitle, ha="center", fontsize=8.5, color="#52647C")
 
+    # Solid arrows track "a"; dashed arrows track "b", consistently in every panel.
     # Assignment
-    rounded_box(axes[0], (0.06, 0.57), 0.25, 0.14, "a", BLUE)
-    rounded_box(axes[0], (0.06, 0.30), 0.25, 0.14, "b", PURPLE)
-    rounded_box(axes[0], (0.62, 0.40), 0.30, 0.25, "outer list", ORANGE, subtitle="nested list")
-    arrow(axes[0], (0.31, 0.64), (0.62, 0.57), BLUE)
-    arrow(axes[0], (0.31, 0.37), (0.62, 0.49), PURPLE)
+    rounded_box(axes[0], (0.06, 0.57), 0.25, 0.14, "a")
+    rounded_box(axes[0], (0.06, 0.30), 0.25, 0.14, "b")
+    rounded_box(axes[0], (0.62, 0.40), 0.30, 0.25, "outer list", subtitle="nested list")
+    arrow(axes[0], (0.31, 0.64), (0.62, 0.57))
+    arrow(axes[0], (0.31, 0.37), (0.62, 0.49), linestyle="--")
 
     # Shallow copy
-    rounded_box(axes[1], (0.05, 0.50), 0.27, 0.18, "a outer", BLUE)
-    rounded_box(axes[1], (0.05, 0.22), 0.27, 0.18, "b outer", PURPLE)
-    rounded_box(axes[1], (0.64, 0.35), 0.29, 0.20, "shared nested", ORANGE)
-    arrow(axes[1], (0.32, 0.59), (0.64, 0.48), BLUE)
-    arrow(axes[1], (0.32, 0.31), (0.64, 0.42), PURPLE)
+    rounded_box(axes[1], (0.05, 0.50), 0.27, 0.18, "a outer")
+    rounded_box(axes[1], (0.05, 0.22), 0.27, 0.18, "b outer")
+    rounded_box(axes[1], (0.47, 0.35), 0.50, 0.20, "shared nested", fontsize=10, fill=True)
+    arrow(axes[1], (0.32, 0.59), (0.47, 0.48))
+    arrow(axes[1], (0.32, 0.31), (0.47, 0.42), linestyle="--")
 
     # Deep copy
-    rounded_box(axes[2], (0.05, 0.53), 0.27, 0.18, "a outer", BLUE)
-    rounded_box(axes[2], (0.05, 0.20), 0.27, 0.18, "b outer", PURPLE)
-    rounded_box(axes[2], (0.64, 0.53), 0.29, 0.18, "nested A", BLUE)
-    rounded_box(axes[2], (0.64, 0.20), 0.29, 0.18, "nested B", PURPLE)
-    arrow(axes[2], (0.32, 0.62), (0.64, 0.62), BLUE)
-    arrow(axes[2], (0.32, 0.29), (0.64, 0.29), PURPLE)
+    rounded_box(axes[2], (0.05, 0.53), 0.27, 0.18, "a outer")
+    rounded_box(axes[2], (0.05, 0.20), 0.27, 0.18, "b outer")
+    rounded_box(axes[2], (0.64, 0.53), 0.34, 0.18, "nested A")
+    rounded_box(axes[2], (0.64, 0.20), 0.34, 0.18, "nested B")
+    arrow(axes[2], (0.32, 0.62), (0.64, 0.62))
+    arrow(axes[2], (0.32, 0.29), (0.64, 0.29), linestyle="--")
     save(fig, "ch09_copying_models")
 
 
@@ -261,17 +302,17 @@ def generate_file_pipeline() -> None:
     fig, ax = blank_canvas(11, 4.0)
     ax.text(0.5, 0.93, "A safe file operation is a short pipeline", ha="center", fontsize=16, weight="bold", color=DARK)
     steps = [
-        ("Path", 'Path("data/rooms.csv")', DARK),
-        ("Mode", '"r", "w", or "a"', DARK),
-        ("Context", "with ... as file", DARK),
-        ("Operation", "read / write / parse", DARK),
-        ("Result", "closed file + data", DARK),
+        ("Path", 'Path("rooms.csv")'),
+        ("Mode", '"r", "w", or "a"'),
+        ("Context", "with ... as file"),
+        ("Operation", "read / write / parse"),
+        ("Result", "closed file + data"),
     ]
     xs = np.linspace(0.03, 0.81, len(steps))
-    for x, (title, subtitle, color) in zip(xs, steps):
-        rounded_box(ax, (x, 0.39), 0.16, 0.28, title, color, subtitle=subtitle)
+    for x, (title, subtitle) in zip(xs, steps):
+        rounded_box(ax, (x, 0.39), 0.14, 0.28, title, subtitle=subtitle)
     for left, right in zip(xs[:-1], xs[1:]):
-        arrow(ax, (left + 0.16, 0.53), (right, 0.53))
+        arrow(ax, (left + 0.14, 0.53), (right, 0.53))
     ax.text(0.5, 0.17, "The with block closes the file even when an exception interrupts the operation.", ha="center", color="#52647C")
     save(fig, "ch10_file_pipeline")
 
@@ -285,14 +326,14 @@ def generate_array_axes() -> None:
         for col in range(3):
             x = x0 + col * cell
             y = y0 + (2 - row) * cell
-            ax.add_patch(Rectangle((x, y), cell, cell, facecolor=LIGHT, edgecolor=BLUE, linewidth=1.5))
+            ax.add_patch(Rectangle((x, y), cell, cell, facecolor=PAPER, edgecolor=INK, linewidth=1.3))
             ax.text(x + cell / 2, y + cell / 2, str(values[row, col]), ha="center", va="center", fontsize=13, color=DARK)
     ax.text(x0 + 1.5 * cell, 0.79, "columns", ha="center", weight="bold", color=DARK)
     ax.text(0.16, y0 + 1.5 * cell, "rows", ha="center", va="center", rotation=90, weight="bold", color=DARK)
-    arrow(ax, (0.75, 0.72), (0.75, 0.28), BLUE)
-    ax.text(0.78, 0.50, "axis=0\noperate down rows\n-> one result per column", va="center", color=BLUE, fontsize=10)
-    arrow(ax, (0.25, 0.13), (0.70, 0.13), ORANGE)
-    ax.text(0.48, 0.05, "axis=1: operate across columns -> one result per row", ha="center", color=ORANGE, fontsize=10)
+    arrow(ax, (0.75, 0.72), (0.75, 0.28))
+    ax.text(0.78, 0.50, "axis=0\noperate down rows\n-> one result per column", va="center", color=DARK, fontsize=10)
+    arrow(ax, (0.25, 0.13), (0.70, 0.13), linestyle="--")
+    ax.text(0.48, 0.05, "axis=1: operate across columns -> one result per row", ha="center", color=DARK, fontsize=10)
     save(fig, "ch11_array_axes")
 
 
@@ -300,17 +341,17 @@ def generate_dataframe_pipeline() -> None:
     fig, ax = blank_canvas(11, 4.3)
     ax.text(0.5, 0.94, "A readable pandas analysis separates stages", ha="center", fontsize=16, weight="bold", color=DARK)
     steps = [
-        ("Load", "CSV or dictionary", DARK),
-        ("Inspect", "head, info, dtypes", DARK),
-        ("Clean", "missing values", DARK),
-        ("Transform", "filter, assign, group", DARK),
-        ("Communicate", "table, chart, export", DARK),
+        ("Load", "CSV or dictionary"),
+        ("Inspect", "head, info, dtypes"),
+        ("Clean", "missing values"),
+        ("Transform", "filter, assign, group"),
+        ("Communicate", "table, chart, export"),
     ]
     xs = np.linspace(0.03, 0.81, len(steps))
-    for x, (title, subtitle, color) in zip(xs, steps):
-        rounded_box(ax, (x, 0.45), 0.16, 0.25, title, color, subtitle=subtitle)
+    for x, (title, subtitle) in zip(xs, steps):
+        rounded_box(ax, (x, 0.45), 0.14, 0.25, title, subtitle=subtitle)
     for left, right in zip(xs[:-1], xs[1:]):
-        arrow(ax, (left + 0.16, 0.575), (right, 0.575))
+        arrow(ax, (left + 0.14, 0.575), (right, 0.575))
     table_data = [["room", "area_m2"], ["Lobby", "24.0"], ["Office", "18.0"], ["Cafe", "31.0"]]
     table = ax.table(cellText=table_data, cellLoc="center", bbox=[0.32, 0.06, 0.36, 0.25])
     table.auto_set_font_size(False)
@@ -327,14 +368,14 @@ def generate_program_pipeline() -> None:
     fig, ax = blank_canvas(11, 3.8)
     ax.text(0.5, 0.93, "What happens when a Python program runs", ha="center", fontsize=16, weight="bold", color=DARK)
     steps = [
-        ("Source code", "instructions in a .py file", DARK),
-        ("Python interpreter", "reads syntax in order", DARK),
-        ("Program state", "names refer to current values", DARK),
-        ("Observable result", "output, file, plot, or error", DARK),
+        ("Source code", "instructions in a .py file"),
+        ("Python interpreter", "reads syntax in order"),
+        ("Program state", "values bound to names"),
+        ("Observable result", "output, file, plot, or error"),
     ]
     xs = [0.03, 0.28, 0.53, 0.78]
-    for x, (title, subtitle, color) in zip(xs, steps):
-        rounded_box(ax, (x, 0.38), 0.19, 0.30, title, color, subtitle=subtitle)
+    for x, (title, subtitle) in zip(xs, steps):
+        rounded_box(ax, (x, 0.38), 0.19, 0.30, title, subtitle=subtitle)
     for left, right in zip(xs[:-1], xs[1:]):
         arrow(ax, (left + 0.19, 0.53), (right, 0.53))
     ax.text(0.5, 0.15, "A program is a sequence of state changes; the screen shows only the observable effects.", ha="center", color="#52647C")
@@ -345,14 +386,14 @@ def generate_expression_trace() -> None:
     fig, ax = blank_canvas(11, 4.0)
     ax.text(0.5, 0.94, "Trace an expression one transformation at a time", ha="center", fontsize=16, weight="bold", color=DARK)
     steps = [
-        ("Expression", "width * height", DARK),
-        ("Substitute names", "3.0 * 4.0", DARK),
-        ("Apply operator", "12.0", DARK),
-        ("Bind result", "area = 12.0 (float)", DARK),
+        ("Expression", "width * height"),
+        ("Substitute names", "3.0 * 4.0"),
+        ("Apply operator", "12.0"),
+        ("Bind result", "area = 12.0 (float)"),
     ]
     xs = [0.03, 0.28, 0.53, 0.78]
-    for x, (title, subtitle, color) in zip(xs, steps):
-        rounded_box(ax, (x, 0.39), 0.19, 0.30, title, color, subtitle=subtitle)
+    for x, (title, subtitle) in zip(xs, steps):
+        rounded_box(ax, (x, 0.39), 0.19, 0.30, title, subtitle=subtitle)
     for left, right in zip(xs[:-1], xs[1:]):
         arrow(ax, (left + 0.19, 0.54), (right, 0.54))
     ax.text(0.5, 0.15, "The equals sign stores the value produced on its right; it does not assert a permanent equation.", ha="center", color="#52647C")
@@ -362,16 +403,17 @@ def generate_expression_trace() -> None:
 def generate_decision_trace() -> None:
     fig, ax = blank_canvas(10.5, 5.2)
     ax.text(0.5, 0.95, "A conditional selects exactly one path", ha="center", fontsize=16, weight="bold", color=DARK)
-    rounded_box(ax, (0.34, 0.68), 0.32, 0.16, "18 <= temperature_c <= 24?", DARK)
-    rounded_box(ax, (0.08, 0.31), 0.30, 0.18, "True branch", DARK, subtitle='status = "comfortable"')
-    rounded_box(ax, (0.62, 0.31), 0.30, 0.18, "False branch", DARK, subtitle='status = "check conditions"')
-    rounded_box(ax, (0.34, 0.07), 0.32, 0.14, "Continue after the if statement", DARK)
-    arrow(ax, (0.42, 0.68), (0.25, 0.49), BLUE)
-    arrow(ax, (0.58, 0.68), (0.75, 0.49), ORANGE)
-    ax.text(0.30, 0.58, "True", color=BLUE, weight="bold")
-    ax.text(0.67, 0.58, "False", color=ORANGE, weight="bold")
-    arrow(ax, (0.25, 0.31), (0.42, 0.21))
-    arrow(ax, (0.75, 0.31), (0.58, 0.21))
+    rounded_box(ax, (0.34, 0.68), 0.32, 0.16, "18 <= temperature_c <= 24?")
+    rounded_box(ax, (0.08, 0.31), 0.30, 0.18, "True branch", subtitle='status = "comfortable"')
+    rounded_box(ax, (0.62, 0.31), 0.30, 0.18, "False branch", subtitle='status = "check conditions"')
+    rounded_box(ax, (0.34, 0.07), 0.32, 0.14, "Continue after the if statement")
+    label_box = dict(facecolor="white", edgecolor="none", pad=1.5)
+    arrow(ax, (0.40, 0.666), (0.24, 0.504))
+    arrow(ax, (0.60, 0.666), (0.76, 0.504), linestyle="--")
+    ax.text(0.30, 0.685, "True", color=DARK, weight="bold", fontsize=10, ha="center", bbox=label_box)
+    ax.text(0.70, 0.685, "False", color=DARK, weight="bold", fontsize=10, ha="center", bbox=label_box)
+    arrow(ax, (0.25, 0.296), (0.42, 0.224))
+    arrow(ax, (0.75, 0.296), (0.58, 0.224))
     save(fig, "ch04_decision_trace")
 
 
@@ -396,13 +438,13 @@ def generate_loop_trace() -> None:
 def generate_call_stack() -> None:
     fig, ax = blank_canvas(10.5, 5.0)
     ax.text(0.5, 0.95, "Function calls create temporary stack frames", ha="center", fontsize=16, weight="bold", color=DARK)
-    rounded_box(ax, (0.28, 0.13), 0.44, 0.17, "module frame", DARK, subtitle="rooms, report")
-    rounded_box(ax, (0.28, 0.36), 0.44, 0.17, "report(room) frame", DARK, subtitle="room, area")
-    rounded_box(ax, (0.28, 0.59), 0.44, 0.17, "calculate_area(w, d) frame", DARK, subtitle="w=6, d=8, result=48")
-    arrow(ax, (0.77, 0.23), (0.77, 0.67), ORANGE)
-    ax.text(0.81, 0.45, "calls push\nframes upward", va="center", color=ORANGE, weight="bold")
-    arrow(ax, (0.21, 0.67), (0.21, 0.23), BLUE)
-    ax.text(0.17, 0.45, "returns pop\nframes downward", va="center", ha="right", color=BLUE, weight="bold")
+    rounded_box(ax, (0.28, 0.13), 0.44, 0.17, "module frame", subtitle="rooms, report")
+    rounded_box(ax, (0.28, 0.36), 0.44, 0.17, "report(room) frame", subtitle="room, area")
+    rounded_box(ax, (0.28, 0.59), 0.44, 0.17, "calculate_area(w, d) frame", subtitle="w=6, d=8, result=48")
+    arrow(ax, (0.77, 0.23), (0.77, 0.67))
+    ax.text(0.81, 0.45, "calls push\nframes upward", va="center", color=DARK, weight="bold")
+    arrow(ax, (0.21, 0.67), (0.21, 0.23), linestyle="--")
+    ax.text(0.17, 0.45, "returns pop\nframes downward", va="center", ha="right", color=DARK, weight="bold")
     ax.text(0.5, 0.05, "Local names disappear when a frame returns; the returned value can enter the caller's frame.", ha="center", color="#52647C")
     save(fig, "ch06_call_stack")
 
@@ -410,17 +452,17 @@ def generate_call_stack() -> None:
 def generate_exception_flow() -> None:
     fig, ax = blank_canvas(11, 5.0)
     ax.text(0.5, 0.95, "try, except, else, and finally describe four roles", ha="center", fontsize=16, weight="bold", color=DARK)
-    rounded_box(ax, (0.37, 0.70), 0.26, 0.15, "try", DARK, subtitle="run the risky operation")
-    rounded_box(ax, (0.07, 0.37), 0.28, 0.17, "except ValueError", DARK, subtitle="handle this expected failure")
-    rounded_box(ax, (0.65, 0.37), 0.28, 0.17, "else", DARK, subtitle="run only after success")
-    rounded_box(ax, (0.37, 0.08), 0.26, 0.16, "finally", DARK, subtitle="run on either path")
-    arrow(ax, (0.42, 0.70), (0.24, 0.54), BLUE)
-    arrow(ax, (0.58, 0.70), (0.76, 0.54), ORANGE)
+    rounded_box(ax, (0.37, 0.70), 0.26, 0.15, "try", subtitle="run the risky operation")
+    rounded_box(ax, (0.07, 0.37), 0.28, 0.17, "except ValueError", subtitle="handle this expected failure")
+    rounded_box(ax, (0.65, 0.37), 0.28, 0.17, "else", subtitle="run only after success")
+    rounded_box(ax, (0.37, 0.08), 0.26, 0.16, "finally", subtitle="run on either path")
+    arrow(ax, (0.42, 0.686), (0.24, 0.554))
+    arrow(ax, (0.58, 0.686), (0.76, 0.554), linestyle="--")
     label_box = dict(facecolor="white", edgecolor="none", pad=1.5)
-    ax.text(0.18, 0.66, "matching error", color=BLUE, fontsize=9, weight="bold", bbox=label_box)
-    ax.text(0.82, 0.66, "no error", color=ORANGE, fontsize=9, weight="bold", bbox=label_box)
-    arrow(ax, (0.24, 0.37), (0.42, 0.24))
-    arrow(ax, (0.76, 0.37), (0.58, 0.24))
+    ax.text(0.18, 0.66, "matching error", color=DARK, fontsize=9, weight="bold", bbox=label_box)
+    ax.text(0.82, 0.66, "no error", color=DARK, fontsize=9, weight="bold", bbox=label_box)
+    arrow(ax, (0.24, 0.356), (0.42, 0.254))
+    arrow(ax, (0.76, 0.356), (0.58, 0.254))
     save(fig, "ch08_exception_flow")
 
 
@@ -428,16 +470,16 @@ def generate_path_tree() -> None:
     fig, ax = blank_canvas(10.5, 5.2)
     ax.text(0.5, 0.95, "A relative path is interpreted from a working folder", ha="center", fontsize=16, weight="bold", color=DARK)
     nodes = [
-        (0.08, 0.70, 0.25, "project/", DARK),
-        (0.39, 0.50, 0.25, "data/", DARK),
-        (0.70, 0.50, 0.25, "scripts/", DARK),
-        (0.39, 0.24, 0.25, "rooms.csv", DARK),
-        (0.70, 0.24, 0.25, "analyze.py", DARK),
+        (0.545, 0.70, 0.25, "project/"),
+        (0.39, 0.50, 0.25, "data/"),
+        (0.70, 0.50, 0.25, "scripts/"),
+        (0.39, 0.24, 0.25, "rooms.csv"),
+        (0.70, 0.24, 0.25, "analyze.py"),
     ]
-    for x, y, w, label, color in nodes:
-        rounded_box(ax, (x, y), w, 0.14, label, color)
-    arrow(ax, (0.33, 0.75), (0.39, 0.60))
-    arrow(ax, (0.33, 0.75), (0.70, 0.60))
+    for x, y, w, label in nodes:
+        rounded_box(ax, (x, y), w, 0.14, label)
+    arrow(ax, (0.60, 0.686), (0.515, 0.654))
+    arrow(ax, (0.74, 0.686), (0.825, 0.654))
     arrow(ax, (0.515, 0.50), (0.515, 0.38))
     arrow(ax, (0.825, 0.50), (0.825, 0.38))
     ax.text(0.5, 0.10, 'From project/: Path("data") / "rooms.csv"', ha="center", family="monospace", color=DARK)
@@ -729,15 +771,15 @@ def generate_data_spectrum() -> None:
     ]
     xs = [0.03, 0.36, 0.69]
     for x, (title, carrier, examples, work) in zip(xs, classes):
-        rounded_box(ax, (x, 0.44), 0.28, 0.30, title, DARK, subtitle=carrier)
+        rounded_box(ax, (x, 0.44), 0.28, 0.30, title, subtitle=carrier)
         ax.text(x + 0.14, 0.35, examples, ha="center", va="top", fontsize=8.5, color="#52647C")
         ax.text(x + 0.14, 0.17, work, ha="center", va="top", fontsize=8.5,
                 color=DARK, weight="bold")
 
     ax.annotate("", xy=(0.97, 0.83), xytext=(0.03, 0.83),
-                arrowprops=dict(arrowstyle="-|>", linewidth=1.6, color=ORANGE))
+                arrowprops=dict(arrowstyle="-|>", linewidth=1.4, color=INK))
     ax.text(0.5, 0.865, "more of the structuring work falls on you",
-            ha="center", fontsize=9, weight="bold", color=ORANGE)
+            ha="center", fontsize=9, weight="bold", color=DARK)
     ax.text(0.5, 0.045,
             '"Unstructured" does not mean without structure. It means the structure is not in the file, so you must impose it.',
             ha="center", fontsize=9.5, color="#52647C")
@@ -760,17 +802,17 @@ def generate_handling_paths() -> None:
         (0.24, "Extract features", "keyword flags,\nimage descriptors"),
     ]
     for (y, title, subtitle), (_, op_title, op_subtitle) in zip(sources, operations):
-        rounded_box(ax, (0.02, y - 0.085), 0.24, 0.17, title, DARK, fontsize=10,
+        rounded_box(ax, (0.02, y - 0.085), 0.24, 0.17, title, fontsize=10,
                     subtitle=subtitle)
-        rounded_box(ax, (0.34, y - 0.085), 0.24, 0.17, op_title, DARK, fontsize=10,
+        rounded_box(ax, (0.34, y - 0.085), 0.24, 0.17, op_title, fontsize=10,
                     subtitle=op_subtitle)
         arrow(ax, (0.265, y), (0.335, y))
-        arrow(ax, (0.585, y), (0.70, 0.50))
+        arrow(ax, (0.59, y), (0.685, 0.50))
 
-    rounded_box(ax, (0.70, 0.385), 0.28, 0.23, "One feature table", ORANGE,
-                subtitle="rows = samples\ncolumns = features")
-    ax.text(0.84, 0.31, "the X matrix Chapters 19 to 22 require",
-            ha="center", fontsize=8.5, color=ORANGE, weight="bold")
+    rounded_box(ax, (0.70, 0.385), 0.28, 0.23, "One feature table",
+                subtitle="rows = samples\ncolumns = features", fill=True)
+    ax.text(0.84, 0.31, "the X matrix that Chapters 19 to 22 require",
+            ha="center", fontsize=8.5, color=DARK, weight="bold")
     ax.text(0.5, 0.04,
             "Every path ends in the same shape. What differs is how much work it takes to get there.",
             ha="center", fontsize=9.5, color="#52647C")
@@ -878,9 +920,9 @@ def generate_image_to_features() -> None:
 def generate_geodataframe_model() -> None:
     fig, ax = blank_canvas(10.8, 4.2)
     ax.text(0.5, 0.93, "A GeoDataFrame adds spatial meaning to a table", ha="center", fontsize=16, weight="bold", color=DARK)
-    rounded_box(ax, (0.05, 0.38), 0.24, 0.30, "Attribute columns", DARK, subtitle="name, category, capacity")
-    rounded_box(ax, (0.38, 0.38), 0.24, 0.30, "Geometry column", ORANGE, subtitle="Point, LineString, Polygon")
-    rounded_box(ax, (0.71, 0.38), 0.24, 0.30, "CRS", DARK, subtitle="how coordinates map to Earth")
+    rounded_box(ax, (0.05, 0.38), 0.24, 0.30, "Attribute columns", subtitle="name, category, capacity")
+    rounded_box(ax, (0.38, 0.38), 0.24, 0.30, "Geometry column", subtitle="Point, LineString, Polygon", fill=True)
+    rounded_box(ax, (0.71, 0.38), 0.24, 0.30, "CRS", subtitle="how coordinates map to Earth")
     arrow(ax, (0.29, 0.53), (0.38, 0.53))
     arrow(ax, (0.62, 0.53), (0.71, 0.53))
     ax.text(0.5, 0.17, "The highlighted geometry column adds spatial methods; ordinary pandas operations still work on the rest of the table.", ha="center", color="#52647C")
@@ -985,17 +1027,17 @@ def generate_optimization_model() -> None:
     fig, ax = blank_canvas(11, 4.2)
     ax.text(0.5, 0.94, "An optimization model connects a decision to a verifiable recommendation", ha="center", fontsize=15, weight="bold", color=DARK)
     steps = [
-        ("Decision variable", "window ratio r", DARK),
-        ("Objective", "energy + penalties", DARK),
-        ("Feasible bounds", "0.10 <= r <= 0.70", DARK),
-        ("Search algorithm", "evaluate candidate values", DARK),
-        ("Verified result", "best r and sensitivity", DARK),
+        ("Variable", "window ratio r"),
+        ("Objective", "energy + penalties"),
+        ("Bounds", "0.10 <= r <= 0.70"),
+        ("Search", "try candidate values"),
+        ("Verified result", "best r and sensitivity"),
     ]
     xs = np.linspace(0.02, 0.81, len(steps))
-    for x, (title, subtitle, color) in zip(xs, steps):
-        rounded_box(ax, (x, 0.40), 0.17, 0.28, title, color, subtitle=subtitle)
+    for x, (title, subtitle) in zip(xs, steps):
+        rounded_box(ax, (x, 0.40), 0.15, 0.28, title, subtitle=subtitle)
     for left, right in zip(xs[:-1], xs[1:]):
-        arrow(ax, (left + 0.17, 0.54), (right, 0.54))
+        arrow(ax, (left + 0.15, 0.54), (right, 0.54))
     ax.text(0.5, 0.15, "A solver optimizes the model you wrote; it cannot repair an unrealistic objective or missing constraint.", ha="center", color="#52647C")
     save(fig, "ch18_optimization_model")
 
@@ -1034,17 +1076,17 @@ def generate_ml_workflow() -> None:
     fig, ax = blank_canvas(11, 4.3)
     ax.text(0.5, 0.94, "A defensible machine-learning workflow protects the final test", ha="center", fontsize=15, weight="bold", color=DARK)
     steps = [
-        ("Define question", "features X, target y", DARK),
-        ("Split once", "training and test data", DARK),
-        ("Fit on training", "learn parameters", DARK),
-        ("Predict test", "unseen examples", DARK),
-        ("Evaluate", "baseline + metrics", DARK),
+        ("Define goal", "features X, target y"),
+        ("Split once", "training and test data"),
+        ("Fit on training", "learn parameters"),
+        ("Predict test", "unseen examples"),
+        ("Evaluate", "baseline + metrics"),
     ]
     xs = np.linspace(0.02, 0.81, len(steps))
-    for x, (title, subtitle, color) in zip(xs, steps):
-        rounded_box(ax, (x, 0.43), 0.17, 0.27, title, color, subtitle=subtitle)
+    for x, (title, subtitle) in zip(xs, steps):
+        rounded_box(ax, (x, 0.43), 0.15, 0.27, title, subtitle=subtitle)
     for left, right in zip(xs[:-1], xs[1:]):
-        arrow(ax, (left + 0.17, 0.565), (right, 0.565))
+        arrow(ax, (left + 0.15, 0.565), (right, 0.565))
     ax.text(0.5, 0.18, "Do not use test outcomes to choose features, clean data, or tune the model; that leaks answers into evaluation.", ha="center", color="#52647C")
     save(fig, "ch19_ml_workflow")
 
@@ -1279,17 +1321,17 @@ def generate_search_method_map() -> None:
         weight="bold",
         color=DARK,
     )
-    rounded_box(ax, (0.03, 0.52), 0.27, 0.30, "Smooth and single-valley", DARK,
+    rounded_box(ax, (0.03, 0.52), 0.27, 0.30, "Smooth and single-valley",
                 subtitle="use gradient descent or L-BFGS-B")
-    rounded_box(ax, (0.36, 0.52), 0.27, 0.30, "Rugged or many valleys", DARK,
+    rounded_box(ax, (0.36, 0.52), 0.27, 0.30, "Rugged or many valleys",
                 subtitle="use a population or annealing search")
-    rounded_box(ax, (0.69, 0.52), 0.28, 0.30, "Noisy or non-numeric", DARK,
+    rounded_box(ax, (0.69, 0.52), 0.28, 0.30, "Noisy or non-numeric",
                 subtitle="use a derivative-free metaheuristic")
-    rounded_box(ax, (0.03, 0.10), 0.27, 0.27, "Cheap gradient", DARK,
+    rounded_box(ax, (0.03, 0.10), 0.27, 0.27, "Cheap gradient",
                 subtitle="few evaluations, fast convergence")
-    rounded_box(ax, (0.36, 0.10), 0.27, 0.27, "Many evaluations", DARK,
-                subtitle="budget and random seed must be reported")
-    rounded_box(ax, (0.69, 0.10), 0.28, 0.27, "Always benchmark", DARK,
+    rounded_box(ax, (0.36, 0.10), 0.27, 0.27, "Many evaluations",
+                subtitle="report budget and seed")
+    rounded_box(ax, (0.69, 0.10), 0.28, 0.27, "Always benchmark",
                 subtitle="random search is the honest baseline")
     for x in (0.165, 0.495, 0.83):
         arrow(ax, (x, 0.52), (x, 0.38))
@@ -1459,17 +1501,17 @@ def generate_classification_workflow() -> None:
         color=DARK,
     )
     steps = [
-        ("Split once", "stratified train and test", DARK),
-        ("Cross-validate", "compare candidates on folds", DARK),
-        ("Tune", "search hyperparameters", DARK),
-        ("Refit", "best settings on all training rows", DARK),
-        ("Report once", "test metrics and threshold", DARK),
+        ("Split once", "stratified split"),
+        ("Cross-validate", "compare on folds"),
+        ("Tune", "search settings"),
+        ("Refit", "refit best model"),
+        ("Report once", "metrics, threshold"),
     ]
     xs = np.linspace(0.02, 0.81, len(steps))
-    for x, (title, subtitle, color) in zip(xs, steps):
-        rounded_box(ax, (x, 0.45), 0.17, 0.28, title, color, fontsize=10.5, subtitle=subtitle)
+    for x, (title, subtitle) in zip(xs, steps):
+        rounded_box(ax, (x, 0.45), 0.15, 0.28, title, fontsize=10.5, subtitle=subtitle)
     for left, right in zip(xs[:-1], xs[1:]):
-        arrow(ax, (left + 0.17, 0.59), (right, 0.59))
+        arrow(ax, (left + 0.15, 0.59), (right, 0.59))
     ax.text(0.5, 0.28, "Every comparison you make on the test set spends part of its independence.",
             ha="center", color="#52647C")
     ax.text(0.5, 0.14,
@@ -1685,12 +1727,12 @@ def generate_neuron_anatomy() -> None:
         ("months since service", 0.30),
     ]
     for label, height in inputs:
-        rounded_box(ax, (0.01, height - 0.055), 0.19, 0.11, label, DARK, fontsize=9)
-    rounded_box(ax, (0.34, 0.40), 0.20, 0.24, "Weighted sum", DARK,
+        rounded_box(ax, (0.025, height - 0.055), 0.185, 0.11, label, fontsize=9)
+    rounded_box(ax, (0.34, 0.40), 0.20, 0.24, "Weighted sum",
                 subtitle="w1x1 + w2x2 + w3x3 + b")
-    rounded_box(ax, (0.61, 0.40), 0.16, 0.24, "Activation", ORANGE,
-                subtitle="tanh, ReLU, sigmoid")
-    rounded_box(ax, (0.84, 0.40), 0.14, 0.24, "Output", DARK, subtitle="to the next layer")
+    rounded_box(ax, (0.61, 0.40), 0.16, 0.24, "Activation",
+                subtitle="tanh, ReLU, sigmoid", fill=True)
+    rounded_box(ax, (0.84, 0.40), 0.14, 0.24, "Output", subtitle="to the next layer")
     for _, height in inputs:
         arrow(ax, (0.21, height), (0.325, 0.52))
     arrow(ax, (0.555, 0.52), (0.60, 0.52))
