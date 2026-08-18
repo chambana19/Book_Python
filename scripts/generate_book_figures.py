@@ -932,6 +932,329 @@ def generate_ml_diagnostics() -> None:
     save(fig, "ch18_regression_diagnostics")
 
 
+FACADE_BOUNDS = [(0.10, 0.70), (0.00, 1.20)]
+FACADE_LOWS = np.array([low for low, _ in FACADE_BOUNDS])
+FACADE_HIGHS = np.array([high for _, high in FACADE_BOUNDS])
+FACADE_SPANS = FACADE_HIGHS - FACADE_LOWS
+
+
+def facade_cost(decisions) -> float:
+    """Smooth two-variable teaching objective; lower modeled cost is better."""
+    window_ratio, shading_depth_m = decisions
+    energy = (
+        90
+        + 180 * (window_ratio - 0.22) ** 2
+        + 60 * (shading_depth_m - 0.45) ** 2
+        - 70 * window_ratio * shading_depth_m
+    )
+    daylight_penalty = 500 * max(0.0, 0.25 - window_ratio) ** 2
+    shading_cost = 40 * shading_depth_m**2
+    return energy + daylight_penalty + shading_cost
+
+
+def facade_gradient(decisions) -> np.ndarray:
+    """Analytic partial derivatives of ``facade_cost``."""
+    window_ratio, shading_depth_m = decisions
+    d_ratio = (
+        360 * (window_ratio - 0.22)
+        - 70 * shading_depth_m
+        - 1000 * max(0.0, 0.25 - window_ratio)
+    )
+    d_depth = 120 * (shading_depth_m - 0.45) - 70 * window_ratio + 80 * shading_depth_m
+    return np.array([d_ratio, d_depth])
+
+
+def rugged_facade_cost(decisions) -> float:
+    """Add a manufacturing-increment ripple that creates many local minima."""
+    window_ratio, shading_depth_m = decisions
+    ripple = 6.0 * np.sin(12 * np.pi * window_ratio) * np.sin(8 * np.pi * shading_depth_m)
+    return facade_cost(decisions) + ripple
+
+
+def facade_surface(ratios: np.ndarray, depths: np.ndarray, rugged: bool = False) -> np.ndarray:
+    """Vectorized objective used for contour plots."""
+    smooth = (
+        90
+        + 180 * (ratios - 0.22) ** 2
+        + 60 * (depths - 0.45) ** 2
+        - 70 * ratios * depths
+        + 500 * np.maximum(0.0, 0.25 - ratios) ** 2
+        + 40 * depths**2
+    )
+    if not rugged:
+        return smooth
+    return smooth + 6.0 * np.sin(12 * np.pi * ratios) * np.sin(8 * np.pi * depths)
+
+
+def projected_gradient_descent(cost, gradient_of, start, learning_rate,
+                               iterations=400, tolerance=1e-6):
+    """Fixed-step descent that clips every step back into the feasible box."""
+    point = np.clip(np.array(start, dtype=float), FACADE_LOWS, FACADE_HIGHS)
+    path = [point.copy()]
+    values = [cost(point)]
+    for _ in range(iterations):
+        moved = np.clip(point - learning_rate * gradient_of(point), FACADE_LOWS, FACADE_HIGHS)
+        path.append(moved.copy())
+        values.append(cost(moved))
+        step_size = np.linalg.norm(moved - point)
+        point = moved
+        if step_size < tolerance:
+            break
+    return point, np.array(path), np.array(values)
+
+
+def facade_random_search(cost, seed=7, evaluations=4000):
+    rng = np.random.default_rng(seed)
+    best, best_cost, history = None, np.inf, []
+    for _ in range(evaluations):
+        candidate = FACADE_LOWS + rng.random(2) * FACADE_SPANS
+        value = cost(candidate)
+        if value < best_cost:
+            best, best_cost = candidate, value
+        history.append(best_cost)
+    return best, best_cost, np.array(history)
+
+
+def facade_annealing(cost, seed=7, evaluations=4000, start_temperature=20.0,
+                     cooling=0.999, step_fraction=0.12):
+    rng = np.random.default_rng(seed)
+    current = FACADE_LOWS + rng.random(2) * FACADE_SPANS
+    current_cost = cost(current)
+    best, best_cost = current.copy(), current_cost
+    history = [best_cost]
+    temperature = start_temperature
+    for _ in range(evaluations - 1):
+        candidate = np.clip(
+            current + rng.normal(0, step_fraction * FACADE_SPANS),
+            FACADE_LOWS,
+            FACADE_HIGHS,
+        )
+        candidate_cost = cost(candidate)
+        change = candidate_cost - current_cost
+        if change <= 0 or rng.random() < np.exp(-change / temperature):
+            current, current_cost = candidate, candidate_cost
+            if current_cost < best_cost:
+                best, best_cost = current.copy(), current_cost
+        temperature *= cooling
+        history.append(best_cost)
+    return best, best_cost, np.array(history)
+
+
+def facade_genetic(cost, seed=7, population_size=40, generations=100,
+                   mutation_probability=0.25, mutation_fraction=0.08, elite_count=2):
+    rng = np.random.default_rng(seed)
+
+    def tournament(population, scores):
+        contenders = rng.choice(len(population), 3, replace=False)
+        return population[contenders[scores[contenders].argmin()]]
+
+    population = FACADE_LOWS + rng.random((population_size, 2)) * FACADE_SPANS
+    scores = np.array([cost(row) for row in population])
+    history = list(np.minimum.accumulate(scores))
+    for _ in range(generations - 1):
+        order = scores.argsort()
+        population, scores = population[order], scores[order]
+        children = [population[index].copy() for index in range(elite_count)]
+        while len(children) < population_size:
+            parent_a = tournament(population, scores)
+            parent_b = tournament(population, scores)
+            weight = rng.random()
+            child = weight * parent_a + (1 - weight) * parent_b
+            if rng.random() < mutation_probability:
+                child = child + rng.normal(0, mutation_fraction * FACADE_SPANS)
+            children.append(np.clip(child, FACADE_LOWS, FACADE_HIGHS))
+        population = np.array(children)
+        scores = np.array([cost(row) for row in population])
+        history.extend(np.minimum(np.minimum.accumulate(scores), history[-1]))
+    best_index = scores.argmin()
+    return population[best_index], scores[best_index], np.array(history)
+
+
+def facade_swarm(cost, seed=7, particle_count=30, iterations=134,
+                 inertia=0.72, cognitive=1.5, social=1.5):
+    rng = np.random.default_rng(seed)
+    positions = FACADE_LOWS + rng.random((particle_count, 2)) * FACADE_SPANS
+    velocities = rng.normal(0, 0.08, (particle_count, 2)) * FACADE_SPANS
+    personal_best = positions.copy()
+    personal_cost = np.array([cost(row) for row in positions])
+    global_index = personal_cost.argmin()
+    global_best = personal_best[global_index].copy()
+    global_cost = personal_cost[global_index]
+    history = list(np.minimum.accumulate(personal_cost))
+    for _ in range(iterations - 1):
+        toward_personal = rng.random((particle_count, 2))
+        toward_global = rng.random((particle_count, 2))
+        velocities = (
+            inertia * velocities
+            + cognitive * toward_personal * (personal_best - positions)
+            + social * toward_global * (global_best - positions)
+        )
+        positions = np.clip(positions + velocities, FACADE_LOWS, FACADE_HIGHS)
+        scores = np.array([cost(row) for row in positions])
+        improved = scores < personal_cost
+        personal_best[improved] = positions[improved]
+        personal_cost[improved] = scores[improved]
+        if personal_cost.min() < global_cost:
+            global_index = personal_cost.argmin()
+            global_best = personal_best[global_index].copy()
+            global_cost = personal_cost[global_index]
+        history.extend(np.minimum(np.minimum.accumulate(scores), history[-1]))
+    return global_best, global_cost, np.array(history)
+
+
+def generate_search_method_map() -> None:
+    fig, ax = blank_canvas(11, 4.6)
+    ax.text(
+        0.5,
+        0.95,
+        "The landscape, not the language, decides which search method fits",
+        ha="center",
+        fontsize=15,
+        weight="bold",
+        color=DARK,
+    )
+    rounded_box(ax, (0.03, 0.52), 0.27, 0.30, "Smooth and single-valley", BLUE,
+                subtitle="use gradient descent or L-BFGS-B")
+    rounded_box(ax, (0.36, 0.52), 0.27, 0.30, "Rugged or many valleys", ORANGE,
+                subtitle="use a population or annealing search")
+    rounded_box(ax, (0.69, 0.52), 0.28, 0.30, "Noisy or non-numeric", ORANGE,
+                subtitle="use a derivative-free metaheuristic")
+    rounded_box(ax, (0.03, 0.10), 0.27, 0.27, "Cheap gradient", BLUE,
+                subtitle="few evaluations, fast convergence")
+    rounded_box(ax, (0.36, 0.10), 0.27, 0.27, "Many evaluations", ORANGE,
+                subtitle="budget and random seed must be reported")
+    rounded_box(ax, (0.69, 0.10), 0.28, 0.27, "Always benchmark", DARK,
+                subtitle="random search is the honest baseline")
+    for x in (0.165, 0.495, 0.83):
+        arrow(ax, (x, 0.52), (x, 0.38))
+    save(fig, "ch19_search_methods")
+
+
+def generate_gradient_descent_figure() -> None:
+    ratios = np.linspace(0.10, 0.70, 320)
+    depths = np.linspace(0.00, 1.20, 320)
+    mesh_ratio, mesh_depth = np.meshgrid(ratios, depths)
+    surface = facade_surface(mesh_ratio, mesh_depth)
+
+    start = [0.65, 0.60]
+    _, path, _ = projected_gradient_descent(facade_cost, facade_gradient, start, 0.0025)
+
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.9), layout="constrained")
+    fig.suptitle(
+        "Gradient descent follows the downhill direction of a smooth objective",
+        fontsize=15,
+        weight="bold",
+        color=DARK,
+    )
+    contours = axes[0].contour(mesh_ratio, mesh_depth, surface, levels=18, colors="0.72", linewidths=0.8)
+    axes[0].clabel(contours, inline=True, fontsize=6, fmt="%.0f")
+    axes[0].plot(path[:, 0], path[:, 1], color=BLUE, marker="o", markersize=3.4,
+                 linewidth=1.6, label="Descent path (rate 0.0025)")
+    axes[0].scatter(*start, marker="X", s=110, color=ORANGE, edgecolor="black",
+                    zorder=5, label="Start (0.65, 0.60)")
+    axes[0].scatter(path[-1, 0], path[-1, 1], marker="*", s=190, color=GREEN,
+                    edgecolor="black", zorder=5, label="Converged (0.292, 0.372)")
+    axes[0].set(title="Search path on the cost contours",
+                xlabel="Window-to-wall ratio", ylabel="Shading depth (m)")
+    axes[0].legend(fontsize=7.5, loc="upper left")
+    chart_finish(axes[0])
+
+    styles = ((0.0005, "0.35", ":", "Rate 0.0005: stable but slow"),
+              (0.0025, BLUE, "-", "Rate 0.0025: converges in 22 steps"),
+              (0.0060, ORANGE, "--", "Rate 0.0060: overshoots and fails"))
+    for rate, color, linestyle, label in styles:
+        _, _, values = projected_gradient_descent(facade_cost, facade_gradient, start, rate)
+        axes[1].plot(np.arange(len(values)), values, color=color, linestyle=linestyle,
+                     linewidth=1.9, label=label)
+    axes[1].axhline(89.23, color=GREEN, linewidth=1.2, linestyle="-.",
+                    label="Best known cost 89.23")
+    axes[1].set(title="The learning rate decides whether descent works",
+                xlabel="Iteration", ylabel="Modeled cost (lower is better)",
+                xlim=(0, 130), ylim=(85, 135))
+    axes[1].grid(alpha=0.2)
+    axes[1].legend(fontsize=7.5)
+    chart_finish(axes[1])
+    save(fig, "ch19_gradient_descent")
+
+
+def generate_metaheuristic_comparison() -> None:
+    ratios = np.linspace(0.10, 0.70, 420)
+    depths = np.linspace(0.00, 1.20, 420)
+    mesh_ratio, mesh_depth = np.meshgrid(ratios, depths)
+    surface = facade_surface(mesh_ratio, mesh_depth, rugged=True)
+
+    start = [0.65, 0.60]
+    local_point, _, local_values = projected_gradient_descent(
+        rugged_facade_cost,
+        lambda candidate: np.array(
+            [
+                (
+                    rugged_facade_cost(candidate + offset)
+                    - rugged_facade_cost(candidate - offset)
+                )
+                / 2e-5
+                for offset in (np.array([1e-5, 0.0]), np.array([0.0, 1e-5]))
+            ]
+        ),
+        start,
+        0.0025,
+    )
+
+    runs = (
+        ("Random search", facade_random_search, "0.35", ":"),
+        ("Simulated annealing", facade_annealing, ORANGE, "--"),
+        ("Genetic algorithm", facade_genetic, BLUE, "-"),
+        ("Particle swarm", facade_swarm, GREEN, "-."),
+    )
+    results = {name: runner(rugged_facade_cost) for name, runner, _, _ in runs}
+    swarm_best = results["Particle swarm"][0]
+
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.9), layout="constrained")
+    fig.suptitle(
+        "On a rugged landscape a local method stops early while global searches keep exploring",
+        fontsize=14,
+        weight="bold",
+        color=DARK,
+    )
+    filled = axes[0].contourf(mesh_ratio, mesh_depth, surface, levels=28, cmap="Blues_r", alpha=0.85)
+    fig.colorbar(filled, ax=axes[0], label="Modeled cost")
+    axes[0].scatter(*start, marker="X", s=110, color=ORANGE, edgecolor="black",
+                    zorder=5, label="Start (0.65, 0.60)")
+    axes[0].scatter(local_point[0], local_point[1], marker="s", s=90, color=ORANGE,
+                    edgecolor="black", zorder=5,
+                    label=f"Gradient descent stops: {local_values[-1]:.1f}")
+    axes[0].scatter(swarm_best[0], swarm_best[1], marker="*", s=210, color=GREEN,
+                    edgecolor="black", zorder=6,
+                    label=f"Swarm best: {results['Particle swarm'][1]:.1f}")
+    axes[0].set(title="Many local minima on the same feasible box",
+                xlabel="Window-to-wall ratio", ylabel="Shading depth (m)")
+    axes[0].legend(fontsize=7.5, loc="upper left")
+    chart_finish(axes[0])
+
+    for name, _, color, linestyle in runs:
+        history = results[name][2]
+        axes[1].plot(np.arange(1, len(history) + 1), history, color=color,
+                     linestyle=linestyle, linewidth=1.8,
+                     label=f"{name}: {results[name][1]:.2f}")
+    axes[1].axhline(83.57, color="0.25", linewidth=1.1, linestyle=(0, (1, 3)),
+                    label="Best known cost 83.57")
+    axes[1].annotate(
+        f"Gradient descent from the same start\nstops at {local_values[-1]:.2f}, above this panel",
+        xy=(0.03, 0.93),
+        xycoords="axes fraction",
+        fontsize=8,
+        color="#B03A2E",
+        va="top",
+    )
+    axes[1].set(title="Best cost found per evaluation budget",
+                xlabel="Objective evaluations (log scale)", ylabel="Best cost so far",
+                xscale="log", ylim=(83.4, 92))
+    axes[1].grid(alpha=0.2, which="both")
+    axes[1].legend(fontsize=7.5, loc="upper right")
+    chart_finish(axes[1])
+    save(fig, "ch19_metaheuristic_search")
+
+
 def main() -> None:
     generate_workflow_diagram()
     generate_program_pipeline()
@@ -962,6 +1285,9 @@ def main() -> None:
     generate_optimization_application()
     generate_ml_workflow()
     generate_ml_diagnostics()
+    generate_search_method_map()
+    generate_gradient_descent_figure()
+    generate_metaheuristic_comparison()
     print(f"Generated teaching figures in {OUTPUT}")
 
 
