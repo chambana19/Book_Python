@@ -1450,6 +1450,298 @@ def generate_threshold_figure() -> None:
     save(fig, "ch20_threshold_tradeoff")
 
 
+def sigmoid(values: np.ndarray) -> np.ndarray:
+    return 1 / (1 + np.exp(-values))
+
+
+def initialize_network(input_count: int, hidden_count: int, seed: int = 0) -> dict:
+    rng = np.random.default_rng(seed)
+    return {
+        "W1": rng.normal(0, np.sqrt(1 / input_count), (input_count, hidden_count)),
+        "b1": np.zeros(hidden_count),
+        "W2": rng.normal(0, np.sqrt(1 / hidden_count), (hidden_count, 1)),
+        "b2": np.zeros(1),
+    }
+
+
+def forward_pass(parameters: dict, features: np.ndarray):
+    hidden_output = np.tanh(features @ parameters["W1"] + parameters["b1"])
+    output = hidden_output @ parameters["W2"] + parameters["b2"]
+    return hidden_output, sigmoid(output).ravel()
+
+
+def cross_entropy(probabilities: np.ndarray, targets: np.ndarray) -> float:
+    safe = np.clip(probabilities, 1e-12, 1 - 1e-12)
+    return float(-np.mean(targets * np.log(safe) + (1 - targets) * np.log(1 - safe)))
+
+
+def backward_pass(parameters, features, targets, hidden_output, probabilities) -> dict:
+    sample_count = features.shape[0]
+    output_delta = ((probabilities - targets) / sample_count).reshape(-1, 1)
+    hidden_delta = (output_delta @ parameters["W2"].T) * (1 - hidden_output**2)
+    return {
+        "W1": features.T @ hidden_delta,
+        "b1": hidden_delta.sum(axis=0),
+        "W2": hidden_output.T @ output_delta,
+        "b2": output_delta.sum(axis=0),
+    }
+
+
+def train_network(features, targets, hidden_count=8, learning_rate=0.5, epochs=400,
+                  seed=0, validation_features=None, validation_targets=None):
+    parameters = initialize_network(features.shape[1], hidden_count, seed)
+    history = []
+    for _ in range(epochs):
+        hidden_output, probabilities = forward_pass(parameters, features)
+        gradients = backward_pass(
+            parameters, features, targets, hidden_output, probabilities
+        )
+        for key in parameters:
+            parameters[key] -= learning_rate * gradients[key]
+        row = [cross_entropy(probabilities, targets)]
+        if validation_features is not None:
+            row.append(
+                cross_entropy(
+                    forward_pass(parameters, validation_features)[1], validation_targets
+                )
+            )
+        history.append(row)
+    return parameters, np.array(history)
+
+
+def generate_neuron_anatomy() -> None:
+    fig, ax = blank_canvas(11, 4.6)
+    ax.text(0.5, 0.95, "One neuron is a weighted sum followed by an activation",
+            ha="center", fontsize=15, weight="bold", color=DARK)
+    inputs = [
+        ("setpoint deviation", 0.74),
+        ("occupant density", 0.52),
+        ("months since service", 0.30),
+    ]
+    for label, height in inputs:
+        rounded_box(ax, (0.01, height - 0.055), 0.19, 0.11, label, BLUE, fontsize=9)
+    rounded_box(ax, (0.34, 0.40), 0.20, 0.24, "Weighted sum", ORANGE,
+                subtitle="w1x1 + w2x2 + w3x3 + b")
+    rounded_box(ax, (0.61, 0.40), 0.16, 0.24, "Activation", ORANGE,
+                subtitle="tanh, ReLU, sigmoid")
+    rounded_box(ax, (0.84, 0.40), 0.14, 0.24, "Output", BLUE, subtitle="to the next layer")
+    for _, height in inputs:
+        arrow(ax, (0.21, height), (0.325, 0.52))
+    arrow(ax, (0.555, 0.52), (0.60, 0.52))
+    arrow(ax, (0.785, 0.52), (0.83, 0.52))
+    ax.text(0.27, 0.82, "each input carries\nits own weight", ha="center",
+            fontsize=8.5, color="#52647C")
+    ax.text(0.5, 0.16,
+            "Without the activation the whole network collapses into a single weighted sum,",
+            ha="center", color="#52647C")
+    ax.text(0.5, 0.07,
+            "so a stack of linear layers can express nothing that one linear layer cannot.",
+            ha="center", color="#52647C")
+    save(fig, "ch21_neuron_anatomy")
+
+
+def generate_activation_functions() -> None:
+    grid = np.linspace(-6, 6, 601)
+    logistic = sigmoid(grid)
+    hyperbolic = np.tanh(grid)
+    rectified = np.maximum(0.0, grid)
+
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.5), layout="constrained")
+    fig.suptitle(
+        "An activation adds the curvature; its slope decides whether learning continues",
+        fontsize=14.5, weight="bold", color=DARK,
+    )
+    for label, values, color, linestyle in (
+        ("Sigmoid", logistic, ORANGE, "--"),
+        ("Tanh", hyperbolic, BLUE, "-"),
+        ("ReLU", rectified, GREEN, "-."),
+    ):
+        axes[0].plot(grid, values, color=color, linestyle=linestyle, linewidth=2.0, label=label)
+    axes[0].axhline(0, color="0.7", linewidth=0.8)
+    axes[0].axvline(0, color="0.7", linewidth=0.8)
+    axes[0].set(title="Activation functions", xlabel="Weighted sum reaching the neuron",
+                ylabel="Neuron output", ylim=(-1.4, 3.0))
+    axes[0].grid(alpha=0.2)
+    axes[0].legend(fontsize=8.5)
+    chart_finish(axes[0])
+
+    for label, values, color, linestyle in (
+        ("Sigmoid slope", logistic * (1 - logistic), ORANGE, "--"),
+        ("Tanh slope", 1 - hyperbolic**2, BLUE, "-"),
+        ("ReLU slope", (grid > 0).astype(float), GREEN, "-."),
+    ):
+        axes[1].plot(grid, values, color=color, linestyle=linestyle, linewidth=2.0, label=label)
+    axes[1].axvspan(-6, -3, color="0.85", alpha=0.5)
+    axes[1].axvspan(3, 6, color="0.85", alpha=0.5)
+    axes[1].text(-3.5, 0.62, "shaded: saturated region,\nslope near zero, learning stalls",
+                 ha="center", fontsize=8.5, color="#52647C")
+    axes[1].set(title="Slope of each activation", xlabel="Weighted sum reaching the neuron",
+                ylabel="Derivative", ylim=(-0.05, 1.15))
+    axes[1].grid(alpha=0.2)
+    axes[1].legend(fontsize=8.5, loc="upper left")
+    chart_finish(axes[1])
+    save(fig, "ch21_activations")
+
+
+def generate_network_training() -> None:
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import train_test_split
+    from sklearn.neural_network import MLPClassifier
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    features, target = make_comfort_complaint_data()
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, target, test_size=0.25, random_state=42, stratify=target
+    )
+    scaler = StandardScaler().fit(X_train)
+    scaled_train = scaler.transform(X_train)
+    scaled_test = scaler.transform(X_test)
+    _, history = train_network(
+        scaled_train,
+        y_train.to_numpy().astype(float),
+        hidden_count=8,
+        learning_rate=0.5,
+        epochs=400,
+        seed=0,
+        validation_features=scaled_test,
+        validation_targets=y_test.to_numpy().astype(float),
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.7), layout="constrained")
+    fig.suptitle(
+        "Training drives the loss down; the hidden layer buys a curved decision boundary",
+        fontsize=14.5, weight="bold", color=DARK,
+    )
+    epochs = np.arange(1, len(history) + 1)
+    axes[0].plot(epochs, history[:, 0], color=BLUE, linestyle="-", linewidth=2.0,
+                 label=f"Training loss: {history[-1, 0]:.3f}")
+    axes[0].plot(epochs, history[:, 1], color=ORANGE, linestyle="--", linewidth=2.0,
+                 label=f"Held-out loss: {history[-1, 1]:.3f}")
+    axes[0].set(title="Binary cross-entropy during 400 full-batch epochs",
+                xlabel="Epoch", ylabel="Mean cross-entropy loss")
+    axes[0].grid(alpha=0.2)
+    axes[0].legend(fontsize=8.5)
+    chart_finish(axes[0])
+
+    pair = ["setpoint_deviation_c", "occupant_density"]
+    pair_train = X_train[pair]
+    linear = Pipeline([
+        ("scale", StandardScaler()),
+        ("model", LogisticRegression(max_iter=1000)),
+    ]).fit(pair_train, y_train)
+    network = Pipeline([
+        ("scale", StandardScaler()),
+        ("model", MLPClassifier(hidden_layer_sizes=(16,), alpha=1e-3,
+                                max_iter=4000, random_state=42)),
+    ]).fit(pair_train, y_train)
+
+    deviation = np.linspace(-8, 8, 260)
+    density = np.linspace(0.02, 0.16, 260)
+    mesh_deviation, mesh_density = np.meshgrid(deviation, density)
+    grid_frame = pd.DataFrame(
+        {pair[0]: mesh_deviation.ravel(), pair[1]: mesh_density.ravel()}
+    )
+    surface = network.predict_proba(grid_frame)[:, 1].reshape(mesh_deviation.shape)
+    linear_surface = linear.predict_proba(grid_frame)[:, 1].reshape(mesh_deviation.shape)
+
+    filled = axes[1].contourf(mesh_deviation, mesh_density, surface, levels=20,
+                              cmap="Blues", alpha=0.75)
+    fig.colorbar(filled, ax=axes[1], label="Network complaint probability")
+    axes[1].contour(mesh_deviation, mesh_density, surface, levels=[0.5],
+                    colors=[BLUE], linewidths=2.2)
+    axes[1].contour(mesh_deviation, mesh_density, linear_surface, levels=[0.5],
+                    colors=[ORANGE], linewidths=2.2, linestyles="--")
+    axes[1].scatter(pair_train[pair[0]][y_train == 0], pair_train[pair[1]][y_train == 0],
+                    s=9, color="0.35", marker="o", alpha=0.55, label="No complaint")
+    axes[1].scatter(pair_train[pair[0]][y_train == 1], pair_train[pair[1]][y_train == 1],
+                    s=13, color=ORANGE, marker="^", edgecolor="black", linewidth=0.3,
+                    alpha=0.9, label="Complaint")
+    axes[1].plot([], [], color=BLUE, linewidth=2.2, label="Network boundary (0.50)")
+    axes[1].plot([], [], color=ORANGE, linewidth=2.2, linestyle="--",
+                 label="Logistic boundary (0.50)")
+    axes[1].set(title="Two features, two decision boundaries",
+                xlabel="Setpoint deviation (C)", ylabel="Occupant density")
+    axes[1].legend(fontsize=7, loc="upper center", ncol=2, framealpha=0.92)
+    chart_finish(axes[1])
+    save(fig, "ch21_network_training")
+
+
+def generate_network_capacity() -> None:
+    from sklearn.model_selection import (
+        StratifiedKFold,
+        learning_curve,
+        train_test_split,
+        validation_curve,
+    )
+    from sklearn.neural_network import MLPClassifier
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    features, target = make_comfort_complaint_data()
+    X_train, _, y_train, _ = train_test_split(
+        features, target, test_size=0.25, random_state=42, stratify=target
+    )
+    folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    estimator = Pipeline([
+        ("scale", StandardScaler()),
+        ("model", MLPClassifier(alpha=1e-3, max_iter=2000, random_state=42)),
+    ])
+
+    widths = [(2,), (4,), (8,), (16,), (32,), (64,), (128,)]
+    train_scores, valid_scores = validation_curve(
+        estimator, X_train, y_train,
+        param_name="model__hidden_layer_sizes", param_range=widths,
+        cv=folds, scoring="roc_auc",
+    )
+    neuron_counts = [width[0] for width in widths]
+
+    sizes, curve_train, curve_valid = learning_curve(
+        Pipeline([
+            ("scale", StandardScaler()),
+            ("model", MLPClassifier(hidden_layer_sizes=(16,), alpha=1e-3,
+                                    max_iter=2000, random_state=42)),
+        ]),
+        X_train, y_train, cv=folds, scoring="roc_auc",
+        train_sizes=np.linspace(0.2, 1.0, 5),
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.7), layout="constrained")
+    fig.suptitle(
+        "Width controls capacity; the learning curve says whether more rows would help",
+        fontsize=14.5, weight="bold", color=DARK,
+    )
+    axes[0].plot(neuron_counts, train_scores.mean(axis=1), color=ORANGE, linestyle="--",
+                 marker="s", markersize=5, label="Training folds")
+    axes[0].plot(neuron_counts, valid_scores.mean(axis=1), color=BLUE, linestyle="-",
+                 marker="o", markersize=5, label="Validation folds")
+    axes[0].fill_between(
+        neuron_counts,
+        valid_scores.mean(axis=1) - valid_scores.std(axis=1),
+        valid_scores.mean(axis=1) + valid_scores.std(axis=1),
+        color=BLUE, alpha=0.13, label="Validation spread (1 s.d.)",
+    )
+    axes[0].set(title="Hidden-layer width versus cross-validated ROC-AUC",
+                xlabel="Neurons in the hidden layer", ylabel="ROC-AUC",
+                xscale="log", ylim=(0.68, 1.02))
+    axes[0].set_xticks(neuron_counts)
+    axes[0].set_xticklabels([str(count) for count in neuron_counts])
+    axes[0].grid(alpha=0.2)
+    axes[0].legend(fontsize=8, loc="upper left")
+    chart_finish(axes[0])
+
+    axes[1].plot(sizes, curve_train.mean(axis=1), color=ORANGE, linestyle="--",
+                 marker="s", markersize=5, label="Training folds")
+    axes[1].plot(sizes, curve_valid.mean(axis=1), color=BLUE, linestyle="-",
+                 marker="o", markersize=5, label="Validation folds")
+    axes[1].set(title="Training rows versus cross-validated ROC-AUC",
+                xlabel="Training rows used", ylabel="ROC-AUC", ylim=(0.68, 1.02))
+    axes[1].grid(alpha=0.2)
+    axes[1].legend(fontsize=8, loc="lower right")
+    chart_finish(axes[1])
+    save(fig, "ch21_network_capacity")
+
+
 def main() -> None:
     generate_workflow_diagram()
     generate_program_pipeline()
@@ -1486,6 +1778,10 @@ def main() -> None:
     generate_classification_workflow()
     generate_model_selection_figure()
     generate_threshold_figure()
+    generate_neuron_anatomy()
+    generate_activation_functions()
+    generate_network_training()
+    generate_network_capacity()
     print(f"Generated teaching figures in {OUTPUT}")
 
 

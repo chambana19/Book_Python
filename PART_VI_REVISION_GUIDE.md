@@ -25,6 +25,48 @@ Part VI extends programming syntax into foundational computational methods.
 - Pair metrics with diagnostic plots and document leakage, distribution shift,
   intended use, and prohibited claims.
 
+## Chapter 19: Gradient-Based and Metaheuristic Optimization
+
+- Build the derivative and gradient as local slopes before showing any solver
+  call, and check every analytic gradient against a central difference.
+- Treat the learning rate as an empirical choice: show a rate that is too small,
+  one that works, and one that oscillates without raising an error.
+- Distinguish "the step became small" from "the loop ran out of iterations";
+  only the first is convergence.
+- Motivate metaheuristics with measured failure of a local method on a rugged
+  objective, not with assertion.
+- Implement simulated annealing, a genetic algorithm, and particle swarm from
+  scratch, then map each to its SciPy equivalent.
+- Compare every method at one shared evaluation budget against a random-search
+  baseline, and report seeds and run-to-run spread.
+
+## Chapter 20: Classification and Model Selection
+
+- Open with class balance and a majority-class baseline so accuracy is
+  discredited before any model is fitted.
+- Name both errors in the language of the problem before selecting a metric.
+- Keep preprocessing inside a `Pipeline` so cross-validation refits it per fold.
+- Separate predicted probability, decision threshold, and predicted label.
+- Use cross-validation for every comparison; open the test set once and report
+  the cross-validated score beside it.
+- Read validation curves for over- and underfitting, and treat `best_score_` as
+  optimistically biased.
+- Present permutation importance as reliance of the fitted model, never as
+  causation, and check it against the known generating rule.
+
+## Chapter 21: Neural Networks
+
+- Present a network as the previous two chapters combined: gradient descent
+  fits it, cross-validation selects it.
+- Prove numerically that stacked linear layers collapse; do not assert it.
+- Compare activations by their slope, not only their shape, so the vanishing
+  gradient is visible rather than named.
+- Derive backpropagation for one hidden layer and gradient-check it against
+  finite differences before any training result is shown.
+- Present feature scaling as mandatory, with the measured cost of omitting it.
+- Benchmark the network against a linear model and a tree ensemble, and state
+  plainly when the extra complexity is not repaid.
+
 ## Validation targets
 
 - All companion scripts run from the repository root.
