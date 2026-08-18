@@ -2,6 +2,7 @@
 % Chapter 5: Loops and Repetition
 
 \h{Loops and Repetition}
+\label{ch:05}
 
 Repeating similar instructions by hand creates long code and makes mistakes
 more likely. A loop tells Python to repeat a block of instructions. The values
@@ -63,6 +64,33 @@ for room in rooms:
 Read the loop header as ``for each \c{room} in \c{rooms}.'' During each
 repetition, \c{room} refers to the next item.
 
+\hh{Choose the loop from the source of repetition}
+
+A \c{for} loop and a \c{while} loop can sometimes produce the same output,
+but they communicate different knowledge about termination.
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Loop} & \textbf{Use when} & \textbf{Termination evidence} \\
+\c{for} & visiting an iterable & the iterable is exhausted \\
+\c{for} with \c{range()} & repeating a known count & the range is exhausted \\
+\c{while} & repeating until state changes & the condition becomes false \\
+\end{tabular}
+\end{center}
+
+Prefer \c{for} when the values or repetition count are already known. Use
+\c{while} when the next repetition depends on a changing condition, such as
+waiting for valid input. A \c{while} loop therefore needs explicit evidence
+that something in its body moves the program toward a false condition.
+
+\begin{ExplainBox}{Trace a loop as changing state}
+At the start of each repetition, identify the current loop variable, any
+accumulator or other state, and the condition for continuing. Execute the body
+one statement at a time, record the new state, and then decide whether another
+repetition occurs. This trace explains both the result and termination; merely
+reading the indentation does not.
+\end{ExplainBox}
+
 \hh{Understand the loop block}
 
 The colon ends the loop header. Indented instructions form the loop body and
@@ -90,6 +118,22 @@ print("All rooms checked")
 \textbf{Stop and predict.} How many times will \c{Checked} appear? How many
 times will \c{All rooms checked} appear?
 \end{NoteBox}
+
+\begin{SyntaxBox}{The loop header names a temporary role}
+Read \c{for room in rooms:} as ``for each item in \c{rooms}, temporarily call
+that item \c{room}.'' The colon opens the repeated block. Every line with the
+same additional indentation belongs to that block.
+\end{SyntaxBox}
+
+\bookfigure[0.86\textwidth]{Figures/Control flow/Control_flow.pdf}
+{Control flow determines which instructions run, repeat, or are skipped.}
+{fig:ch05-control-flow}
+
+\begin{TryBox}{Trace before running}
+Draw a table with columns \textbf{iteration}, \textbf{room}, and
+\textbf{printed text}. Complete one row for each item in the three-room list,
+then run the program and compare the terminal output with your trace.
+\end{TryBox}
 
 \hh{Transform a value during each repetition}
 
@@ -197,6 +241,15 @@ print(f"Average area: {average_area_m2:.1f} m2")
 \end{lstlisting}
 
 Keep the final calculation outside the loop because it is needed only once.
+
+\bookfigure[0.88\textwidth]{Figures/Generated/ch05_loop_trace.pdf}
+{A loop trace table records the accumulator before and after each iteration, making the running-total invariant visible.}
+{fig:ch05-loop-trace}
+
+The statement ``total equals the sum processed so far'' is a \emph{loop
+invariant}: it is true before the first iteration and remains true after every
+iteration. Invariants are a foundational tool for explaining why an algorithm
+is correct.
 
 \hh{Combine loops and conditions}
 

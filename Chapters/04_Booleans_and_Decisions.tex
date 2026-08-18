@@ -2,6 +2,7 @@
 % Chapter 4: Booleans and Decisions
 
 \h{Booleans and Decisions}
+\label{ch:04}
 
 Programs often need to choose between actions. A room may pass or fail a size
 check. A value may be inside or outside a permitted range. Python represents
@@ -44,6 +45,25 @@ print(needs_review)
 \end{lstlisting}
 
 Boolean values usually come from questions expressed as comparisons.
+
+\begin{ExplainBox}{A boolean expression is a proposition}
+A proposition is a statement that can be evaluated as true or false. The
+expression \c{area_m2 >= 20} proposes that the current area is at least 20;
+Python evaluates the current value and returns one boolean. This is different
+from assignment: \c{area_m2 = 20} changes which value the name refers to,
+whereas \c{area_m2 == 20} asks a question without changing it.
+\end{ExplainBox}
+
+Name stored booleans so they read as yes-or-no questions: \c{is_accessible},
+\c{has_daylight}, \c{needs_review}, or \c{can_exit}. Such names preserve the
+meaning when they later appear in \c{if is_accessible:}. A vague name such as
+\c{status} might instead contain text, a number, or a boolean and forces the
+reader to inspect other code.
+
+Not every question should be tested with exact equality. Exact equality is
+appropriate for integers, strings, categories, and deliberate sentinel values.
+Measured floats may require a tolerance because Chapter 2 showed that their
+binary representations can be approximate.
 
 \hh{Compare values}
 
@@ -91,6 +111,12 @@ False
 
 Do not confuse \c{=} with \c{==}. A single equals sign assigns a value. Two
 equals signs compare two values.
+
+\begin{SyntaxBox}{Comparison produces a new boolean value}
+In \c{area_m2 >= 20.0}, Python evaluates the left and right operands with the
+\c{>=} operator. The result is one value---\c{True} or \c{False}---which can be
+stored, printed, or used directly by an \c{if} statement.
+\end{SyntaxBox}
 
 \begin{NoteBox}
 \textbf{Stop and predict.} What are the results of \c{5 >= 5}, \c{5 > 5}, and
@@ -175,6 +201,17 @@ print(is_approved)
 Keep combined conditions short. A named boolean such as \c{is_approved} is
 often easier to read than a long expression repeated several times.
 
+\bookfigure[0.84\textwidth]{Figures/Boolean/Boolean_operation.pdf}
+{Boolean operators combine or reverse yes--no conditions.}
+{fig:ch04-boolean-operations}
+
+\begin{TryBox}{Build a four-row truth table}
+Set \c{has_daylight} and \c{has_access} to every possible pair of boolean
+values. For each pair, print the results of \c{has_daylight and has_access}
+and \c{has_daylight or has_access}. Use the output to explain the difference
+between ``both requirements'' and ``at least one requirement.''
+\end{TryBox}
+
 \hh{Use membership conditions}
 
 The \c{in} operator works with collections and returns a boolean.
@@ -257,6 +294,14 @@ else:
 
 Only one message appears. The \c{else} branch runs when the \c{if} condition is
 false.
+
+\bookfigure[0.82\textwidth]{Figures/Generated/ch04_decision_trace.pdf}
+{A two-branch conditional evaluates one Boolean condition, follows exactly one branch, and then continues after the statement.}
+{fig:ch04-decision-trace}
+
+When tracing a decision, write the condition's Boolean result before choosing
+a branch. This prevents indentation or variable names from distracting you
+from the control-flow rule.
 
 \hh{Choose among several actions}
 

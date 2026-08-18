@@ -2,6 +2,7 @@
 % Chapter 13: Visualizing data with Matplotlib
 
 \h{Visualizing Data with Matplotlib}
+\label{ch:13}
 
 A chart should make one question easier to answer. Matplotlib supplies many
 plot types, but a beginner needs only a small, reliable set: line plots for
@@ -61,6 +62,13 @@ plt.close(fig)
 Closing a finished figure releases its resources. This matters when a program
 creates many figures in one run.
 
+\begin{SyntaxBox}{Create the container before drawing the chart}
+The statement \c{fig, ax = plt.subplots()} calls one function and unpacks its
+two returned objects. Use \c{ax} for plotting and labels, use \c{fig} for the
+complete output such as \c{fig.savefig(...)}, and use \c{plt.show()} only when
+you want an interactive display window.
+\end{SyntaxBox}
+
 \hh{Understand Figure and Axes}
 
 A \c{Figure} is the complete output area. An \c{Axes} is one plotting region
@@ -88,6 +96,21 @@ plt.close(fig)
 The call to \c{plt.subplots()} creates both objects. The call to \c{ax.plot()}
 adds data to the Axes. In a standalone script, \c{plt.show()} displays the
 Figure in a window when the active backend supports one.
+
+\begin{ExplainBox}{A chart maps variables to visual channels}
+A visualization is a rule that maps data values to position, length, angle,
+area, color, marker shape, or another visible property. Position on a common
+scale usually supports more precise comparison than area or color. Use color
+or marker shape to distinguish categories, not to replace a labeled numerical
+axis. Before writing plotting syntax, state which variable controls each visual
+channel and what comparison the reader should be able to make.
+\end{ExplainBox}
+
+The first plot maps \c{days} to horizontal position and
+\c{temperatures_c} to vertical position. Connecting the positions with a line
+adds a claim that order and continuity between adjacent days matter. If the
+x-values were unrelated room categories, bars or points would express the
+comparison more honestly than a connecting line.
 
 \hh{Add the information a reader needs}
 
@@ -117,8 +140,19 @@ plt.show()
 plt.close(fig)
 \end{lstlisting}
 
+\bookfigure[0.78\textwidth]{Figures/Generated/c13_labeled_line.pdf}
+{Rendered result of Listing~\ref{c13_labeled_line}: labels and units make the plotted values interpretable.}
+{fig:c13-labeled-line-result}
+
 The grid is light and appears only on the value axis. It supports reading
 values without competing with the data.
+
+\begin{ExplainBox}{Read the result as well as the syntax}
+The markers identify five measured days. The line shows their ordered pattern:
+temperature rises overall, with a small decrease on day 4. That interpretation
+depends on the title and axis labels; the code alone is not the final
+communication product.
+\end{ExplainBox}
 
 \hh{Choose a plot from the question}
 
@@ -136,6 +170,51 @@ How are values distributed? & One numerical collection & Histogram \\
 
 Do not select a chart because it looks impressive. Select it because its visual
 structure matches the question.
+
+\begin{TryBox}{Match questions to visual structures}
+Write one question about change over time, one about category differences, one
+about a relationship between two measurements, and one about the distribution
+of a single measurement. Name the plot type for each question before creating
+any code.
+\end{TryBox}
+
+\hh{Visualization showcase: one library, many questions}
+\label{sec:c13-showcase}
+
+The course introduction shows that visualization extends well beyond four
+introductory plot types. Figure~\ref{fig:c13-visualization-showcase} presents a
+curated set of cases that recur in design analysis, building performance,
+optimization, and computational geometry. Treat the gallery as a question
+map, not as a list of effects to add indiscriminately.
+
+\bookfigure[0.98\textwidth]{Figures/Generated/c13_visualization_showcase.pdf}
+{A visualization showcase connecting six analytical questions to six visual structures.}
+{fig:c13-visualization-showcase}
+
+\begin{itemize}
+    \item \textbf{Trend and uncertainty}: the line shows the central estimate;
+          the translucent band shows a plausible range.
+    \item \textbf{Annotated heatmap}: position identifies a row and column,
+          color encodes magnitude, and text preserves exact values.
+    \item \textbf{Distribution shapes}: each violin summarizes spread,
+          concentration, and median rather than showing only an average.
+    \item \textbf{Composition by floor}: stacked areas show how several
+          components contribute to a changing total.
+    \item \textbf{Optimization landscape}: contours reveal regions of similar
+          objective values and the location of a candidate solution.
+    \item \textbf{Three-dimensional response}: a surface represents a result
+          that depends on two continuous inputs; it should be used only when
+          the third dimension clarifies the relationship.
+\end{itemize}
+
+\begin{SyntaxBox}{The Figure/Axes pattern scales to advanced views}
+The plotting object remains an Axes even when the method changes. Use
+\c{ax.fill_between()} for a band, \c{ax.imshow()} for a matrix,
+\c{ax.violinplot()} for distributions, \c{ax.stackplot()} for changing
+composition, and \c{ax.contourf()} for filled contours. A 3D Axes is created
+with \c{fig.add_subplot(..., projection="3d")}; its
+\c{plot_surface()} method receives two coordinate grids and one result grid.
+\end{SyntaxBox}
 
 \hh{Use a line plot for ordered change}
 
@@ -174,6 +253,10 @@ ax.grid(axis="y", alpha=0.25)
 plt.show()
 plt.close(fig)
 \end{lstlisting}
+
+\bookfigure[0.78\textwidth]{Figures/Generated/c13_line_plot.pdf}
+{Rendered line plot: the measured daylight level rises toward 14:00 and then falls.}
+{fig:c13-line-plot-result}
 
 Markers reveal the actual observations. The connecting line helps the eye
 follow their order but does not create new measurements between them.
@@ -225,6 +308,10 @@ plt.show()
 plt.close(fig)
 \end{lstlisting}
 
+\bookfigure[0.78\textwidth]{Figures/Generated/c13_two_lines.pdf}
+{Rendered comparison: the south room becomes warmer and varies more during the day.}
+{fig:c13-two-lines-result}
+
 The names in the legend carry the meaning. Marker shape and line style keep the
 series distinguishable when color is hard to perceive or the page is printed
 in grayscale.
@@ -262,6 +349,10 @@ plt.show()
 plt.close(fig)
 \end{lstlisting}
 
+\bookfigure[0.74\textwidth]{Figures/Generated/c13_bar_chart.pdf}
+{Rendered bar chart: a shared zero baseline supports an honest comparison of room areas.}
+{fig:c13-bar-chart-result}
+
 A zero baseline keeps bar lengths honest. Direct value labels are useful when
 the exact values matter and the chart has only a few bars.
 
@@ -298,6 +389,10 @@ ax.set_axisbelow(True)
 plt.show()
 plt.close(fig)
 \end{lstlisting}
+
+\bookfigure[0.78\textwidth]{Figures/Generated/c13_horizontal_bar.pdf}
+{Rendered horizontal bars leave space for long, readable material names.}
+{fig:c13-horizontal-bar-result}
 
 Long labels remain horizontal, so the reader does not need to rotate the page
 or decode abbreviations.
@@ -337,6 +432,10 @@ ax.grid(alpha=0.2)
 plt.show()
 plt.close(fig)
 \end{lstlisting}
+
+\bookfigure[0.76\textwidth]{Figures/Generated/c13_scatter_plot.pdf}
+{Rendered scatter plot: each point preserves a pair of window-area and daylight measurements.}
+{fig:c13-scatter-result}
 
 The pattern suggests an association, not proof that one variable causes the
 other. Other variables may explain part of the relationship.
@@ -384,6 +483,10 @@ ax.set_axisbelow(True)
 plt.show()
 plt.close(fig)
 \end{lstlisting}
+
+\bookfigure[0.76\textwidth]{Figures/Generated/c13_histogram.pdf}
+{Rendered histogram: bin heights show how many rooms fall inside each area interval.}
+{fig:c13-histogram-result}
 
 Different bins can change the visible pattern. State or inspect bin boundaries
 when the conclusion depends on them.
@@ -446,6 +549,10 @@ plt.show()
 plt.close(fig)
 \end{lstlisting}
 
+\bookfigure[0.76\textwidth]{Figures/Generated/c13_dataframe_plot.pdf}
+{Rendered pandas-based plot: sorting before plotting makes the category ranking visible.}
+{fig:c13-dataframe-plot-result}
+
 Sorting is part of the data-preparation stage. The plotting stage receives the
 rows in the intended visual order.
 
@@ -504,8 +611,161 @@ plt.show()
 plt.close(fig)
 \end{lstlisting}
 
+\bookfigure[0.94\textwidth]{Figures/Generated/c13_two_subplots.pdf}
+{Rendered two-panel Figure: the first Axes preserves time order while the second emphasizes a numerical relationship.}
+{fig:c13-two-subplots-result}
+
 The first chart preserves time order. The second removes that ordering to focus
 on the relationship between two numerical variables.
+
+\hh{Applied example: a building-performance dashboard}
+\label{sec:c13-dashboard}
+
+A dashboard should coordinate several questions without repeating the same
+view. This example combines monthly composition, temperature context, a weekly
+occupancy matrix, and total monthly energy. The script is intentionally longer
+than earlier examples so you can practice reading a realistic program in
+stages.
+
+A runnable copy is provided in
+\c{examples/c13_building_performance_dashboard.py} so you can modify the data
+and panels without retyping the listing.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Build and export a four-panel building-performance dashboard},
+    label={c13_building_dashboard},
+    captionpos=b
+]
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. Prepare repeatable example data.
+rng = np.random.default_rng(12)
+months = np.arange(1, 13)
+heating = np.array([52, 46, 35, 22, 12, 5, 3, 4, 10, 24, 38, 49])
+cooling = np.array([2, 3, 5, 9, 18, 31, 38, 36, 24, 12, 5, 2])
+lighting = np.array([18, 17, 16, 15, 14, 13, 13, 13, 14, 15, 17, 18])
+equipment = np.full(12, 21)
+outdoor_c = np.array([-2, 0, 5, 11, 17, 22, 25, 24, 20, 13, 7, 1])
+
+occupancy = np.clip(rng.normal(38, 22, size=(7, 24)), 0, 100)
+occupancy[:, :7] *= 0.15
+occupancy[:, 19:] *= 0.25
+occupancy[5:, :] *= 0.35
+
+# 2. Create a 2-by-2 array of Axes.
+fig, axes = plt.subplots(2, 2, figsize=(11, 7), layout="constrained")
+fig.suptitle("Building performance dashboard")
+
+# 3. Show monthly composition.
+axes[0, 0].stackplot(
+    months,
+    heating,
+    cooling,
+    lighting,
+    equipment,
+    labels=["Heating", "Cooling", "Lighting", "Equipment"],
+    colors=["tab:blue", "tab:orange", "0.60", "#C6A15B"],
+    alpha=0.88,
+)
+axes[0, 0].set(
+    title="Monthly energy by end use",
+    xlabel="Month",
+    ylabel="Energy (MWh)",
+)
+axes[0, 0].legend(fontsize=8, ncol=2)
+
+# 4. Add temperature context and a reference band.
+axes[0, 1].plot(months, outdoor_c, color="tab:blue", marker="o")
+axes[0, 1].axhspan(18, 24, color="tab:green", alpha=0.14)
+axes[0, 1].set(
+    title="Outdoor temperature context",
+    xlabel="Month",
+    ylabel="Temperature (degrees C)",
+)
+
+# 5. Convert the 7-by-24 matrix into a heatmap.
+heatmap = axes[1, 0].imshow(
+    occupancy,
+    cmap="YlOrRd",
+    aspect="auto",
+    vmin=0,
+    vmax=100,
+)
+axes[1, 0].set(
+    title="Weekly occupancy pattern",
+    xlabel="Hour",
+    ylabel="Day",
+    yticks=range(7),
+    yticklabels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+)
+fig.colorbar(
+    heatmap,
+    ax=axes[1, 0],
+    orientation="horizontal",
+    fraction=0.08,
+    pad=0.14,
+    label="Occupancy (percent)",
+)
+
+# 6. Calculate and compare totals.
+totals = heating + cooling + lighting + equipment
+axes[1, 1].bar(months, totals, color="tab:blue")
+axes[1, 1].axhline(
+    totals.mean(),
+    color="tab:orange",
+    linestyle="--",
+    label=f"Mean {totals.mean():.1f}",
+)
+axes[1, 1].set(
+    title="Total monthly energy",
+    xlabel="Month",
+    ylabel="Energy (MWh)",
+)
+axes[1, 1].legend()
+
+# 7. Apply shared finishing steps and export.
+for ax in axes.flat:
+    ax.grid(alpha=0.18)
+
+output_folder = Path("study_figures")
+output_folder.mkdir(exist_ok=True)
+fig.savefig(
+    output_folder / "building_performance_dashboard.png",
+    dpi=200,
+    bbox_inches="tight",
+)
+plt.show()
+plt.close(fig)
+\end{lstlisting}
+
+\bookfigure[0.96\textwidth]{Figures/Generated/c13_building_dashboard.pdf}
+{Rendered dashboard from Listing~\ref{c13_building_dashboard}. Each panel answers a different but related building-performance question.}
+{fig:c13-building-dashboard}
+
+\begin{SyntaxBox}{Read a long plotting script by stages}
+\begin{enumerate}
+    \item Imports identify the external tools and the path API used for export.
+    \item Named arrays separate data preparation from drawing commands.
+    \item \c{axes[row, column]} selects one panel from the 2-by-2 Axes array.
+    \item Each plotting call returns or creates an artist. The heatmap artist is
+          stored because \c{fig.colorbar()} needs it to build a matching scale.
+    \item \c{axes.flat} provides one sequence for shared formatting instead of
+          repeating the same grid instruction four times.
+    \item Export occurs only after every panel is complete; the Figure, not one
+          Axes, calls \c{savefig()}.
+\end{enumerate}
+\end{SyntaxBox}
+
+Read the dashboard as an argument. Heating and cooling exchange seasonal
+importance, the temperature panel supplies environmental context, the heatmap
+shows when the building is occupied, and the total-energy bars make the yearly
+cycle easy to compare. A dashboard is successful when these views support one
+another without requiring the reader to decode decorative complexity.
 
 \hh{Annotate one important observation}
 
@@ -542,6 +802,10 @@ ax.grid(axis="y", alpha=0.25)
 plt.show()
 plt.close(fig)
 \end{lstlisting}
+
+\bookfigure[0.78\textwidth]{Figures/Generated/c13_annotation.pdf}
+{Rendered annotation: one concise callout directs attention to the lowest energy value.}
+{fig:c13-annotation-result}
 
 The annotation text states the interpretation. Its arrow identifies the
 specific observation.

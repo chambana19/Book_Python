@@ -2,17 +2,73 @@
 
 \usepackage[most]{tcolorbox}
 
+% Two accents serve the entire book: orange for chapter-level outcomes and
+% summaries, and a restrained blue for navigation, code, and study prompts.
+\definecolor{BookBlue}{RGB}{30,78,112}
+\definecolor{BookOrange}{RGB}{220,112,0}
+
 % A compact callout used throughout the self-study chapters.
 \newtcolorbox{NoteBox}{
     breakable,
-    colback=blue!3,
-    colframe=blue!45!black,
+    colback=black!1,
+    colframe=BookBlue,
     boxrule=0.6pt,
     arc=1.5mm,
     left=2mm,
     right=2mm,
     top=1.5mm,
     bottom=1.5mm
+}
+
+% Reusable learning components. Each has one job so chapters can add depth
+% without becoming a wall of undifferentiated prose.
+\newtcolorbox{SyntaxBox}[1]{
+    breakable,
+    title={Syntax focus: #1},
+    colback=black!1,
+    colframe=BookBlue,
+    fonttitle=\bfseries,
+    boxrule=0.7pt,
+    arc=1.5mm
+}
+
+\newtcolorbox{ExplainBox}[1]{
+    breakable,
+    title={Why it works: #1},
+    colback=black!1,
+    colframe=BookBlue,
+    fonttitle=\bfseries,
+    boxrule=0.7pt,
+    arc=1.5mm
+}
+
+\newtcolorbox{TryBox}[1]{
+    breakable,
+    title={Hands-on checkpoint: #1},
+    colback=black!1,
+    colframe=BookBlue,
+    fonttitle=\bfseries,
+    boxrule=0.7pt,
+    arc=1.5mm
+}
+
+% Centralize image inclusion. The third argument stores a concise description
+% that is also printed as the figure caption by \bookfigure. Do not pass the
+% experimental graphicx `alt` key in the standard build: it activates tagging
+% code that is not yet reliable with this book's listings and boxed content.
+\newcommand{\accessibleimage}[3]{%
+    \includegraphics[#1]{#2}%
+}
+
+% Standard figure treatment for both existing illustrations and generated
+% program outputs. Every instructional graphic receives a descriptive caption.
+\newcommand{\bookfigure}[4][0.92\textwidth]{%
+    \begin{figure}[htbp]
+        \centering
+        \accessibleimage{width=#1}{#2}{#3}
+        \caption{#3}
+        \label{#4}
+    \end{figure}
 }
 
 % Listings uses named languages. Define the two lightweight formats used for
@@ -30,5 +86,53 @@
 \RenewDocumentCommand{\c}{m}{\texttt{\detokenize{#1}}}
 
 % Keep captions with the code blocks they describe and place them underneath,
-% matching the original \code command's layout.
+% matching the original \code command's layout. The restrained syntax palette
+% uses one strong accent for language keywords, one supporting color for
+% strings, and neutral gray for comments; numbers and ordinary names stay
+% black for print readability.
+\colorlet{PythonKeyword}{BookBlue}
+\definecolor{PythonString}{RGB}{38,105,82}
+\definecolor{PythonComment}{RGB}{100,100,100}
+
+\lstdefinestyle{block}{
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{PythonKeyword}\bfseries,
+    stringstyle=\color{PythonString},
+    commentstyle=\color{PythonComment}\itshape,
+    breaklines=true,
+    numbers=left,
+    numberstyle=\scriptsize\color{black!55},
+    numbersep=7pt,
+    aboveskip=0.5em,
+    belowskip=0em,
+    columns=fullflexible,
+    keepspaces=true,
+    upquote=true,
+    showstringspaces=false,
+    xleftmargin=14pt,
+    postbreak=\mbox{\hspace{-2.5em}\textcolor{gray}{$\hookrightarrow$}\space\space}
+}
+
 \lstset{captionpos=b}
+
+% LiX hides link styling. Visible but restrained links make the table of
+% contents and cross-references discoverable on screen while remaining clean
+% in print.
+\hypersetup{
+    colorlinks=true,
+    linkcolor=BookBlue,
+    urlcolor=BookBlue,
+    citecolor=BookBlue,
+    linktoc=all,
+    bookmarksopen=true,
+    bookmarksnumbered=true,
+    pdflang={en-US},
+    pdfstartview=FitH
+}
+
+% Preserve Unicode mappings in engines that expose this PDF primitive.
+\ifdefined\pdfgentounicode
+    \pdfgentounicode=1
+\fi
+
+\newcommand{\booklink}[2]{\hyperref[#1]{#2}}

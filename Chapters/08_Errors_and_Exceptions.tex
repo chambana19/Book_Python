@@ -2,6 +2,7 @@
 % Chapter 8: Errors and Exceptions
 
 \h{Errors and Exceptions}
+\label{ch:08}
 
 Errors are normal while learning to program. The useful skill is not avoiding
 every error. It is reading what Python reports, locating the cause, and deciding
@@ -50,6 +51,27 @@ A syntax problem must be corrected before the program can run. A runtime
 exception can sometimes be anticipated and handled. A logic error requires
 checking the calculation or decision rule.
 
+\begin{ExplainBox}{An exception is an event and a transfer of control}
+When an operation raises an exception, Python stops the normal sequence at
+that operation and searches outward for a matching handler. Statements later
+in the abandoned block do not run. A matching \c{except} block is therefore an
+alternate path through the program, not a way to erase the original event.
+If no matching handler exists, the program stops and prints a traceback.
+\end{ExplainBox}
+
+Decide how to respond from the cause, not from a desire to hide red text:
+\begin{itemize}
+    \item fix a syntax or programming defect rather than catching it;
+    \item handle an expected external failure when the program has a meaningful
+          recovery, such as asking again after invalid input;
+    \item raise an exception when a function cannot honor its contract;
+    \item allow an unexpected exception to remain visible during development
+          so its traceback preserves evidence about the defect.
+\end{itemize}
+
+A handler is justified only if it can state what failed, why that failure was
+anticipated, and what safe next state the program will enter.
+
 \hh{Read a traceback from the bottom}
 
 When an exception is not handled, Python prints a traceback. Begin with its
@@ -70,6 +92,16 @@ print(width_m)
 
 The final traceback line includes \c{ValueError}. The failed operation is the
 attempt to convert \c{"three"} to a floating-point number.
+
+\bookfigure[0.9\textwidth]{Figures/Generated/ch08_traceback_anatomy.pdf}
+{Read a traceback from the exception message upward to the relevant line in your file.}
+{fig:ch08-traceback-anatomy}
+
+\begin{TryBox}{Create an error on purpose}
+Run the conversion example exactly as written. Identify the exception type,
+the message, and the line in your file. Then replace \c{"three"} with
+\c{"3.0"} and explain why the same operation now succeeds.
+\end{TryBox}
 
 \hh{Catch a specific exception}
 
@@ -93,6 +125,13 @@ except ValueError:
 
 The program does not crash. It gives a message that helps the user correct the
 input.
+
+\begin{SyntaxBox}{Exception handling separates possible paths}
+The \c{try} block contains the operation that may fail. A matching
+\c{except ValueError:} block runs only for that exception. An optional
+\c{else} block is the success path, and an optional \c{finally} block runs
+after either outcome. Catch the narrowest exception that you can explain.
+\end{SyntaxBox}
 
 \hh{Keep the try block narrow}
 
@@ -221,6 +260,14 @@ finally:
 
 Chapter 10 uses context managers to close files automatically. That is usually
 clearer than manual cleanup in \c{finally}.
+
+\bookfigure[0.84\textwidth]{Figures/Generated/ch08_exception_flow.pdf}
+{The try block leads to a matching except block after an expected failure or to else after success; finally runs on either path.}
+{fig:ch08-exception-flow}
+
+The four clauses are not interchangeable. Keep risky operations narrow in
+\c{try}, recover only from errors you understand in \c{except}, keep success
+work in \c{else}, and reserve \c{finally} for actions that truly must run.
 
 \hh{Repeat until input is valid}
 

@@ -1,6 +1,9 @@
 # Local LaTeX/PDF validation artifacts
 output/
 tmp/
+.python-deps/
+.geo-deps/
+study_figures/
 
 # Common TeX intermediates
 *.aux

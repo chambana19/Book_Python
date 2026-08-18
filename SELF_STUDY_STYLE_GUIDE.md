@@ -3,10 +3,11 @@
 ## Visual system
 
 - Body text uses the document's black text on a white page.
-- Learning-outcome and summary boxes use `colframe=orange`, `colback=white`,
-  and `arc=2mm`.
-- `NoteBox` is reserved for prerequisites, stop-and-predict prompts, and short
-  cautions.
+- Learning-outcome and part-summary boxes use orange frames and white
+  backgrounds.
+- `NoteBox`, `SyntaxBox`, `ExplainBox`, and `TryBox` share one neutral blue
+  frame and near-white background. Their title text, not a different color,
+  communicates purpose.
 - Code examples use the existing `\code{label}{language}{body}{caption}`
   command. Labels begin with the two-digit chapter number.
 - Tables use the existing document typography and avoid additional accent colors.
@@ -15,9 +16,8 @@
   series is needed. Labels, markers, or line styles repeat the distinction so
   meaning never depends on color alone.
 
-The restrained orange, black, and white palette keeps the pages readable and
-matches the established cover accent without assigning a different color to
-each chapter.
+The restrained orange, blue, black, and white palette keeps the pages readable
+without assigning a new color to each kind of activity.
 
 ## Heading hierarchy
 
@@ -42,6 +42,31 @@ Numbering and typography remain controlled by the textbook class.
 8. Checkpoint and answers
 9. Summary box
 
+Parts follow a cumulative sequence: foundations, reusable programs, numerical
+analysis, visual communication, geospatial applications, and computational
+methods including algorithms, optimization, and machine learning. New library
+chapters must state which earlier concepts they extend.
+
+## Concept-before-syntax standard
+
+Before presenting the syntax for a foundational idea, establish its mental
+model. A complete treatment answers the following questions where relevant:
+
+1. What is the concept, in precise but beginner-readable language?
+2. What information or relationship does it represent?
+3. When should a programmer choose it, and when should they not?
+4. Which operations or state changes does it support?
+5. What result type, return value, or side effect should the reader expect?
+6. Which preconditions, invariants, units, shapes, or schemas must hold?
+7. What concrete output, trace, comparison, or counterexample provides evidence?
+8. What common alternative looks similar but has a different meaning?
+9. What failure occurs when the rule is violated, and how should it be diagnosed?
+
+Definitions should be followed by at least one ordinary example and, when the
+distinction is easy to misunderstand, one contrasting or intentionally failing
+example. Do not ask students to memorize a command whose decision boundary has
+not been explained.
+
 ## Writing conventions
 
 - Address the student directly when giving an action.
@@ -62,3 +87,13 @@ Numbering and typography remain controlled by the textbook class.
 - Hints support Apply and Challenge work without giving away the full solution.
 - Plotting examples use the Figure/Axes pattern, label measurement units, keep
   grids light, and close completed figures.
+- Every major or multi-step snippet is followed by syntax analysis that
+  explains inputs, method calls, returned objects, and the role of indentation.
+- Longer applications separate preparation, calculation, visualization, and
+  export into visible stages with comments and descriptive names.
+- Code listings use a print-readable footnote size. If a complete application
+  remains too long for comfortable reading, retain its conceptual stages in
+  the chapter and provide the runnable file in `examples`.
+- Every instructional graphic has a descriptive caption that can also serve as
+  alternative text. Charts use markers, line styles, direct labels, position,
+  or texture so meaning never depends on color alone.

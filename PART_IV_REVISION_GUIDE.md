@@ -14,9 +14,10 @@ students combine them in the next chapter.
 2. **pandas DataFrames and Table Analysis**: add row and column labels, inspect
    tables, select and filter rows, calculate columns, handle missing values,
    group observations, and move data through CSV.
-3. **Visualizing Data with Matplotlib**: match four common plot types to
-   questions, use the Figure/Axes pattern, label units, apply a restrained
-   color system, arrange related subplots, and save figures.
+3. **Visualizing Data with Matplotlib**: match plots to questions, use the
+   Figure/Axes pattern, label units, apply a restrained color system, interpret
+   rendered results, compare showcase cases, build a multi-panel dashboard,
+   and save figures.
 
 The order keeps library-specific syntax attached to concepts students already
 know. NumPy extends list calculations, pandas extends dictionaries and CSV
@@ -28,8 +29,9 @@ tables, and Matplotlib consumes prepared arrays or DataFrame columns.
   remain outside the introductory NumPy chapter.
 - Excel engines, multi-level indexes, joins, pivot tables, and time-series
   specialization remain outside the introductory pandas chapter.
-- Heat maps, 3D plots, custom style sheets, and dense parameter references
-  remain outside the introductory Matplotlib chapter.
+- Heat maps, uncertainty bands, distributions, stacked areas, contours, and a
+  single 3D surface appear as curated extensions. Dense parameter catalogs and
+  advanced rendering internals remain outside the introductory chapter.
 - Examples use small embedded data or create their own local files, so no
   external dataset is required.
 

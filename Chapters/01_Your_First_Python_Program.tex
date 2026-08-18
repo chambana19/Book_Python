@@ -2,6 +2,7 @@
 % Chapter 1: Your First Python Program
 
 \h{Your First Python Program}
+\label{ch:01}
 
 Python lets you give a computer a clear sequence of instructions. Your goal in
 this chapter is simple: install the necessary tools, run a short program, and
@@ -60,10 +61,36 @@ print("Hello, Python!")
 The word \c{print} names an action. The parentheses contain the information the
 action will use. The quotation marks identify text.
 
+\begin{SyntaxBox}{Read a function call from the outside in}
+In \c{print("Hello, Python!")}, \c{print} is the function name,
+parentheses mark the call, and \c{"Hello, Python!"} is the argument supplied
+to the function. The quotation marks belong to the string; the parentheses do
+not become part of the displayed output.
+\end{SyntaxBox}
+
 \begin{NoteBox}
 \textbf{Stop and predict.} What would you change to display
 \c{Hello, ARC500!}?
 \end{NoteBox}
+
+\bookfigure{Figures/Generated/ch01_edit_run_loop.pdf}
+{Programming is an edit--run--read--revise learning loop, not a one-time act of typing.}
+{fig:ch01-edit-run-loop}
+
+\begin{TryBox}{Change one thing and explain the result}
+Type the instruction, save the file, and run it. Then change only the text
+inside the quotation marks. Before the second run, write down the output you
+expect. Compare the real output with your prediction and explain any
+difference in one sentence.
+\end{TryBox}
+
+\bookfigure[0.96\textwidth]{Figures/Generated/ch01_program_pipeline.pdf}
+{Source code passes through the Python interpreter, changes program state, and produces an observable result such as output or an error.}
+{fig:ch01-program-pipeline}
+
+The screen does not show every internal step. Learning to program means
+learning to infer how each instruction changes program state before observing
+the resulting output.
 
 \hh{Install Python 3}
 

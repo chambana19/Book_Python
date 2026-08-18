@@ -2,6 +2,7 @@
 % Chapter 10: Files and Paths
 
 \h{Files and Paths}
+\label{ch:10}
 
 Variables disappear when a program ends. Files let a later run recover saved
 text or structured data. This chapter begins with small text files, then adds
@@ -49,6 +50,32 @@ print(file_path.suffix)
 \end{lstlisting}
 
 The slash operator joins path parts. It does not open or create the file.
+
+\bookfigure[0.82\textwidth]{Figures/Generated/ch10_path_tree.pdf}
+{A relative path is resolved from the working folder by following a sequence of child folders and a final file name.}
+{fig:ch10-path-tree}
+
+Read a relative path as a traversal algorithm: begin at the working folder,
+follow each component in order, and stop at the described location. A path can
+be valid as a description even before that file exists.
+
+\bookfigure[0.9\textwidth]{Figures/Generated/ch10_file_pipeline.pdf}
+{A dependable file workflow separates path construction, opening, processing, and closing.}
+{fig:ch10-file-pipeline}
+
+\begin{SyntaxBox}{Path expressions build locations without touching the disk}
+In \c{Path("study_data") / "rooms.txt"}, \c{Path(...)} creates a path object
+and the slash joins another path component. The expression describes a
+location. A later method such as \c{mkdir()}, \c{write_text()}, or \c{open()}
+performs the filesystem action.
+\end{SyntaxBox}
+
+\begin{TryBox}{Inspect a path before creating anything}
+Create a path for \c{study_data/measurements.csv}. Print its \c{name},
+\c{suffix}, and \c{parent}. Predict the results first. Then create only the
+parent folder with \c{mkdir(exist_ok=True)} and check \c{exists()} for both
+the folder and the still-unwritten file.
+\end{TryBox}
 
 \hh{Create a folder when needed}
 
@@ -173,6 +200,13 @@ The mode states what the program intends to do.
 
 This chapter focuses on text modes. Images and PDFs are binary files and need
 binary mode when their bytes are processed directly.
+
+\begin{ExplainBox}{File modes declare consequences}
+Mode \c{"r"} requires existing content, \c{"a"} preserves it, and \c{"w"}
+replaces it. Treat the mode as part of the program's data policy: decide
+whether earlier content should be required, retained, or deliberately
+overwritten before opening the file.
+\end{ExplainBox}
 
 \hh{Append without replacing}
 

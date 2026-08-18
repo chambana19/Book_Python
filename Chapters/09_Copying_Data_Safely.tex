@@ -2,6 +2,7 @@
 % Chapter 9: Copying Data Safely
 
 \h{Copying Data Safely}
+\label{ch:09}
 
 Two variables can refer to the same list or dictionary. When that happens, a
 change made through one name appears through the other. This behavior is useful
@@ -24,6 +25,27 @@ After completing this chapter, you should be able to:
     \item prevent unintended mutation inside functions.
 \end{itemize}
 \end{tcolorbox}
+
+\hh{Separate names, objects, and references}
+
+Python variables are names, not storage boxes with permanently fixed contents.
+Evaluating a list literal creates a list object; assignment connects a name to
+that object. A second assignment may connect another name to the same object.
+Mutation changes the shared object, so every name referring to it observes the
+change. Reassignment changes one connection and does not rewrite the object
+previously referenced.
+
+This model supplies three different questions:
+\begin{itemize}
+    \item \textbf{value}: what information does the object currently contain?
+    \item \textbf{identity}: is this the exact same object as another reference?
+    \item \textbf{aliasing}: can a change through one name be observed through
+          another name?
+\end{itemize}
+
+Copying matters mainly for mutable objects because their state can change in
+place. Numbers, strings, and tuples of immutable values cannot be modified in
+place, so sharing their identity does not create the same editing hazard.
 
 \hh{Equality and identity answer different questions}
 
@@ -73,6 +95,17 @@ print(original_rooms is shared_rooms)
 
 Both names point to the same mutable object. Appending through either name
 changes that one list.
+
+\bookfigure[0.95\textwidth]{Figures/Generated/ch09_copying_models.pdf}
+{Assignment shares one object, a shallow copy duplicates only the outer container, and a deep copy duplicates nested mutable objects.}
+{fig:ch09-copying-models}
+
+\begin{SyntaxBox}{Copying syntax expresses the needed depth}
+Use \c{new = original.copy()} or \c{new = original[:]} for a new outer
+container. Use \c{copy.deepcopy(original)} after \c{import copy} when nested
+mutable objects must also be independent. Assignment alone---
+\c{new = original}---creates another name, not another container.
+\end{SyntaxBox}
 
 \begin{NoteBox}
 \textbf{Stop and predict.} If \c{original_rooms.append("Gallery")} runs next,
@@ -236,6 +269,13 @@ print(independent)
 
 Deep copying is convenient, but it may copy more than necessary. Prefer a
 targeted copy when the structure is large and only one part will change.
+
+\begin{TryBox}{Test the boundary of independence}
+Create a dictionary containing a nested list. Make one shallow copy and one
+deep copy, append a tag through each copy, and print all three dictionaries.
+Draw arrows showing which inner lists are shared before you run the code, then
+correct the drawing if the output disagrees.
+\end{TryBox}
 
 \hh{Avoid replicated inner lists}
 

@@ -2,6 +2,7 @@
 % Chapter 6: Functions and Reusable Code
 
 \h{Functions and Reusable Code}
+\label{ch:06}
 
 By this point, you can store data, make decisions, and repeat instructions.
 Functions let you give a useful group of instructions a name. You can then run
@@ -46,6 +47,34 @@ print(office_area_m2)
 
 The next example moves the shared rule into a function.
 
+\hh{Think of a function as a contract}
+
+A function is a named abstraction: a caller asks for an operation without
+needing to repeat its implementation. A useful function contract identifies:
+\begin{itemize}
+    \item \textbf{inputs}: the values supplied through parameters;
+    \item \textbf{preconditions}: what must already be true about those values;
+    \item \textbf{result}: the value returned to the caller, if any;
+    \item \textbf{postconditions}: what the result guarantees;
+    \item \textbf{side effects}: visible changes such as printing or modifying
+          a supplied collection.
+\end{itemize}
+
+For an area function, a reasonable contract is: accept two nonnegative numeric
+dimensions and return their product as an area without printing or changing
+the inputs. The formula is only one part of the design; the contract explains
+when that formula can be trusted and how another part of the program can use
+it.
+
+\begin{ExplainBox}{Definition time and call time are different events}
+When Python executes a \c{def} statement, it creates a function object and
+binds it to a name; it does not yet run the body. At call time, Python evaluates
+the argument expressions, connects the resulting values to fresh local
+parameter names, executes the body, and sends the returned value back to the
+call site. Separating these events makes scope and repeated calls easier to
+trace.
+\end{ExplainBox}
+
 \hh{Define and call a function}
 
 Use \c{def} to define a function. The indented body contains the instructions
@@ -67,6 +96,17 @@ show_welcome()
 
 Defining a function does not run its body. The body runs when Python reaches a
 call such as \c{show_welcome()}.
+
+\bookfigure[0.9\textwidth]{Figures/Generated/ch06_function_anatomy.pdf}
+{A function separates its definition, inputs, reusable body, returned result, and calls.}
+{fig:ch06-function-anatomy}
+
+\begin{SyntaxBox}{Read a function definition and call as a pair}
+In \c{def rectangle_area_m2(width_m, length_m):}, \c{def} begins the
+definition, the name describes the result, the parameters name incoming
+values, and the colon opens the body. In
+\c{rectangle_area_m2(6.0, 8.0)}, the arguments supply the actual values.
+\end{SyntaxBox}
 
 \begin{NoteBox}
 \textbf{Stop and predict.} How many lines appear if the two calls are removed?
@@ -120,6 +160,21 @@ print(office_area_m2)
 
 When Python reaches \c{return}, the function ends and sends the value back to
 the call.
+
+\begin{TryBox}{Follow one value through a function}
+Predict the result of \c{rectangle_area_m2(3.5, 4.0)}, run it, and store the
+returned value in \c{studio_area_m2}. Then change \c{return area_m2} to
+\c{print(area_m2)} temporarily. Observe what the caller receives and explain
+why printing and returning serve different purposes.
+\end{TryBox}
+
+\bookfigure[0.84\textwidth]{Figures/Generated/ch06_call_stack.pdf}
+{Nested function calls push temporary stack frames containing parameters and local names; returning removes a frame and sends a value to its caller.}
+{fig:ch06-call-stack}
+
+This stack model explains local scope and nested errors. The most recently
+called unfinished function is the first one that must return, which is why a
+traceback lists a chain of active calls.
 
 \hh{Return and print have different purposes}
 

@@ -58,7 +58,11 @@
 \fancyhead[R]{%
     \small\scshape\color{darkgray} Page \thepage\ of \pageref{LastPage}% <<< keep \pageref
 }
-\fancyfoot{}
+\fancyfoot[C]{%
+    \footnotesize\color{darkgray}%
+    \hyperref[book:toc]{Contents}\quad|\quad%
+    \hyperref[reader:roadmap]{Reader roadmap}%
+}
 
 % HEADINGS: --------------------------------------------------------------------
 \setcounter{secnumdepth}{4}% Levels of heading that will be numbered.

@@ -2,6 +2,7 @@
 % Chapter 12: pandas DataFrames and table analysis
 
 \h{pandas DataFrames and Table Analysis}
+\label{ch:12}
 
 NumPy arrays organize values by numerical position. Many real tables also need
 names for columns and rows. The pandas library provides those labels through a
@@ -110,6 +111,26 @@ Each row is one observation. Each column is one variable measured or recorded
 for those observations. Keeping this structure tidy makes later operations
 predictable.
 
+\begin{ExplainBox}{A table needs both a grain and a schema}
+The \emph{grain} states what one row represents: one room, one sensor reading,
+one building, or one event. The \emph{schema} states what each column means,
+which type it should contain, its units, and whether missing values are valid.
+Without an explicit grain, duplicate-looking rows cannot be interpreted.
+Without a schema, a column named \c{value} cannot be validated or compared.
+\end{ExplainBox}
+
+For the \c{rooms} table, the grain is one row per room. The schema says that
+\c{room} and \c{zone} are categorical text, while \c{area_m2} and
+\c{height_m} are measured numerical values with stated units. If
+\c{area_m2} loads as text because one cell contains \c{"unknown"}, vectorized
+arithmetic is no longer trustworthy. Inspection is therefore evidence that
+the loaded data matches the analytical claim, not merely a preliminary coding
+ritual.
+
+\bookfigure[0.94\textwidth]{Figures/Generated/ch12_dataframe_pipeline.pdf}
+{A readable pandas analysis makes loading, inspection, cleaning, transformation, and communication visible.}
+{fig:ch12-dataframe-pipeline}
+
 \hh{Inspect before analyzing}
 
 Do not assume that a loaded table has the expected size or data types. Begin
@@ -200,6 +221,13 @@ print("Selected cells:\n", rooms.loc[["Lobby", "Cafe"], ["area_m2"]])
 Unlike an ordinary Python slice, a label slice used with \c{loc} includes its
 ending label. Position slices used with \c{iloc} stop before the ending
 position.
+
+\begin{SyntaxBox}{Use loc when the selection has meaning}
+The pattern \c{df.loc[row_selection, column_selection]} states both
+dimensions. For example, \c{rooms.loc[rooms["area_m2"] >= 25, ["room",
+"area_m2"]]} keeps matching rows and only the named columns. Use \c{iloc}
+when the selection is intentionally based on integer position.
+\end{SyntaxBox}
 
 \begin{NoteBox}
 \textbf{Stop and predict.} If the index labels are \c{"A"}, \c{"B"}, and
@@ -453,6 +481,14 @@ Read the expression from left to right: group by \c{zone}, then calculate three
 named summaries. Each pair states an output column name, a source column, and
 an aggregation operation.
 
+\bookfigure[0.94\textwidth]{Figures/Generated/ch12_dataframe_before_after.pdf}
+{A raw room table becomes an inspectable floor-level summary after cleaning, grouping, and aggregation.}
+{fig:ch12-before-after}
+
+Always compare the input and result of a transformation. Row counts, missing
+values, grouping keys, and totals provide simple invariants that can reveal a
+mistake before it reaches a chart or exported file.
+
 \hh{Read and write CSV data}
 
 Use \c{to_csv()} to save a DataFrame and \c{read_csv()} to restore it. Decide
@@ -521,6 +557,13 @@ print(summary)
 
 Named aggregation gives the result descriptive column names. The cleaning rule
 is also visible: only rows missing \c{area_m2} are removed.
+
+\begin{TryBox}{Narrate an analysis pipeline}
+Run the staged example one statement at a time. After each stage, print
+\c{shape} and \c{head()}. In a short comment, state what rows or columns could
+change at that stage. This turns a compact method chain into an auditable
+sequence you can debug and explain.
+\end{TryBox}
 
 \hh{Common mistakes}
 

@@ -1,3 +1,7 @@
+% Keep the standard build compatible with Overleaf, listings, and the book's
+% boxed teaching environments. Experimental tagpdf tagging currently leaves
+% unbalanced structures around some listings and can cause compile timeouts.
+% Language metadata and Unicode text mapping are configured in preamble.tex.
 \documentclass{textbook}
 
 % Safe fallbacks (do not override standard \title or \author).
@@ -8,6 +12,8 @@
 \providecommand{\hhhh}[1]{\paragraph{#1}}
 
 \title{Introduction to Programming with Python}
+\author{Junho Chun}
+\date{August 2026}
 \input{preamble}
 
 \begin{document}
@@ -20,7 +26,8 @@ may be added as the material develops. Major changes are recorded below, with
 the most recent change first.
 
 \begin{itemize}
-\item[] \textbf{August 17, 2026}: Reorganized and revised Chapters 1--13 into four gradual parts for independent study.
+\item[] \textbf{August 17, 2026}: Enlarged code, distributed additional visual explanations, added accessibility support, and introduced algorithms, optimization, and machine-learning Chapters 16--18.
+\item[] \textbf{August 17, 2026}: Reorganized Chapters 1--13 for independent study, expanded the visualization applications, and added GeoPandas and geodatasets Chapters 14--15.
 \item[] \textbf{October 7, 2025}: \texttt{Data visualization} revised.
 \item[] \textbf{October 1, 2025}: \texttt{Data analysis with Pandas} and \texttt{Data visualization} chapters released.
 \item[] \textbf{September 25, 2025}: \texttt{Numpy} chapter released.
@@ -38,7 +45,12 @@ the most recent change first.
 \input{Chapters/00_Title_Imprint}
 \newpage
 
+\phantomsection
+\label{book:toc}
 \toc
+\newpage
+
+\input{Chapters/00_Reader_Roadmap}
 \newpage
 
 \part{Part I: Getting Started}
@@ -57,10 +69,19 @@ the most recent change first.
 \input{Chapters/09_Copying_Data_Safely}
 \input{Chapters/10_Files_and_Paths}
 
-\part{Part IV: Numerical Data, Tables, and Visualization}
+\part{Part IV: Numerical Data, Tables, and Visual Communication}
 \input{Chapters/11_NumPy_Arrays_and_Vectorized_Calculations}
 \input{Chapters/12_Pandas_DataFrames_and_Table_Analysis}
 \input{Chapters/13_Visualizing_Data_with_Matplotlib}
+
+\part{Part V: Geospatial Data and Applied Mapping}
+\input{Chapters/14_GeoPandas_Foundations}
+\input{Chapters/15_GeoDatasets_and_Applied_Mapping}
+
+\part{Part VI: Algorithms, Optimization, and Machine Learning}
+\input{Chapters/16_Algorithmic_Thinking_and_Efficiency}
+\input{Chapters/17_Numerical_Optimization_with_SciPy}
+\input{Chapters/18_Machine_Learning_Foundations}
 
 \input{Chapters/99_backcover}
 

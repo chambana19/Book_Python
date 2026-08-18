@@ -2,6 +2,7 @@
 % Chapter 7: Useful Built-in Functions
 
 \h{Useful Built-in Functions}
+\label{ch:07}
 
 Python includes a set of functions that are ready to use without an import.
 You have already met several of them, including \c{print()}, \c{len()},
@@ -45,6 +46,44 @@ print(type(room_names))
 
 The Python documentation lists every built-in, but beginners do not need to
 memorize the full list. Learn a small set and look up the rest when needed.
+
+\bookfigure[0.92\textwidth]{Figures/Generated/ch07_builtin_toolbox.pdf}
+{A small built-in-function toolbox organized by the question each function answers.}
+{fig:ch07-builtin-toolbox}
+
+\begin{ExplainBox}{Function names can express intent}
+\c{sum(areas_m2)} communicates ``combine these values into a total'' more
+directly than a manually written accumulator. Built-ins are useful not only
+because they are shorter, but because another Python reader already knows the
+operation they name.
+\end{ExplainBox}
+
+\hh{Distinguish functions, methods, and operators}
+
+All three forms request behavior, but their syntax emphasizes different
+relationships:
+\begin{itemize}
+    \item a \textbf{function call}, such as \c{len(rooms)}, passes values to a
+          named operation;
+    \item a \textbf{method call}, such as \c{rooms.append("Cafe")}, asks one
+          object to perform behavior supplied by its type;
+    \item an \textbf{operator expression}, such as \c{3 + 4}, uses compact
+          syntax whose meaning depends on the operand types.
+\end{itemize}
+
+The syntax alone does not say whether the input changes. Ask two separate
+questions: What value is returned? Is any existing object mutated? For example,
+\c{sorted(rooms)} returns a new list and keeps \c{rooms} unchanged, whereas
+\c{rooms.sort()} changes that list and returns \c{None}. Printing the result is
+evidence about the return value; printing the original object before and after
+is evidence about mutation.
+
+\begin{TryBox}{Test return value and mutation separately}
+Create \c{numbers = [3, 1, 2]}. Store the result of \c{sorted(numbers)} and
+print both names. Then store the result of \c{numbers.sort()} and print both
+\c{numbers} and the stored return value. Explain why the outputs answer two
+different questions.
+\end{TryBox}
 
 \hh{Summarize numeric collections}
 
@@ -125,6 +164,19 @@ print(descending)
 
 By contrast, the list method \c{floor_numbers.sort()} changes the list and
 returns \c{None}. Choose based on whether the original order should be kept.
+
+\begin{SyntaxBox}{Arguments can be positional or named}
+In \c{sorted(floor_numbers, reverse=True)}, the first argument is matched by
+position. The keyword argument \c{reverse=True} names the option it controls,
+which makes the call easier to read and allows the default behavior to be
+changed explicitly.
+\end{SyntaxBox}
+
+\begin{TryBox}{Build a one-screen data summary}
+For \c{areas_m2 = [24.0, 35.5, 18.0, 31.0]}, display the count, total,
+minimum, maximum, average, and descending order. Use built-ins for every step
+except the division needed for the average.
+\end{TryBox}
 
 \begin{lstlisting}[
     language=python,

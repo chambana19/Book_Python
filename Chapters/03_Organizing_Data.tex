@@ -2,6 +2,7 @@
 % Chapter 3: Organizing Data
 
 \h{Organizing Data}
+\label{ch:03}
 
 A single variable holds one value. Many tasks require several related values:
 room names, floor areas, material codes, or measurements. Python provides
@@ -55,6 +56,29 @@ print(room_names)
 \end{lstlisting}
 
 The square brackets identify a list. Commas separate its items.
+
+\begin{ExplainBox}{A collection encodes a relationship among values}
+Putting values together is not only a storage convenience. The collection
+type states what relationship the program relies on. A list says that order
+and position matter. A dictionary says that each value is retrieved through a
+meaningful key. A tuple says that a small ordered record should not be changed
+in place. A set says that membership and uniqueness matter more than position.
+Choosing the wrong relationship produces awkward code even when the values
+themselves are correct.
+\end{ExplainBox}
+
+Collections also have behavioral properties:
+\begin{itemize}
+    \item \textbf{ordered} means iteration follows a defined sequence;
+    \item \textbf{mutable} means the existing object can be changed in place;
+    \item \textbf{indexed} means a position such as \c{0} selects an item;
+    \item \textbf{keyed} means a meaningful key selects a value;
+    \item \textbf{unique} means duplicate members collapse into one member.
+\end{itemize}
+
+These properties are independent questions. A list is ordered, mutable, and
+indexed, while a set is mutable and unique but not position-indexed. Chapter 9
+will show why mutability also affects assignment and copying.
 
 \hh{Create lists}
 
@@ -165,6 +189,16 @@ Expected output:
 ['B1', 'L1']
 ['L3', 'Roof']
 \end{lstlisting}
+
+\begin{SyntaxBox}{A slice describes a half-open range}
+The pattern is \c{sequence[start:stop]}. Python includes the item at
+\c{start} and stops before \c{stop}. Omitting \c{start} means ``from the
+beginning''; omitting \c{stop} means ``through the end.''
+\end{SyntaxBox}
+
+\bookfigure[0.88\textwidth]{Figures/List/List_operator.pdf}
+{Visual guide to list indexing, slicing, and common list operations.}
+{fig:ch03-list-operations}
 
 \hh{Change a list}
 
@@ -277,6 +311,17 @@ print(room["area_m2"])
 \end{lstlisting}
 
 Unlike list indexes, dictionary keys communicate what the values mean.
+
+\bookfigure[0.86\textwidth]{Figures/Dictionary/Dictionary.pdf}
+{A dictionary connects descriptive keys to values rather than relying on numerical positions.}
+{fig:ch03-dictionary-model}
+
+\begin{TryBox}{Choose a collection before writing code}
+For each case, choose a list, dictionary, tuple, or set and justify the choice:
+an ordered room schedule; one room's named properties; an immutable RGB color;
+and the unique material names found in a model. Then create one small example
+of each collection in Python.
+\end{TryBox}
 
 \hh{Update a dictionary}
 
@@ -428,6 +473,23 @@ Set & Unique values & Duplicates should be removed \\
 
 Ask two questions before choosing: Does order matter? Does each value need a
 label? These questions usually narrow the choice quickly.
+
+Then test the choice against the operations the program must perform:
+\begin{enumerate}
+    \item Must duplicate values be preserved? Use a list or tuple, not a set.
+    \item Must an item be retrieved by a descriptive name? Use a dictionary.
+    \item Must insertion, deletion, or replacement occur in place? Use a
+          mutable list, dictionary, or set.
+    \item Is the object a fixed coordinate or record whose positions have
+          stable meanings? A tuple may communicate that constraint.
+    \item Is the central question ``has this value appeared?'' A set expresses
+          that membership question directly.
+\end{enumerate}
+
+For example, room names in walking order belong in a list; room areas looked
+up by room name belong in a dictionary; a fixed \c{(x, y)} coordinate can be a
+tuple; and the unique material categories present in a dataset belong in a
+set. The values may look similar, but the required relationships differ.
 
 \hh{Common mistakes}
 

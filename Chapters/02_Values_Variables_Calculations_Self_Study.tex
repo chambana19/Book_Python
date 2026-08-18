@@ -2,6 +2,7 @@
 % Chapter 2: Values, Variables, and Calculations
 
 \h{Values, Variables, and Calculations}
+\label{ch:02}
 
 A useful program needs information to work with. That information may be a
 number, a piece of text, or a yes-or-no value. In this chapter, you will learn
@@ -16,9 +17,11 @@ file and use \c{print()}.
 \begin{tcolorbox}[title=Learning outcomes,colframe=orange,colback=white,arc=2mm]
 After completing this chapter, you should be able to:
 \begin{itemize}
-    \item recognize integers, floating-point numbers, strings, booleans, and \c{None};
+    \item explain how integers, floats, strings, booleans, and \c{None} differ;
+    \item choose a type from a value's meaning and intended operations;
     \item assign values to clearly named variables;
     \item perform and organize arithmetic calculations;
+    \item predict the result type of common operations and conversions;
     \item read text with \c{input()} and convert it to a number; and
     \item produce readable output with an f-string.
 \end{itemize}
@@ -53,6 +56,41 @@ These values have different types:
     \item \c{None} represents the absence of a value.
 \end{itemize}
 
+\bookfigure[0.82\textwidth]{Figures/Data type/Fig_Data_type.pdf}
+{Common Python data types and the kinds of information they represent.}
+{fig:ch02-data-types}
+
+Figure~\ref{fig:ch02-data-types} includes several types that the book develops
+later. They are previewed here so every item in the figure has a concrete
+meaning:
+\begin{itemize}
+    \item \c{complex} stores a real and an imaginary component, such as
+          \c{3 + 2j}; it is useful in specialized scientific, electrical, and
+          signal calculations but is not needed for ordinary counts or lengths;
+    \item \c{list} stores an ordered, changeable sequence and preserves
+          duplicates;
+    \item \c{tuple} stores an ordered sequence whose structure is not changed
+          in place;
+    \item \c{range} represents an arithmetic progression used especially for
+          controlled repetition without storing a full list of every value;
+    \item \c{dict} maps unique keys to values, supporting lookup by a meaningful
+          label rather than only by position;
+    \item \c{set} stores unique members for membership tests and set operations,
+          without position-based indexing.
+\end{itemize}
+
+Chapter 3 compares lists, tuples, dictionaries, and sets through their
+relationships and operations. Chapter 5 uses \c{range} to control loops. The
+specialized \c{complex} type follows the same principle as every other type:
+choose it only when the problem's quantities and operations require it.
+
+\begin{ExplainBox}{A type controls the available operations}
+Python can add two numbers and concatenate two strings because those
+operations have meanings for the corresponding types. A type error often
+means that the values are reasonable but the attempted operation does not
+make sense for their current types.
+\end{ExplainBox}
+
 Use \c{type()} when you want Python to report a value's type.
 
 \begin{lstlisting}[
@@ -71,6 +109,241 @@ print(type("Studio"))
 \textbf{Stop and predict.} What type will Python report for \c{"4"}? Notice
 that quotation marks change a number into text.
 \end{NoteBox}
+
+\hh{Understand what each core type means}
+
+The short names \c{int}, \c{float}, \c{str}, \c{bool}, and \c{NoneType} are
+not merely labels used by \c{type()}. A type is a behavioral contract. It
+answers four practical questions:
+\begin{enumerate}
+    \item What kind of information does this value represent?
+    \item Which operations are meaningful for it?
+    \item What type of result will those operations produce?
+    \item Which invalid operations should Python reject?
+\end{enumerate}
+
+Python is \emph{dynamically typed}: a value has a type, while a variable name
+can later be connected to a value of another type. This flexibility is useful,
+but a well-designed variable normally keeps one meaning. If \c{room_count}
+begins as an integer count, changing it later to the string \c{"many"} makes
+the program harder to reason about.
+
+\hhh{Integers represent exact whole quantities}
+
+An \c{int} is a positive or negative whole number, or zero, with no decimal
+part. Python integers are exact: \c{2 + 3} is exactly \c{5}. They are the
+natural choice for discrete quantities that can be counted one at a time.
+
+Use an integer for:
+\begin{itemize}
+    \item the number of rooms, occupants, iterations, or failed attempts;
+    \item an index or position in an ordered collection;
+    \item a calendar year or floor number when no fractional value is valid;
+    \item a numerator or denominator that must remain a whole count.
+\end{itemize}
+
+Do not choose \c{int} merely because a value is written with digits. A student
+ID such as \c{"0074"}, a postal code, and a telephone number are identifiers,
+not quantities. Arithmetic on them has no useful meaning, and converting them
+to integers may destroy leading zeros. Store such values as strings.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Choose integers for counts and strings for identifiers},
+    label={c02_integer_meaning},
+    captionpos=b
+]
+room_count = 18
+current_floor = 2
+student_id = "0074"
+
+print(room_count + 1)  # A count supports arithmetic.
+print(student_id)      # An identifier preserves its written form.
+\end{lstlisting}
+
+\hhh{Floating-point numbers represent measured or fractional quantities}
+
+A \c{float} is Python's standard approximation of a real number. It can hold
+a decimal-looking value such as \c{6.25}, a whole-looking value such as
+\c{6.0}, or scientific notation such as \c{1.5e3}. Use floats for continuous
+quantities that may fall between whole numbers: length, area, temperature,
+time, probability, or a calculated average.
+
+Most decimal fractions cannot be represented exactly in the binary format
+used by computer floating-point hardware. This is not a Python mistake; it is
+a consequence of representing infinitely many possible real numbers with a
+finite number of bits. The approximation is normally tiny, but it becomes
+visible in some calculations.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Observe floating-point approximation},
+    label={c02_float_evidence},
+    captionpos=b
+]
+result = 0.1 + 0.2
+
+print(result)
+print(result == 0.3)
+\end{lstlisting}
+
+Typical output is:
+
+\begin{lstlisting}[
+    language=text,
+    style=block,
+    caption={A decimal calculation reveals the stored approximation},
+    label={c02_float_evidence_output},
+    captionpos=b
+]
+0.30000000000000004
+False
+\end{lstlisting}
+
+For measured data, compare floats with a reasonable tolerance rather than
+requiring exact equality. The standard-library function \c{math.isclose()}
+expresses that intention. For exact financial rules, use integer cents or the
+\c{decimal.Decimal} type instead of assuming binary floats store every decimal
+fraction exactly.
+
+\begin{ExplainBox}{Numeric syntax influences the result type}
+\c{6} is an integer and \c{6.0} is a float. Combining an integer and a float
+usually produces a float because the result may need a fractional part.
+Furthermore, ordinary division with \c{/} always produces a float:
+\c{8 / 2} evaluates to \c{4.0}. Floor division with \c{//} answers a different
+question by discarding the fractional portion toward negative infinity.
+\end{ExplainBox}
+
+\hhh{Strings represent text and symbolic identifiers}
+
+A \c{str} is an ordered sequence of Unicode characters. The quotation marks
+tell Python where the string begins and ends; they are not part of the stored
+text. Strings can contain letters, spaces, punctuation, digits, or characters
+from many writing systems.
+
+Use a string for:
+\begin{itemize}
+    \item names, messages, descriptions, categories, and labels;
+    \item identifiers whose digits should not be calculated;
+    \item data that must preserve its exact written form;
+    \item text read from \c{input()} or a text file.
+\end{itemize}
+
+String operations describe text rather than arithmetic. The \c{+} operator
+concatenates strings, \c{*} repeats a string, and \c{len()} counts its
+characters. String values are immutable: an operation creates a new string
+rather than rewriting the existing one in place.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={String operations preserve textual meaning},
+    label={c02_string_meaning},
+    captionpos=b
+]
+room_code = "A-204"
+full_label = "Room " + room_code
+
+print(full_label)
+print(len(room_code))
+\end{lstlisting}
+
+The string \c{"12"} and the integer \c{12} may look related to a reader, but
+they support different questions. \c{"12" + "3"} produces \c{"123"};
+\c{12 + 3} produces \c{15}. Python does not silently guess which meaning you
+intended.
+
+\hhh{Booleans represent logical truth}
+
+A \c{bool} has exactly two values: \c{True} and \c{False}. The capital letters
+matter. Booleans record the answer to a yes-or-no question and control whether
+a decision or repetition should occur.
+
+Use a boolean for:
+\begin{itemize}
+    \item the result of a comparison such as \c{temperature_c < 0};
+    \item a state flag such as \c{door_is_open};
+    \item a validation result such as \c{input_is_valid};
+    \item a condition that later appears in \c{if} or \c{while}.
+\end{itemize}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={A comparison produces a boolean value},
+    label={c02_boolean_meaning},
+    captionpos=b
+]
+temperature_c = -3.0
+is_freezing = temperature_c <= 0
+
+print(is_freezing)
+print(type(is_freezing))
+\end{lstlisting}
+
+Do not replace a boolean with the strings \c{"True"} and \c{"False"}. Those
+are text. In particular, \c{bool("False")} evaluates to \c{True} because a
+nonempty string is considered truthy. Chapter 4 develops comparison and
+decision logic in detail.
+
+\hhh{None represents an intentionally absent value}
+
+\c{None} is Python's single marker for ``no value is present here.'' Its type
+is \c{NoneType}. Use it when a result has not been computed, an optional value
+was not supplied, or a search found no meaningful answer. It is different from
+zero, an empty string, and \c{False}; each of those is still a present value
+with its own meaning.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Distinguish absence from a present zero},
+    label={c02_none_meaning},
+    captionpos=b
+]
+measured_height_m = None
+opening_count = 0
+
+print(measured_height_m is None)
+print(opening_count == 0)
+\end{lstlisting}
+
+Use \c{is None} or \c{is not None} when checking this marker. Do not add,
+format as a number, or compare ordering with \c{None}; first decide what the
+absence means for the program.
+
+\hh{Choose a type from meaning, not appearance}
+
+The same written characters can represent different concepts. Ask what the
+program needs to do with the value.
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\textbf{Type} & \textbf{Represents} & \textbf{Good use} & \textbf{Example} \\
+\c{int} & exact whole quantity & count or index & \c{24} \\
+\c{float} & measured/fractional quantity & length or average & \c{24.5} \\
+\c{str} & text or identifier & name or room code & \c{"024"} \\
+\c{bool} & logical truth & condition or flag & \c{True} \\
+\c{NoneType} & intentional absence & not yet measured & \c{None} \\
+\end{tabular}
+\end{center}
+
+\begin{TryBox}{Classify values by meaning}
+Choose types for an occupant count, a room temperature, a ZIP code, whether a
+sensor is online, and a reading that has not arrived. Justify each choice by
+naming one operation the program should perform or one property it must
+preserve. Then create one variable for each and confirm it with \c{type()}.
+\end{TryBox}
+
+\begin{SyntaxBox}{A literal creates a value directly}
+Source-code forms such as \c{12}, \c{12.0}, \c{"12"}, \c{True}, and \c{None}
+are \emph{literals}. Their spelling tells Python which value and type to
+create. A variable name is not a literal; Python must look up the value
+currently connected to that name.
+\end{SyntaxBox}
 
 \hh{Variables give values names}
 
@@ -95,6 +368,18 @@ print(length_m)
 
 Read \c{width_m = 6.0} as ``assign the value 6.0 to \c{width_m}.'' The equals
 sign performs assignment here; it is not asking a mathematical question.
+
+\begin{SyntaxBox}{Assignment has a direction}
+Read \c{name = expression} from right to left: Python evaluates the expression
+on the right, then connects the resulting value to the name on the left.
+Assignment uses one equals sign. A later comparison uses two: \c{name == value}.
+\end{SyntaxBox}
+
+\begin{TryBox}{Inspect, reassign, and inspect again}
+Create \c{height_m = 3}, print its value and type, then reassign
+\c{height_m = 3.0} and print both again. Explain why the numerical value looks
+similar while the reported type changes.
+\end{TryBox}
 
 Use names that explain the value:
 \begin{itemize}
@@ -153,9 +438,17 @@ Subtraction & \c{-} & \c{8 - 2} \\
 Multiplication & \c{*} & \c{8 * 2} \\
 Division & \c{/} & \c{8 / 2} \\
 Floor division & \c{//} & \c{9 // 2} \\
+Remainder & \texttt{\%} & \texttt{9 \% 2} \\
 Exponentiation & \c{**} & \c{3 ** 2} \\
 \end{tabular}
 \end{center}
+
+These operators answer different questions. \c{9 / 2} is \c{4.5};
+\c{9 // 2} is the number of complete groups, \c{4}; and \texttt{9 \% 2} is the
+unassigned remainder, \c{1}. The remainder operator is useful for testing
+whether a number is even, wrapping a repeating index, or separating complete
+units from leftovers. With negative values, \c{//} rounds down rather than
+simply cutting off the decimal part, so \c{-9 // 2} is \c{-5}.
 
 Parentheses make the intended order clear.
 
@@ -176,6 +469,14 @@ volume_m3 = area_m2 * height_m
 print(area_m2)
 print(volume_m3)
 \end{lstlisting}
+
+\bookfigure[0.96\textwidth]{Figures/Generated/ch02_expression_trace.pdf}
+{An expression trace substitutes current values, applies the operator, and binds the resulting value and type to a name.}
+{fig:ch02-expression-trace}
+
+Tracing one expression at a time is a general debugging algorithm: identify
+the current values, evaluate the right-hand side, determine its type, and only
+then update the name on the left.
 
 \begin{NoteBox}
 \textbf{Stop and predict.} If \c{width_m} changes to \c{7.0}, which results
@@ -256,6 +557,49 @@ print(message)
 
 For messages containing numbers, an f-string is usually clearer than joining
 many converted values.
+
+\hh{Convert between types deliberately}
+
+Conversion creates a new value of a requested type. It does not change the
+original object. Use \c{int()}, \c{float()}, and \c{str()} when the source
+meaning is known and the conversion is valid.
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Convert values and inspect the results},
+    label={c02_explicit_conversion},
+    captionpos=b
+]
+count_text = "12"
+count = int(count_text)
+width_m = float("6.25")
+label = str(204)
+
+print(count + 1)
+print(width_m * 2)
+print("Room " + label)
+print(count_text)
+\end{lstlisting}
+
+The final line still prints \c{12} as text because \c{int(count_text)} returned
+a separate integer; it did not rewrite \c{count_text}. Conversion also cannot
+invent missing meaning:
+\begin{itemize}
+    \item \c{int("12")} succeeds because the text describes a whole number;
+    \item \c{float("12.5")} succeeds because the text describes a number;
+    \item \c{int("12.5")} fails because that string is not integer syntax;
+    \item \c{float("twelve")} fails because the text is not numeric syntax;
+    \item \c{int(12.9)} returns \c{12}, discarding the fractional part rather
+          than rounding to the nearest integer.
+\end{itemize}
+
+\begin{ExplainBox}{Conversion is a claim about meaning}
+Writing \c{int(user_text)} claims that the text represents a valid whole
+number. Python tests that claim and raises \c{ValueError} when the characters
+do not match. A robust program therefore separates reading, validating, and
+converting. Chapter 8 develops that workflow with exceptions.
+\end{ExplainBox}
 
 \hh{Read input from the student}
 
@@ -554,12 +898,18 @@ print(f"Length minus width: {difference_m:.2f} m")
 
 \begin{enumerate}
     \item What is the difference between \c{4} and \c{"4"}?
+    \item Why should the identifier \c{"0074"} usually remain a string?
+    \item When is a float more appropriate than an integer?
+    \item Why can \c{0.1 + 0.2 == 0.3} evaluate to \c{False}?
+    \item What question should a boolean value answer?
+    \item How is \c{None} different from \c{0}?
     \item What does the assignment operator do?
     \item Why is \c{area_m2} clearer than \c{x}?
-    \item Which operator performs multiplication?
+    \item Which operators perform multiplication, floor division, and remainder?
     \item Why might you use parentheses in a calculation?
     \item What type does \c{input()} return?
     \item How do you convert \c{"3.5"} to a number?
+    \item Why does \c{int("3.5")} fail even though \c{float("3.5")} succeeds?
     \item What does the \c{f} before an f-string mean for its braces?
     \item What does \c{:.2f} control?
     \item What symbol begins a comment?
@@ -569,22 +919,36 @@ print(f"Length minus width: {difference_m:.2f} m")
 
 \begin{enumerate}
     \item \c{4} is an integer; \c{"4"} is a string.
+    \item It is an identifier rather than a quantity; keeping it as text
+          preserves the leading zeros and prevents meaningless arithmetic.
+    \item For a measured or fractional quantity such as length, temperature,
+          duration, probability, or an average.
+    \item Most decimal fractions are stored as nearby binary approximations,
+          so exact equality may expose a tiny representation difference.
+    \item A yes-or-no question, such as whether a measurement is valid.
+    \item \c{None} marks absence; \c{0} is a present numeric value.
     \item It connects a name to a value.
     \item The name describes the quantity and its unit.
-    \item \c{*}.
+    \item \c{*}, \c{//}, and \texttt{\%}, respectively.
     \item To make the intended order clear or change the normal order.
     \item A string.
     \item Use \c{float("3.5")}.
+    \item The text describes a fractional number, not valid integer literal
+          syntax. Convert it directly to \c{float}; do not silently discard
+          information unless that is an explicit rule.
     \item Values or expressions inside braces are inserted into the text.
     \item The displayed number of decimal places.
     \item \c{#}.
 \end{enumerate}
 
 \begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
-Values have types. Variables give values meaningful names. Python can perform
-calculations with numeric variables, read responses with \c{input()}, convert
-text to numbers, and insert results into f-strings. Chapter 3 shows how to
-organize several related values in collections.
+A type describes both meaning and behavior. Integers hold exact whole
+quantities; floats approximate measured or fractional quantities; strings
+preserve text and identifiers; booleans answer logical questions; and
+\c{None} marks intentional absence. Variables give values meaningful names.
+Python can calculate with numeric values, convert compatible representations,
+read text with \c{input()}, and insert results into f-strings. Chapter 3 shows
+how to organize several related values in collections.
 \end{tcolorbox}
 
 

@@ -2,6 +2,7 @@
 % Chapter 11: NumPy arrays and vectorized calculations
 
 \h{NumPy Arrays and Vectorized Calculations}
+\label{ch:11}
 
 Python lists work well when a collection contains mixed kinds of values. When
 the values are mainly numbers and share one structure, a NumPy array makes
@@ -80,6 +81,22 @@ print(type(room_areas_m2))
 
 An array normally uses one data type for all its elements. This regular
 structure is one reason NumPy can process numerical data efficiently.
+
+\begin{ExplainBox}{An array is a typed, shaped numerical model}
+A Python list primarily organizes references to general objects; a NumPy array
+organizes values under one data type and a rectangular shape. The \c{dtype}
+determines how each value is represented and which numerical range or
+precision is available. The \c{shape} determines how positions correspond to
+axes. An array operation is meaningful only when both the value representation
+and the shape relationship fit the problem.
+\end{ExplainBox}
+
+Type consistency has consequences. Combining integers and floats normally
+promotes the array to a floating type so fractional values can be represented.
+Combining numbers and text may produce a text-like array that no longer
+supports the intended arithmetic. Do not accept that conversion silently;
+inspect \c{dtype} and correct the source data or request a deliberate numeric
+conversion.
 
 \hh{Inspect an array before using it}
 
@@ -194,6 +211,14 @@ print("With 10 percent allowance:", adjusted_m2)
 
 The arrays must have compatible shapes. Here each width is paired with the
 length at the same position.
+
+\bookfigure[0.94\textwidth]{Figures/Generated/ch11_vectorization_trace.pdf}
+{A Python loop and a NumPy expression can represent the same element-wise transformation, but the array expression states the operation directly.}
+{fig:ch11-vectorization-trace}
+
+Vectorization is not merely abbreviated typing. It shifts the iteration into
+an array operation whose intent, shape rules, and optimized implementation can
+be reasoned about as one unit.
 
 \hh{Compare a list operation with an array operation}
 
@@ -312,6 +337,16 @@ print("Shape:", floor_areas_m2.shape)
 The shape \c{(3, 3)} means three rows and three columns. NumPy arrays must be
 rectangular: every row needs the same number of values.
 
+\bookfigure[0.82\textwidth]{Figures/Generated/ch11_array_axes.pdf}
+{Rows belong to axis 0 and columns belong to axis 1 in a two-dimensional array.}
+{fig:ch11-array-axes}
+
+\begin{SyntaxBox}{Two-dimensional selection uses row, then column}
+The pattern is \c{array[row_selection, column_selection]}. A colon means all
+positions on that axis, so \c{data[0, :]} selects the first row and
+\c{data[:, 1]} selects the second column.
+\end{SyntaxBox}
+
 \hh{Select rows, columns, and cells}
 
 For a two-dimensional array, write the row selection first and the column
@@ -370,6 +405,20 @@ print("Row totals:", totals_by_row)
 
 A useful check is the result's length: \c{axis=0} produces one result per
 column, while \c{axis=1} produces one result per row.
+
+\begin{ExplainBox}{An aggregation removes the named axis}
+Think of \c{sum(axis=0)} as collapsing the row direction, leaving one result
+for each column. Likewise, \c{sum(axis=1)} collapses the column direction,
+leaving one result for each row. Checking the output shape is a reliable way
+to test this mental model.
+\end{ExplainBox}
+
+\begin{TryBox}{Predict the output shape first}
+For an array with shape \c{(3, 4)}, write down the expected shapes of
+\c{data.sum(axis=0)} and \c{data.sum(axis=1)}. Create the array with
+\c{np.arange(12).reshape(3, 4)}, run both summaries, and compare the printed
+values and shapes with your prediction.
+\end{TryBox}
 
 \begin{NoteBox}
 \textbf{Stop and predict.} For an array with shape \c{(4, 3)}, how many values
