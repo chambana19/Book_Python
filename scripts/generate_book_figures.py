@@ -1255,6 +1255,201 @@ def generate_metaheuristic_comparison() -> None:
     save(fig, "ch19_metaheuristic_search")
 
 
+def make_comfort_complaint_data(seed: int = 42, sample_count: int = 900):
+    """Reproducible synthetic comfort-complaint data with a non-linear driver."""
+    rng = np.random.default_rng(seed)
+    features = pd.DataFrame(
+        {
+            "floor_area_m2": rng.uniform(60, 520, sample_count),
+            "glazing_ratio": rng.uniform(0.10, 0.68, sample_count),
+            "occupant_density": rng.uniform(0.02, 0.16, sample_count),
+            "setpoint_deviation_c": rng.normal(0.0, 2.4, sample_count),
+            "outdoor_temp_c": rng.uniform(-8, 34, sample_count),
+            "months_since_service": rng.integers(0, 36, sample_count),
+        }
+    )
+    risk = (
+        -9.0
+        + 1.10 * np.abs(features["setpoint_deviation_c"])
+        + 4.5 * features["glazing_ratio"] * (features["outdoor_temp_c"] > 26)
+        + 30.0 * features["occupant_density"]
+        + 0.11 * features["months_since_service"]
+        + rng.normal(0, 0.30, sample_count)
+    )
+    probability = 1 / (1 + np.exp(-risk))
+    target = pd.Series((rng.random(sample_count) < probability).astype(int), name="complaint")
+    return features, target
+
+
+def generate_classification_workflow() -> None:
+    fig, ax = blank_canvas(11, 4.6)
+    ax.text(
+        0.5,
+        0.95,
+        "Model selection happens inside training data; the test set is opened once",
+        ha="center",
+        fontsize=14.5,
+        weight="bold",
+        color=DARK,
+    )
+    steps = [
+        ("Split once", "stratified train and test", BLUE),
+        ("Cross-validate", "compare candidates on folds", ORANGE),
+        ("Tune", "search hyperparameters", ORANGE),
+        ("Refit", "best settings on all training rows", BLUE),
+        ("Report once", "test metrics and threshold", BLUE),
+    ]
+    xs = np.linspace(0.02, 0.81, len(steps))
+    for x, (title, subtitle, color) in zip(xs, steps):
+        rounded_box(ax, (x, 0.45), 0.17, 0.28, title, color, fontsize=10.5, subtitle=subtitle)
+    for left, right in zip(xs[:-1], xs[1:]):
+        arrow(ax, (left + 0.17, 0.59), (right, 0.59))
+    ax.text(0.5, 0.28, "Every comparison you make on the test set spends part of its independence.",
+            ha="center", color="#52647C")
+    ax.text(0.5, 0.14,
+            "Accuracy alone hides the minority class: a majority-class rule scores 0.76 here and finds no complaint at all.",
+            ha="center", color="#52647C", fontsize=9)
+    save(fig, "ch20_classification_workflow")
+
+
+def generate_model_selection_figure() -> None:
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import roc_auc_score, roc_curve
+    from sklearn.model_selection import (
+        StratifiedKFold,
+        train_test_split,
+        validation_curve,
+    )
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.tree import DecisionTreeClassifier
+
+    features, target = make_comfort_complaint_data()
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, target, test_size=0.25, random_state=42, stratify=target
+    )
+    folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+    depths = np.arange(1, 16)
+    train_scores, valid_scores = validation_curve(
+        DecisionTreeClassifier(random_state=42),
+        X_train,
+        y_train,
+        param_name="max_depth",
+        param_range=depths,
+        cv=folds,
+        scoring="roc_auc",
+    )
+
+    logistic = Pipeline(
+        [("scale", StandardScaler()), ("model", LogisticRegression(max_iter=1000))]
+    ).fit(X_train, y_train)
+    forest = RandomForestClassifier(
+        n_estimators=400, max_depth=8, min_samples_leaf=5, random_state=42
+    ).fit(X_train, y_train)
+
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.8), layout="constrained")
+    fig.suptitle(
+        "Validation curves expose overfitting; ROC curves compare ranking quality",
+        fontsize=14.5,
+        weight="bold",
+        color=DARK,
+    )
+    axes[0].plot(depths, train_scores.mean(axis=1), color=ORANGE, linestyle="--",
+                 marker="s", markersize=4, label="Training folds")
+    axes[0].plot(depths, valid_scores.mean(axis=1), color=BLUE, linestyle="-",
+                 marker="o", markersize=4, label="Validation folds")
+    best_depth = depths[valid_scores.mean(axis=1).argmax()]
+    axes[0].axvline(best_depth, color=GREEN, linestyle="-.", linewidth=1.3,
+                    label=f"Best validated depth: {best_depth}")
+    axes[0].set(title="Decision-tree depth versus cross-validated ROC-AUC",
+                xlabel="Maximum tree depth", ylabel="ROC-AUC", ylim=(0.5, 1.02))
+    axes[0].grid(alpha=0.2)
+    axes[0].legend(fontsize=8, loc="lower left")
+    chart_finish(axes[0])
+
+    for name, model, color, linestyle in (
+        ("Logistic regression", logistic, ORANGE, "--"),
+        ("Tuned random forest", forest, BLUE, "-"),
+    ):
+        scores = model.predict_proba(X_test)[:, 1]
+        false_rate, true_rate, _ = roc_curve(y_test, scores)
+        axes[1].plot(false_rate, true_rate, color=color, linestyle=linestyle, linewidth=2.0,
+                     label=f"{name}: AUC {roc_auc_score(y_test, scores):.3f}")
+    axes[1].plot([0, 1], [0, 1], color="0.45", linestyle=":", linewidth=1.4,
+                 label="Chance baseline: AUC 0.500")
+    axes[1].set(title="Test-set ROC curves", xlabel="False positive rate",
+                ylabel="True positive rate (recall)")
+    axes[1].grid(alpha=0.2)
+    axes[1].legend(fontsize=8, loc="lower right")
+    chart_finish(axes[1])
+    save(fig, "ch20_model_selection")
+
+
+def generate_threshold_figure() -> None:
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+    from sklearn.model_selection import train_test_split
+
+    features, target = make_comfort_complaint_data()
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, target, test_size=0.25, random_state=42, stratify=target
+    )
+    forest = RandomForestClassifier(
+        n_estimators=400, max_depth=8, min_samples_leaf=5, random_state=42
+    ).fit(X_train, y_train)
+    scores = forest.predict_proba(X_test)[:, 1]
+
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.6), layout="constrained")
+    fig.suptitle(
+        "One fitted model produces many classifiers, one for each decision threshold",
+        fontsize=14.5,
+        weight="bold",
+        color=DARK,
+    )
+    matrix = confusion_matrix(y_test, (scores >= 0.5).astype(int))
+    axes[0].imshow(matrix, cmap="Blues", alpha=0.65)
+    labels = (("True negative", "False positive"), ("False negative", "True positive"))
+    for row in range(2):
+        for column in range(2):
+            axes[0].text(column, row - 0.12, str(matrix[row, column]), ha="center",
+                         va="center", fontsize=17, weight="bold", color=DARK)
+            axes[0].text(column, row + 0.18, labels[row][column], ha="center",
+                         va="center", fontsize=8.5, color="#3B4A5F")
+    axes[0].set(title="Confusion matrix at threshold 0.50",
+                xlabel="Predicted label", ylabel="Actual label",
+                xticks=[0, 1], yticks=[0, 1])
+    axes[0].set_xticklabels(["No complaint", "Complaint"])
+    axes[0].set_yticklabels(["No complaint", "Complaint"])
+
+    thresholds = np.linspace(0.05, 0.95, 91)
+    precision_line, recall_line, f1_line = [], [], []
+    for threshold in thresholds:
+        precision, recall, f1, _ = precision_recall_fscore_support(
+            y_test, (scores >= threshold).astype(int), average="binary", zero_division=0
+        )
+        precision_line.append(precision)
+        recall_line.append(recall)
+        f1_line.append(f1)
+    axes[1].plot(thresholds, precision_line, color=ORANGE, linestyle="--", linewidth=2.0,
+                 label="Precision: of flagged rooms, share correct")
+    axes[1].plot(thresholds, recall_line, color=BLUE, linestyle="-", linewidth=2.0,
+                 label="Recall: of real complaints, share found")
+    axes[1].plot(thresholds, f1_line, color=GREEN, linestyle="-.", linewidth=1.8,
+                 label="F1: harmonic mean of the two")
+    best_threshold = thresholds[int(np.argmax(f1_line))]
+    axes[1].axvline(best_threshold, color="0.35", linestyle=":", linewidth=1.4,
+                    label=f"Best F1 near threshold {best_threshold:.2f}")
+    axes[1].set(title="Precision and recall trade off as the threshold moves",
+                xlabel="Decision threshold on predicted probability",
+                ylabel="Score", ylim=(0, 1.42))
+    axes[1].grid(alpha=0.2)
+    axes[1].legend(fontsize=7.5, loc="upper center", ncol=2, framealpha=0.95)
+    chart_finish(axes[1])
+    save(fig, "ch20_threshold_tradeoff")
+
+
 def main() -> None:
     generate_workflow_diagram()
     generate_program_pipeline()
@@ -1288,6 +1483,9 @@ def main() -> None:
     generate_search_method_map()
     generate_gradient_descent_figure()
     generate_metaheuristic_comparison()
+    generate_classification_workflow()
+    generate_model_selection_figure()
+    generate_threshold_figure()
     print(f"Generated teaching figures in {OUTPUT}")
 
 

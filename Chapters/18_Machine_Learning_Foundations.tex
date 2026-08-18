@@ -513,12 +513,13 @@ remains independent of the training algorithm.
     \item Observed relationships may reflect confounding, selection, or measurement.
 \end{enumerate}
 
-\begin{tcolorbox}[title=Part VI summary,colframe=orange,colback=white,arc=2mm]
-Algorithms turn specifications into finite methods whose correctness and growth
-can be explained. Optimization searches a modeled feasible space and requires
-independent verification. Machine learning estimates rules from data and
-requires protected evaluation, baselines, diagnostics, and explicit limits.
-Across all three, the foundational habit is the same: define the contract,
-trace the computation, test edge cases, measure performance, and communicate
-what the result does not prove.
+\begin{tcolorbox}[title=Chapter summary,colframe=orange,colback=white,arc=2mm]
+Machine learning estimates a rule from data, and the estimate is only as
+trustworthy as the workflow around it: a legitimate target, a protected test
+set, a baseline that uses training information only, metrics paired with
+residual diagnostics, and stated limits on population and use.
+\booklink{ch:19}{Chapter 19} opens the solvers that fit such models, and
+\booklink{ch:20}{Chapter 20} extends this workflow to classification, where
+several candidate models compete and the comparison itself must be protected
+from the test set.
 \end{tcolorbox}
