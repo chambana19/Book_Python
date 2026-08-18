@@ -30,6 +30,124 @@ After completing this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
+\hh{What optimization means}
+
+You already solve optimization problems without the word. Filling a grocery
+cart from a shopping list is one: you choose how many units of each item to
+buy, a store limits some items to three per customer during a sale, your
+recipe needs at least a certain amount of protein across everything in the
+cart, and you want the total price as low as possible. Nobody hands you an
+equation, yet the shape of the problem is exactly what this chapter formalizes.
+
+\begin{ExplainBox}{Every optimization problem is the same four pieces}
+Whatever the setting, an optimization problem names the same four things.
+\begin{itemize}
+    \item \textbf{Decision variables}: the quantities you are allowed to choose
+          (how many of each grocery item; a window-to-wall ratio).
+    \item \textbf{Objective}: the single number that scores a choice, with a
+          stated direction of improvement (total price, lower is better).
+    \item \textbf{Bounds}: simple limits on one decision variable at a time
+          (at most three of the sale item; a ratio between 0.10 and 0.70).
+    \item \textbf{Constraints}: conditions a choice must satisfy, possibly
+          linking several decision variables (the cart's combined protein must
+          meet the recipe's requirement).
+\end{itemize}
+Solving means searching among the choices that satisfy every bound and
+constraint for the one with the best objective value. The rest of this chapter
+defines each piece precisely, then applies all four to one building decision.
+\end{ExplainBox}
+
+\hh{Decision variables and parameters}
+
+A \textbf{decision variable} is a quantity the algorithm is allowed to change
+while it searches. In the grocery cart, the decision variables are the
+quantities of each item; in the room example ahead, it will be a single
+window-to-wall ratio $r$.
+
+Not every number in the problem is a decision variable. A \textbf{parameter} is
+a quantity that is fixed for the run: the price per unit of an item, or a
+coefficient in an energy equation. Parameters and decision variables can look
+identical in code -- both are ordinary numbers -- but they play opposite roles.
+Changing a parameter changes which problem you are solving; changing a
+decision variable is what the solver itself is allowed to do.
+
+\begin{SyntaxBox}{Ask which role a number plays, not what type it is}
+Before writing any code, label every number in the problem statement as either
+a decision variable or a parameter. If you cannot say which values the
+algorithm is permitted to change, you have not yet finished formulating the
+problem, no matter how complete the arithmetic looks.
+\end{SyntaxBox}
+
+\hh{The objective function}
+
+The \textbf{objective} is a function that takes one candidate set of decision
+variables and returns exactly one real number: how good that candidate is. This
+book's convention, matching SciPy's, is that \textbf{lower is better}. A
+quantity you want to maximize -- comfort, daylight, profit -- is optimized by
+minimizing its negative; nothing about the solver changes, only the sign of
+what you hand it.
+
+An objective is a modeling choice, not a fact. Two engineers who agree on every
+number can still disagree on the objective if they weigh energy, comfort, and
+cost differently. The number that comes out of a solver is only as trustworthy
+as the objective that produced it.
+
+\begin{ExplainBox}{One scalar in, one scalar out}
+An objective function must accept one candidate and return one number, never a
+list, array, or dictionary of separate scores. If several consequences matter
+-- energy, daylight, glare -- they must be combined into a single value before
+the function returns, typically by adding weighted or penalized terms. Chapter
+20 leans on the same requirement from the other direction: a cross-validation
+score reduces many individual predictions to the one comparable number a
+model comparison needs.
+\end{ExplainBox}
+
+\hh{Bounds and constraints}
+
+A \textbf{bound} restricts one decision variable to an interval:
+$\text{low} \le x \le \text{high}$. The sale limit of three units is a bound;
+so is restricting a window ratio to $0.10 \le r \le 0.70$. Bounds are the
+simplest kind of restriction, and SciPy gives them their own dedicated
+argument because of it.
+
+A \textbf{constraint} is any condition a candidate must satisfy to be valid,
+and it may combine several decision variables or a quantity computed from
+them. The recipe's protein requirement is a constraint: it depends on the sum
+of several cart quantities at once, not on any single one, so it cannot be
+written as a bound on one variable. A building example: if a design places
+windows on two separate facades with ratios $r_1$ and $r_2$, a shared
+structural glazing allowance might require $r_1 + r_2 \le 1.1$ -- a real
+constraint, because it links two decision variables together.
+
+\begin{ExplainBox}{Every bound is a constraint, but not every constraint is a bound}
+A bound is a constraint that happens to restrict exactly one variable to a
+simple interval. The reverse is not true: a general constraint can involve
+several variables, computed quantities, and any comparison operator. This
+chapter works with bounds only; SciPy's \c{minimize()} accepts general
+constraints through a separate \c{constraints} argument, which later,
+more advanced formulations may need.
+\end{ExplainBox}
+
+A candidate that satisfies every bound and constraint is \textbf{feasible}; one
+that violates any of them is \textbf{infeasible} and should never be reported as
+a usable answer, no matter how low its objective value happens to be.
+
+\begin{TryBox}{Classify before you code}
+The window-ratio problem ahead uses the ratio $r$, bounds
+$0.10 \le r \le 0.70$, and an objective built from three terms: an energy term
+with coefficient 160, a daylight penalty that activates below $r = 0.32$, and a
+glare penalty that activates above $r = 0.55$. For each of these five numbers
+-- $r$, 0.10, 0.70, 160, 0.32 -- decide whether it is a decision variable, a
+bound, or a parameter inside the objective. Then decide whether this problem,
+as described, has any constraint beyond its bounds.
+\end{TryBox}
+
+Check your answer: $r$ is the decision variable; 0.10 and 0.70 are its bounds;
+160 and 0.32 are parameters fixed inside the objective. This problem restricts
+$r$ with bounds alone -- nothing links it to another decision variable -- which
+is why the solver call ahead passes \c{bounds} and never needs a separate
+\c{constraints} argument.
+
 \hh{Formulate the model before calling a solver}
 
 The running example chooses a window-to-wall ratio $r$. Larger windows may
@@ -431,6 +549,8 @@ and scores, and returns both the decision and evidence used to rank it.
 
 \begin{enumerate}
     \item What are the five main components of an optimization workflow?
+    \item What distinguishes a decision variable from a parameter?
+    \item What distinguishes a bound from a general constraint?
     \item Why must the objective return one scalar?
     \item What trade-off controls grid-search resolution?
     \item What does \c{result.success} communicate?
@@ -444,6 +564,13 @@ and scores, and returns both the decision and evidence used to rank it.
 \begin{enumerate}
     \item Decision variables, objective, constraints or bounds, search
           algorithm, and independent validation.
+    \item A decision variable is a quantity the algorithm may change while
+          searching; a parameter is a fixed number for that run. The same
+          numeric type can play either role.
+    \item A bound restricts one decision variable to a simple interval; a
+          general constraint can involve several decision variables or a
+          computed quantity, so every bound is a constraint but not every
+          constraint is a bound.
     \item The algorithm needs one comparable score for every candidate.
     \item More points improve resolution but require more evaluations.
     \item Whether the solver reports that its convergence conditions were met.

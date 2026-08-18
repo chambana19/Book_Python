@@ -15,6 +15,17 @@
   series, `tab:orange` for a comparison, and `tab:green` only when a third
   series is needed. Labels, markers, or line styles repeat the distinction so
   meaning never depends on color alone.
+- Explanatory box-and-arrow diagrams (pipelines, workflows, anatomy figures
+  built with `rounded_box()` in `scripts/generate_book_figures.py`) use a
+  single neutral dark outline (`DARK`) for every box by default. Reserve color
+  for two cases only: one accent on the single box the diagram exists to
+  highlight (e.g., the geometry column in a GeoDataFrame, the activation in a
+  neuron), or two colors on an arrow/label pair that already states the
+  distinction in adjacent text (e.g., push vs. pop, true vs. false). Never
+  alternate colors across steps purely for visual variety -- the book's own
+  color conventions (orange for outcomes/summary boxes, blue for explanatory
+  boxes) train readers to expect box color to mean something, so decorative
+  alternation reads as an unexplained code the reader is failing to crack.
 
 The restrained orange, blue, black, and white palette keeps the pages readable
 without assigning a new color to each kind of activity.
