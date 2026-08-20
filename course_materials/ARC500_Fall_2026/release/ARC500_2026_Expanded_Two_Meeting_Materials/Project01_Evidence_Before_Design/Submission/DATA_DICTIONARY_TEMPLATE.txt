@@ -1,0 +1,12 @@
+PROJECT 1 — DATA DICTIONARY
+
+Complete one line per submitted column.
+
+column_name | Python/pandas type | unit | what it means | missing-value rule | source/derivation
+------------|--------------------|------|---------------|--------------------|------------------
+            |                    |      |               |                    |
+missing_flag | bool | none | True when the named outcome is missing | never blank | derived with isna()
+outlier_flag | bool | none | True only for a recorded outcome outside the stated IQR fences | False when outcome is missing | derived with the IQR rule
+
+Keep these two flags separate. A row with no recorded outcome cannot be compared
+with a numerical fence and therefore is not an outlier.

@@ -1,0 +1,62 @@
+ARC 500 — PROJECT 1 BRIEF
+EVIDENCE BEFORE DESIGN: AN ARCHITECTURAL DATA STORY
+
+PROJECT QUESTION
+What can a small, documented architectural dataset support us in claiming,
+and where does that claim stop?
+
+Use the course building-room and zone datasets, or an instructor-approved
+alternative, to answer one specific question. Examples include:
+- Which orientation or program group has the highest energy use per area?
+- Which rooms deserve investigation after an outlier audit?
+- How does a performance measure vary by zone or room type?
+- Where does a mapped spatial condition support a limited design response?
+
+PART I — DATA AS EVIDENCE
+- State the question in one sentence.
+- Record the source, collection/generation method, units, and what one row means.
+- Inspect shape, column names, dtypes, missing values, duplicates, and ranges.
+- Clean only with written reasons.
+- Export cleaned_data.csv with index=False.
+
+PART II — GROUPING AND OUTLIER DECISION
+- Compare at least two meaningful groups.
+- Export grouped_summary.csv with group, n, mean, median, and outlier_count.
+- Apply the IQR rule to one outcome.
+- Keep missing_flag and outlier_flag separate: a missing outcome has no value to
+  compare with an IQR fence and must not be counted as an outlier.
+- For every flagged row, record KEEP, INVESTIGATE, or EXCLUDE and explain why.
+- A z-score comparison or merge is an extension, not a core requirement.
+
+PART III — TWO STATIC FIGURES
+- Figure 1: a distribution or grouped-comparison figure.
+- Figure 2: a relationship or change figure.
+- Use fig, ax = plt.subplots(...), label axes and units, and save at 200 dpi.
+- At least one figure must reveal the effect of cleaning or the outlier decision.
+- Annotate one important row, group, or turning point.
+- course_style.py is provided in Starter_Code/: call its apply_house_style(ax,
+  title=..., xlabel=..., ylabel=..., source_note=...) on every figure for one
+  consistent look. You call this function; you do not need to edit it.
+
+PART IV — CHOOSE ONE EXTENSION
+Choose A or B, not both:
+A. MAP: state the CRS, reproject before measuring, complete one spatial operation,
+   and export one map PNG.
+B. ANIMATION: show change across time, category, or a parameter and export one GIF.
+
+FINAL CLAIM
+Write one bounded recommendation supported by the table and figures. Name at
+least two limitations and one next evidence-gathering step.
+
+DELIVERABLES
+1. analysis.py and optional evidence.py.
+2. cleaned_data.csv and grouped_summary.csv.
+3. two static PNG figures plus one map PNG OR one animation GIF.
+4. A 600–800-word illustrated evidence memo.
+5. README, data dictionary, and AI-use record.
+6. A six-slide pin-up: cover plus five content slides.
+
+AI USE
+Generative AI may help with code. You remain responsible for the question,
+data choices, tests, outputs, interpretation, and disclosure. Record at least
+one accepted, one modified, and one rejected or independently verified suggestion.

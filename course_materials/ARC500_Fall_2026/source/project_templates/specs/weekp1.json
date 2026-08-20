@@ -1,0 +1,13 @@
+{
+  "week":"P1",
+  "weekLabel":"Project 1 · Evidence Before Design · Six-Slide Template",
+  "fileName":"ARC500_Project1_Six_Slide_Presentation_Template.pptx",
+  "slides":[
+    {"layout":"title","title":"Replace with one bounded evidence claim","subtitle":"Student · dataset · Project 1 pin-up","duration":0,"teaching":"Template slide. Replace every prompt; do not add slides."},
+    {"layout":"twoColumn","title":"1 · Question, data, and trustworthiness","left":{"head":"QUESTION","body":"One answerable architectural question · why it matters · unit of analysis"},"right":{"head":"DATA EVIDENCE","body":"Source · what one row means · units · n_rows and n_measured · cleaning decision · one key check"},"duration":0,"teaching":"Show the question and provenance before results."},
+    {"layout":"table","title":"2 · Group comparison and outlier decision","columns":["case","n measured","summary","decision"],"rows":[["group A","replace","mean / median","KEEP"],["case to audit","1","value + unit","INVESTIGATE"]],"callout":"Show grouped evidence, one checked IQR decision, and a sensitivity check. Missing values and numeric outliers are separate flags.","duration":0,"teaching":"Replace the prompts; explain EXCLUDE decisions in the callout rather than squeezing prose into a table cell."},
+    {"layout":"twoColumn","title":"3 · Two static figures answer two questions","left":{"head":"FIGURE 1","body":"Insert a distribution or group comparison. Label axes and units; add alt text and one finding sentence."},"right":{"head":"FIGURE 2","body":"Insert a relationship or change figure. Annotate the important case and state what it means."},"duration":0,"teaching":"Use exported PNGs; keep axes, units, and color contrast legible."},
+    {"layout":"twoColumn","title":"4 · One extension: map or animation","left":{"head":"INSERT OUTPUT","body":"Map: CRS, operation, legend, and spatial meaning.\n\nAnimation: changing variable, fixed conditions, and what motion reveals."},"right":{"head":"WHY IT MATTERS","body":"One finding · one limitation · one sentence explaining how the extension qualifies the static evidence"},"duration":0,"teaching":"Complete one extension only; the six-slide count includes this slide."},
+    {"layout":"closing","title":"5 · Recommendation, limits, and next evidence","takeaways":["Replace with the bounded recommendation.","Replace with limitation 1.","Replace with limitation 2.","Replace with the next evidence-gathering step."],"duration":0,"teaching":"Return to the original question; distinguish evidence from design judgment."}
+  ]
+}

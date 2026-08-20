@@ -1,0 +1,32 @@
+PROJECT 2 — AI-USE RECORD
+
+GRADING NOTE: this record is a compliance gate, not just a rubric line. A
+missing, incomplete (any field below left blank or as placeholder text), or
+fabricated record caps the whole project's score at 70%. Complete all three
+sections honestly even if your answer to a field is "none."
+
+Student:
+Tool(s) and version/date if known:
+
+ACCEPTED SUGGESTION
+Prompt/task:
+Suggestion:
+Test/evidence supporting acceptance:
+
+MODIFIED SUGGESTION
+Prompt/task:
+Original suggestion:
+Change and reason:
+Test/evidence:
+
+REJECTED OR INDEPENDENTLY VERIFIED SUGGESTION
+Prompt/task:
+Suggestion:
+Risk found (for example leakage, wrong metric, infeasible result, extrapolation):
+Verification/rejection evidence:
+
+FINAL RESPONSIBILITY STATEMENT
+I ran the submitted scripts, checked reported metrics and constraints, verified
+the model-to-optimizer connection, and take responsibility for the conclusions.
+
+Signature/date:

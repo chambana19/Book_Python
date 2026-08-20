@@ -1,0 +1,58 @@
+PROJECT 2 — MILESTONES AND COMPLETION CHECKLIST
+
+WEEK 9 — FORMULATION AND SENSITIVITY
+[ ] Decision question, variables, units, bounds, objective, and constraints are explicit.
+[ ] One baseline design is recorded.
+[ ] One sensitivity sweep is plotted and interpreted.
+
+WEEK 10 — FAMILY CHOICE
+[ ] I selected one primary family and justified the choice from the problem structure.
+[ ] I formulated and solved the linear sub-component, or a simplified linear
+    relaxation, of my own project problem with scipy.optimize.linprog, and
+    recomputed every constraint by hand. Required of everyone, whatever my
+    primary family turns out to be.
+[ ] I identified one compact comparison/baseline.
+[ ] I wrote testable feasibility checks before accepting a solution.
+
+WEEK 11 — CONTINUOUS/NONLINEAR CHECKPOINT
+[ ] If nonlinear is primary/comparison, I tested at least two initial guesses.
+[ ] I recorded bounds, success/status, objective, and final constraint values.
+[ ] If not using nonlinear in the project, I completed the weekly studio only.
+
+WEEK 12 — DISCRETE/HEURISTIC CHECKPOINT
+[ ] If heuristic is primary/comparison, I fixed and recorded a random seed.
+[ ] I compared with brute force/grid search on a tractable sub-problem.
+[ ] If not using a heuristic in the project, I completed the weekly studio only.
+
+WEEK 13 — REGRESSION CHECKPOINT
+[ ] My feature list excludes the target, identifiers, and answer-derived columns.
+[ ] Fit/validation/final-test indexes do not overlap.
+[ ] Feature/model choices use validation or out-of-fold evidence, not final-test labels.
+[ ] Baseline and proposed model use the same untouched final-test rows and metrics.
+[ ] Regression track: metric table and residual plot are complete.
+
+WEEK 14 — TRACK-APPROPRIATE MODEL CARD
+[ ] Classification track: validation-selected threshold, final-test confusion matrix,
+    manual precision/recall/F1, support counts, and calibration status.
+[ ] Regression track: validation-supported feature/model decision and one untouched
+    final-test evaluation.
+[ ] Model card names intended use, data, evaluation, domain, limits, and refusal rule.
+[ ] Freeze/export the exact fitted artifact the optimizer will call.
+[ ] Implement the model-inside-objective/constraint wrapper.
+[ ] Evaluate that wrapper at the baseline and at least one candidate.
+[ ] Verify feature order plus featurewise and joint-support gates before Week 15.
+
+WEEK 15 — CONFIRMATION, POLISH, AND SUBMISSION
+[ ] The Week 14 wrapper still calls the frozen model inside the objective or constraint;
+    Week 15 is not the first assembly of this integration.
+[ ] Candidate values pass featurewise AND joint-support domain checks.
+[ ] All constraints are hand- or code-verified in a readable table.
+[ ] Four required figures answer four different questions.
+[ ] The report uses a defensible uncertainty method (not RMSE as an interval), states
+    three limitations, and documents baseline/candidate non-surrogate confirmation.
+[ ] The README runs from a clean project folder with relative paths.
+[ ] Model card, solver card, and AI-use record are complete.
+[ ] Presentation is a four-minute decision brief plus a one-minute evidence/code trace,
+    hard-capped at five minutes per student.
+[ ] The class reserves 15 minutes for selective source-deck synthesis; if enrollment
+    exceeds 12, use parallel gallery/code-review rounds before reconvening.

@@ -1,0 +1,105 @@
+ARC 500 · SPYDER INSTALLATION AND COURSE ENVIRONMENT GUIDE
+Fall 2026
+
+PURPOSE
+
+Use one stable Python environment for the semester. Spyder is the IDE: it
+provides the Editor, IPython Console, Variable Explorer, Files pane, and other
+tools. The Python interpreter and installed libraries form the environment
+that actually runs your .py files.
+
+RECOMMENDED COURSE PATH: CONDA-BASED ENVIRONMENT
+
+This path is recommended for students starting fresh because later coursework
+uses NumPy, pandas, Matplotlib, SciPy, scikit-learn, and GeoPandas.
+
+1. Install Miniforge, Miniconda, or another supported Conda-based distribution.
+   Miniforge is the option recommended in the current Spyder documentation.
+2. Open Miniforge Prompt/Anaconda Prompt on Windows, or a terminal on macOS or
+   Linux.
+3. Create a dedicated environment:
+
+   conda create -c conda-forge -n arc500 spyder numpy pandas matplotlib scipy scikit-learn geopandas
+
+4. Activate it:
+
+   conda activate arc500
+
+5. Launch Spyder:
+
+   spyder
+
+6. Use the environment-specific Spyder shortcut on later launches when one is
+   available.
+
+ALTERNATIVE: SPYDER STANDALONE INSTALLER
+
+The official standalone installer is the simplest route for basic use and
+includes a Python environment with common scientific libraries. Because this
+course later uses specialized packages such as scikit-learn and GeoPandas,
+students using the standalone version must run the verification below. If a
+required import fails, connect an external environment following Spyder's
+official FAQ or move to the recommended Conda-based course environment.
+
+Do not mix pip installations into a Conda environment unless the instructor
+specifically directs you to do so. Changing several installation methods at
+once makes troubleshooting much harder.
+
+VERIFY INSIDE SPYDER
+
+Create a new .py file, save it, and run this cell:
+
+   # %% environment verification
+   from pathlib import Path
+   import sys
+
+   import numpy
+   import pandas
+   import matplotlib
+   import scipy
+   import sklearn
+
+   print("Python:", sys.version.split()[0])
+   print("Executable:", sys.executable)
+   print("Working folder:", Path.cwd())
+   print("NumPy:", numpy.__version__)
+   print("pandas:", pandas.__version__)
+   print("Matplotlib:", matplotlib.__version__)
+   print("SciPy:", scipy.__version__)
+   print("scikit-learn:", sklearn.__version__)
+
+You are ready for the first part of the course when every import succeeds and
+the printed working folder is the folder containing your saved file.
+
+SPYDER WORKFLOW CHECKLIST
+
+- Save the .py file before running it.
+- Set the working directory to the current module folder.
+- Use # %% to create meaningful code checkpoints.
+- Press Ctrl+Enter to run the current cell.
+- Inspect output in the IPython Console.
+- Inspect names, values, and types in Variable Explorer.
+- Restart the kernel and run from the top before submission.
+- Record any generative-AI assistance and how each retained suggestion was
+  tested.
+
+TROUBLESHOOTING ORDER
+
+1. Read the final line of the error message.
+2. Print sys.executable and Path.cwd().
+3. Confirm that the correct environment-specific Spyder is open.
+4. Test the failing import in a new file with no other code.
+5. Record the exact error and the steps already attempted.
+6. Consult the official installation guide and FAQ or bring the evidence to
+   class/office hours.
+
+OFFICIAL REFERENCES
+
+Spyder installation guide:
+https://docs.spyder-ide.org/current/installation.html
+
+Spyder FAQ:
+https://docs.spyder-ide.org/current/faq.html
+
+Spyder documentation and interface tour:
+https://docs.spyder-ide.org/current/

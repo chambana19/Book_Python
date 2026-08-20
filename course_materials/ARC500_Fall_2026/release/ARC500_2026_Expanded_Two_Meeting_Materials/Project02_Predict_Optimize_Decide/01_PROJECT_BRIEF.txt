@@ -1,0 +1,85 @@
+ARC 500 — PROJECT 2 BRIEF
+PREDICT, OPTIMIZE, DECIDE: PERFORMANCE-INFORMED DESIGN ALTERNATIVES
+
+PROJECT QUESTION
+How can an evaluated approximation help search a bounded design space without
+being mistaken for simulation, measurement, or professional judgment?
+
+Use Data/radley_portfolio_envelope.csv (the canonical 140-row, 9-column dataset used
+in Weeks 13–15) or one instructor-approved equivalent with a written schema mapping.
+Data/ARC500_facade_performance.csv is a legacy miniature example and is not the
+default Project 2 model dataset.
+
+PART I — FORMULATE, PREPARE DATA, AND TEST SENSITIVITY
+- Define design variables, units, bounds, objective, constraints, and baseline.
+- Choose regression for a continuous outcome OR classification for a go/no-go call.
+- Audit the data and check at least one possible outlier. This outlier check is a
+  required data-preparation step, not an optional one.
+- Run one one- or two-variable sensitivity sweep.
+- Justify the primary optimization family from the problem structure.
+
+PART II — OPTIMIZE WITH ONE PRIMARY FAMILY
+- Solve the full project with ONE primary family:
+  A. linear programming, B. bounded nonlinear minimize, or C. heuristic search.
+- Demonstrate scipy.optimize.linprog on the linear sub-component, or a simplified
+  linear relaxation, of your own problem in the Week 10 studio, recomputing every
+  constraint by hand. This demonstration is required even when your primary family
+  is bounded nonlinear minimize or heuristic search.
+- Report sensitivity to starting state or random seed where relevant.
+- Verify all constraints for the selected candidate.
+
+PART III — COMPARE SOLVERS ON A BOUNDED SUB-PROBLEM
+- Compare the primary method with ONE transparent alternative on a simplified
+  bounded sub-problem.
+- Report solution quality, feasibility, and runtime.
+
+PART IV — EVALUATE ONE PREDICTION MODEL AND INTEGRATE IT (REQUIRED)
+- Create X and y with an explicit feature list and no leakage.
+- Reserve the final test set before fitting. Use validation or out-of-fold evidence
+  for feature, model, and classification-threshold choices; open the final test once,
+  only after those choices are frozen.
+- Fit a naive baseline and one proposed model.
+- Regression track: MAE, RMSE, R², and residual plot.
+- Classification track: confusion matrix, precision, recall, F1, class/support counts,
+  probability-calibration status, and a consequence-based threshold chosen without
+  looking at the final test labels.
+- Complete the model card and refuse unsupported extrapolation.
+- Use the fitted model's prediction/probability as an objective or constraint
+  feeding the Part II and/or Part III search. This integration is the project's
+  central, required move. Use the Week 14 four-feature specification and evaluation
+  protocol for the chosen track; freeze/export the exact fitted artifact that the
+  optimizer calls so feature order and threshold cannot silently change.
+- Complete an integration smoke test by the end of Week 14: implement the
+  model-inside-objective/constraint wrapper; evaluate it at the baseline and one
+  candidate; verify feature order plus featurewise and joint-support gates. Week 15
+  is for independent confirmation, communication, and polish—not first assembly.
+- Compare the baseline design and recommended candidate.
+- Keep the search inside both featurewise ranges and a documented joint-support rule;
+  in-range but unrepresented feature combinations must be refused or escalated.
+- Verify both baseline and selected candidate with the best available non-surrogate
+  evidence. A surrogate optimum is not a final recommendation until this check exists.
+- State a defensible uncertainty method (RMSE alone is not a prediction interval), at
+  least three limitations, and the next validation step.
+
+DELIVERABLES
+1. One-page formulation and sensitivity memo.
+2. Two or three .py files.
+3. Model metric table, diagnostic figure, and model card.
+4. Primary optimization result, compact comparison, constraint table, solver card.
+5. Four figures: sensitivity/design space; model diagnostic; solver comparison;
+   baseline versus recommended design. Animation is optional.
+6. A 1,000–1,200-word report.
+7. Five-minute presentation: four-minute decision brief plus one-minute
+   evidence/code trace; hard cap five minutes per student.
+8. README and AI-use record.
+
+WEEK 15 REVIEW FORMAT
+- Reserve 15 minutes for selective source-deck synthesis after project reviews.
+- If enrollment exceeds 12, use parallel gallery/code-review rounds, then reconvene
+  for synthesis; do not lengthen the five-minute individual cap.
+
+AI USE
+AI may scaffold code, explanations, and debugging. It may not supply unverified
+numbers, hide data leakage, choose a threshold without consequences, or turn a
+model result into an unsupported decision. Record accepted, modified, and
+rejected/verified suggestions.

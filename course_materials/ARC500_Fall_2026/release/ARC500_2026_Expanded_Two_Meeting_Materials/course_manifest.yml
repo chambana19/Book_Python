@@ -1,0 +1,460 @@
+schema_version: 1
+course: "ARC 500 — Programming with Python and Generative AI"
+release_date: "2026-08-20"
+package: "ARC500_2026_Expanded_Two_Meeting_Materials"
+source_deck_policy: "Complete topic-driven source decks; no slide-count cap. The instructor hides, skips, or shortens slides during delivery."
+lecture_decks: 28
+convenience_mirror_decks: 5
+project_templates: 2
+powerpoint_files: 35
+distributed_files: 138
+files:
+  - path: ".gitignore"
+    bytes: 1210
+    sha256: "C303413DCE7FCAE6109D8A1A101BE279F4F6129D577E3AE6C47ACC2BAEC1C958"
+  - path: "ARC500_2026_Course_Layout_Review.md"
+    bytes: 16458
+    sha256: "9AFB4E767EDB8E4B0CB0D5D3C2DEFF86DC1F7A6F2C5BFD12BA95B73E0EA369F3"
+  - path: "ARC500_2026_Semester_Restructure_Weeks01-15.txt"
+    bytes: 51698
+    sha256: "E12B01F82E23B0DD5A02DF80B73F245211FE437379D80E3B3B6745C216A77442"
+  - path: "ARC500_Architecture_Example_Coverage_Map.md"
+    bytes: 7522
+    sha256: "09FE3D86DF9343A46C6AABE4B455A1DFC6971D29D963C2977F412392154BE94A"
+  - path: "ARC500_Brief_Description_SP26.docx"
+    bytes: 547794
+    sha256: "E80C7668ADF20D2D80CDD477667F410D6E163A96F3056A498356C554ACD78675"
+  - path: "ARC500_Brief_Description_SP26_CHUN.pdf"
+    bytes: 24092820
+    sha256: "ED3B76C7EE88EE68A41CD0C965FE8D8387138D96175E46EE9A35AC442256851D"
+  - path: "COURSE_DELIVERY_GUIDE.md"
+    bytes: 5866
+    sha256: "3F8AB86F5BA0EF674DEEBE64C99FA3D8475FF67729647F4FE8ECA1B4C5C78340"
+  - path: "COURSE_DESIGN_SYSTEM.md"
+    bytes: 7318
+    sha256: "097F92B1EFD9C571F7F44FA5B9DEFAEEF43F5AD225DBED0CACC2781933483F0D"
+  - path: "ITEMS06_08_COMPLETION_RECORD.txt"
+    bytes: 4379
+    sha256: "86F8D8E4723BDF4BE82E23E9C5E52854A9108442612D8BA689BE0EF7F5027E31"
+  - path: "Project01_Evidence_Before_Design/00_START_HERE.txt"
+    bytes: 2112
+    sha256: "F47A31DAB8A97E95A904EC44FB293303BB58FB6931A39DCA3DB09BC371F84D9C"
+  - path: "Project01_Evidence_Before_Design/01_PROJECT_BRIEF.txt"
+    bytes: 2958
+    sha256: "F0CAF2D8AFAB8D416A6C2DBB52B183959A5484A91F4BF271EEAD3C445A889FA6"
+  - path: "Project01_Evidence_Before_Design/02_MILESTONES_AND_CHECKLIST.txt"
+    bytes: 2399
+    sha256: "5058B80AAC223B10E462614568DA375246153D959AB2B1039A3A02EEB4AC030F"
+  - path: "Project01_Evidence_Before_Design/03_RUBRIC.txt"
+    bytes: 2493
+    sha256: "58D47967045D7F7DE8B0780E371711AE75CAC36223B96171D0B623D4490CD343"
+  - path: "Project01_Evidence_Before_Design/04_AI_USE_RECORD_TEMPLATE.txt"
+    bytes: 919
+    sha256: "A98E1A6C5A7B230F69E96930E44AE9074BB15A8B819B2480FB507E09873E4774"
+  - path: "Project01_Evidence_Before_Design/ARC500_Project1_Six_Slide_Presentation_Template.pptx"
+    bytes: 29636
+    sha256: "3FCC30AD74DF25CAE2354072E4D38B10E608826F56AA21F7FDFAAF1FA487DF98"
+    slides: 6
+  - path: "Project01_Evidence_Before_Design/Data/building_rooms.csv"
+    bytes: 2116
+    sha256: "CB1AB8DF4829E334515F1F1943DCCD1BD86BBF0A2E4336E909504BDF96CA4CF6"
+  - path: "Project01_Evidence_Before_Design/Data/zone_footprints.geojson"
+    bytes: 740
+    sha256: "0F5AE0E9A6E86B0F710056400E03D4F840ED57843C17327FC5E878C16396967D"
+  - path: "Project01_Evidence_Before_Design/Starter_Code/analysis.py"
+    bytes: 10592
+    sha256: "65CBC429D0F20758239F94F8906004C1098997F65A385E1E20C3A2EA889A4CCD"
+  - path: "Project01_Evidence_Before_Design/Starter_Code/course_style.py"
+    bytes: 2135
+    sha256: "3E47AF7EF0A94B95E523D1907EE4ABA63FE5E41CC3E697B88EA00944B501E738"
+  - path: "Project01_Evidence_Before_Design/Starter_Code/evidence.py"
+    bytes: 4941
+    sha256: "DEB7C745065FB2AF3726231CB6492F66D7E66CFED58F8BCB9C8D570D941D9E4E"
+  - path: "Project01_Evidence_Before_Design/Submission/DATA_DICTIONARY_TEMPLATE.txt"
+    bytes: 739
+    sha256: "15567CE96EB824AEFBBF89235365D2643EB2A80204FBF3F6909AEBB54841C511"
+  - path: "Project01_Evidence_Before_Design/Submission/README_TEMPLATE.txt"
+    bytes: 707
+    sha256: "2420D31D48BB584AE9879929DBEE681B401548AC76261A494DB172A0D1C7C6AE"
+  - path: "Project01_Evidence_Before_Design/validate_submission.py"
+    bytes: 17631
+    sha256: "EC393FD67AECBFA3B0C399D94E5340C384F1FB3121A3B7EB71C686437F6FD762"
+  - path: "Project02_Predict_Optimize_Decide/00_START_HERE.txt"
+    bytes: 1804
+    sha256: "7D8F4DED7033FE6F3A20C8FB943EF648EAE317F3AB0E52C1FB1B9D9E2E0DD29C"
+  - path: "Project02_Predict_Optimize_Decide/01_PROJECT_BRIEF.txt"
+    bytes: 4892
+    sha256: "1C28EA0E44AC9EF20DD160866C8A4B89325600D2CFDBA8F039DA02F355444324"
+  - path: "Project02_Predict_Optimize_Decide/02_MILESTONES_AND_CHECKLIST.txt"
+    bytes: 3402
+    sha256: "378AE0D83ABF07C29AC2BE0C95479984B4806AD5A1E0047A862D2741769966BC"
+  - path: "Project02_Predict_Optimize_Decide/03_RUBRIC.txt"
+    bytes: 3013
+    sha256: "24D72334A1F83666BB68944B279ADECE5EEC6CB21DD996B9A517D40E0319B9C3"
+  - path: "Project02_Predict_Optimize_Decide/04_MODEL_CARD_TEMPLATE.txt"
+    bytes: 1909
+    sha256: "184F145757F38E8356C01222F31F9D0B8DE2B49F8D2E12E295A5AB33C4E38A51"
+  - path: "Project02_Predict_Optimize_Decide/05_SOLVER_CARD_TEMPLATE.txt"
+    bytes: 1343
+    sha256: "2AF91869B41B3431FC15940818A52C717E146DF295FB33C904F58875112ABFA7"
+  - path: "Project02_Predict_Optimize_Decide/06_AI_USE_RECORD_TEMPLATE.txt"
+    bytes: 928
+    sha256: "74AAD2586E7054382399D1ACEF761D69A9CFB156C46C80D877AC0D1F2F47722A"
+  - path: "Project02_Predict_Optimize_Decide/ARC500_Project2_Eight_Slide_Presentation_Template.pptx"
+    bytes: 38499
+    sha256: "EF82B6E45C7DE2FB9FBB539830C5F1CB0E3B191480E6DFC7FE28435631825AFC"
+    slides: 8
+  - path: "Project02_Predict_Optimize_Decide/Data/ARC500_facade_performance.csv"
+    bytes: 894
+    sha256: "10C022B890C0637833A8221446432E063A2A1226398E2369DC146E2AAEEBA9F9"
+  - path: "Project02_Predict_Optimize_Decide/Data/radley_portfolio_envelope.csv"
+    bytes: 6327
+    sha256: "D1953B8CCA92D06B77B2D28AD4436328830050866F2D1CAA34409B1CEA4138EB"
+  - path: "Project02_Predict_Optimize_Decide/Data/README.txt"
+    bytes: 1458
+    sha256: "9B0267DAC783AFB49B8DB263E1AB3557515F0BF2CD87F33FA8654C3D93D9D058"
+  - path: "Project02_Predict_Optimize_Decide/Starter_Code/model_and_evaluate.py"
+    bytes: 13044
+    sha256: "C9AF43DA0DCE65CD10BDFF44DAD9C5B2A5C72385A4886CF7C84199AA382A2696"
+  - path: "Project02_Predict_Optimize_Decide/Starter_Code/optimize_and_integrate.py"
+    bytes: 15303
+    sha256: "4AE9407D475139DFDDC3A64DF84EB483FFABC61E8EAE0EAAD999BDE9945E6568"
+  - path: "Project02_Predict_Optimize_Decide/Submission/README_TEMPLATE.txt"
+    bytes: 1034
+    sha256: "D50C931A427F7D4AFB80799189A7378B016C7BCE30DF6CD6CFED07B707311DB9"
+  - path: "README_MASTER_SCHEDULE.txt"
+    bytes: 2084
+    sha256: "2B6E5DD602DA950CB142AF777EDB7760D62F4BA853090EF58B05267B0AD564B7"
+  - path: "RELEASE_NOTES_2026-08-20.md"
+    bytes: 3858
+    sha256: "A86724BD16D09ADD776F8F7813751D622D5E9339C9C69DD97DBADEC09A689EEB"
+  - path: "release_tools/course_release.py"
+    bytes: 10217
+    sha256: "1229E2F0AC9B84AC910643D8C2C5F056091AF68B07E80905E84FF97842144B1D"
+  - path: "STATE_OF_PRACTICE_2026.md"
+    bytes: 6567
+    sha256: "45E5A22DBCC2D574E15A9E564C1F646CD0BD7C86FE6CAB904B7DA6AAAA83207F"
+  - path: "Syllabus/ARC500_Syllabus_FS26.pdf"
+    bytes: 112805
+    sha256: "15B570E3529DA77A6BD1C2EE0BBEAD6910AB1346E027040F868382FE8D941DC3"
+  - path: "Syllabus/ARC500_Syllabus_FS26.tex"
+    bytes: 56748
+    sha256: "9529700D1E4E69257A0EF7619EAD546F27647AC47BB7E29925670CE9845546E3"
+  - path: "Syllabus/README.txt"
+    bytes: 6786
+    sha256: "DD6550C01F5D8CA345C8D54E7888BB84CD3CD02B859CD09400F3D123225CE786"
+  - path: "Week13_Machine_Learning/ARC500_Week13A_Machine_Learning_I_Evaluated_Prediction.pptx"
+    bytes: 163732
+    sha256: "2997747486A3676792E1B91EA1D2836865766FF005D177DA6CF209F8611002CB"
+    slides: 38
+  - path: "Week13_Machine_Learning/ARC500_Week13B_Spyder_Regression_Studio.pptx"
+    bytes: 158051
+    sha256: "2F893B9F457D3BC3FFCE4D38C259ACFCB83BC60C689B1924A8B19E4FE00E047A"
+    slides: 36
+  - path: "Week13_Machine_Learning/Handouts/ARC500_Week13B_Instructor.py"
+    bytes: 40393
+    sha256: "BFC716D5EF8A389077219484EFD3CFD0BD916F37262F156EB266EB0DE65B8AFC"
+  - path: "Week13_Machine_Learning/Handouts/ARC500_Week13B_Student.py"
+    bytes: 31351
+    sha256: "73BB692BF127DD5093A6849CF5CECF166C2EE3C6CDF958388E1E47393723459E"
+  - path: "Week13_Machine_Learning/Handouts/data/radley_portfolio_envelope.csv"
+    bytes: 6468
+    sha256: "EEBF5186D1539415A79C7D4546B50EFB3B75EBC7131C29802E050AC516BD6377"
+  - path: "Week14_Classification_and_Model_Cards/ARC500_Week14A_Classification_Confusion_Matrices_Model_Cards.pptx"
+    bytes: 166053
+    sha256: "45524140A11C038768C7F22A54FEEF0E98FC8324A0DBB791D310D4C835DA8672"
+    slides: 38
+  - path: "Week14_Classification_and_Model_Cards/ARC500_Week14B_Classification_and_Regression_Studio.pptx"
+    bytes: 167282
+    sha256: "855670B61E809055B26BBCF6E113F94A6733C11C6B661F63F5A256019A27A180"
+    slides: 39
+  - path: "Week14_Classification_and_Model_Cards/Handouts/ARC500_Week14B_Instructor_Classification.py"
+    bytes: 33917
+    sha256: "0916130F003212872CD8712F0BC0DE40B3C91732B389B4B2AC2BF940CF7DD0D7"
+  - path: "Week14_Classification_and_Model_Cards/Handouts/ARC500_Week14B_Instructor_Regression.py"
+    bytes: 25189
+    sha256: "800A7B02F909AF9BBE64980941353DAE99EE9A501F24C50E66782130974C7E34"
+  - path: "Week14_Classification_and_Model_Cards/Handouts/ARC500_Week14B_Student_Classification.py"
+    bytes: 28488
+    sha256: "44167C48889C645CCC8E7F966090A94EBAB0F732539F89457B8A3C6034DABD7A"
+  - path: "Week14_Classification_and_Model_Cards/Handouts/ARC500_Week14B_Student_Regression.py"
+    bytes: 20388
+    sha256: "3226692E05797FDD6BA32ACDD485A02A27F9D57C86B7955A4719383CEE128A69"
+  - path: "Week14_Classification_and_Model_Cards/Handouts/data/radley_portfolio_envelope.csv"
+    bytes: 6468
+    sha256: "EEBF5186D1539415A79C7D4546B50EFB3B75EBC7131C29802E050AC516BD6377"
+  - path: "Week14_Classification_and_Model_Cards/Handouts/week14_model_comparison.png"
+    bytes: 76574
+    sha256: "7D766B27FE91AFD7AE5A11CE7652B531910E9CE2BE4C59E4640D912590CABE70"
+  - path: "Week14_Classification_and_Model_Cards/README.txt"
+    bytes: 3979
+    sha256: "65EE61641076E2FBF53296F86B005659F3F7DA2477A0EA7E26F4655D90F20328"
+  - path: "Week15_Capstone/05_BEYOND_ARC500_Continuing_As_A_Self-Taught_Programmer.txt"
+    bytes: 13607
+    sha256: "8D60D13143897DD098D23604C3CF0C2BEE81ECCB77DDA0C0519C2ED44C21DA18"
+  - path: "Week15_Capstone/ARC500_Week15A_Predict_Optimize_Decide.pptx"
+    bytes: 156474
+    sha256: "9137A9CFC97708060E2A24F794945D999F69DA9A1F67F481E1AD3B22EA963580"
+    slides: 36
+  - path: "Week15_Capstone/Handouts/data/radley_portfolio_envelope.csv"
+    bytes: 6468
+    sha256: "EEBF5186D1539415A79C7D4546B50EFB3B75EBC7131C29802E050AC516BD6377"
+  - path: "Week15_Capstone/Handouts/week15a_demo_predict_optimize_decide.py"
+    bytes: 40476
+    sha256: "AC367FE7DF5EC9AEF3BFF10DB07B242657C9ABD52B82BDFEBCC008D6D4C28C99"
+  - path: "Week15_Capstone/README.txt"
+    bytes: 1335
+    sha256: "A5E06BFD739ECEAF1B28B4A5EEEE45E974D47ABE7CA527D34855B7DEE09062F7"
+  - path: "Weeks01-03_Foundations/ARC500_environment.yml"
+    bytes: 312
+    sha256: "43AAC7B2182EF3210F7287A079E38B020DBC6E2DD20F8261B13ABB2D67CFBE9F"
+  - path: "Weeks01-03_Foundations/ARC500_environment_preflight.py"
+    bytes: 2133
+    sha256: "92BAE45A5D1CC0323CE2BB545DBDF8BA4985DC473B13C89E29FD1AA8F09BFE30"
+  - path: "Weeks01-03_Foundations/ARC500_Week01A_Computational_Thinking_and_Responsible_AI.pptx"
+    bytes: 147041
+    sha256: "B27E8D45E346FAFB1BD1EC721AEFB29D63290D28ED9DCF19F4855681D90F3D86"
+    slides: 34
+  - path: "Weeks01-03_Foundations/ARC500_Week01B_Spyder_Installation_and_First_Program.pptx"
+    bytes: 147203
+    sha256: "F61E956DD89DFA8E502CCE8E495373EB8B0AD7A873AC84EE873CF89A76A21389"
+    slides: 34
+  - path: "Weeks01-03_Foundations/ARC500_Week02A_Values_Variables_Units_and_Expressions.pptx"
+    bytes: 150837
+    sha256: "4F2E9E6155ADDD727BF65CCFEFFC18735729976037DA8F245F2A87A1ECCE4421"
+    slides: 36
+  - path: "Weeks01-03_Foundations/ARC500_Week02B_Spyder_Architectural_Quantity_Studio.pptx"
+    bytes: 144975
+    sha256: "D66A6873770CC7ACA924FF02A89690628833D00E44FC85C2830D8A5E6D731E1F"
+    slides: 34
+  - path: "Weeks01-03_Foundations/ARC500_Week03A_Asynchronous_Decisions_and_Functions_Primer.pptx"
+    bytes: 158847
+    sha256: "8F02B92336668CE2C7804FFFBEB1D64C789B822933325758C73CDBCA3D494C75"
+    slides: 38
+  - path: "Weeks01-03_Foundations/ARC500_Week03B_Spyder_Design_Rule_and_Function_Studio.pptx"
+    bytes: 152662
+    sha256: "FF64CF4169280E2D29027EC3E38DE00785E853AE82DC8F3B6729B270362E66D1"
+    slides: 36
+  - path: "Weeks01-03_Foundations/Handouts/ARC500_Week01B_Instructor.py"
+    bytes: 9357
+    sha256: "6248CB67D7D75E978DFC7F93797E1706840F8971564008A0CFE09E9E35CC63E1"
+  - path: "Weeks01-03_Foundations/Handouts/ARC500_Week01B_Student.py"
+    bytes: 8920
+    sha256: "5D03BE7031289AA96CD2FB9E6173926DB8B679A8EE6CAF76CAC01C6ACAC5DB49"
+  - path: "Weeks01-03_Foundations/Handouts/ARC500_Week02B_Instructor.py"
+    bytes: 11476
+    sha256: "1CCEEC10383D323BB943249EAA15ED52B5B37A563E7650C7801941E8CB27D916"
+  - path: "Weeks01-03_Foundations/Handouts/ARC500_Week02B_Student.py"
+    bytes: 12678
+    sha256: "E3034C89FC7D184581C4C29EF4B83FB2AC046B942668611C899D3FCEEC3B0E47"
+  - path: "Weeks01-03_Foundations/Handouts/ARC500_Week03B_Instructor.py"
+    bytes: 13769
+    sha256: "796B7F7E44A0819599AFDAC7D5F9DF573EE62B86E7056E094A967B7F83E06D01"
+  - path: "Weeks01-03_Foundations/Handouts/ARC500_Week03B_Student.py"
+    bytes: 16401
+    sha256: "E522EF9ADA5F877C284277E394169B6B1ABF911F3BDA26F38CE9F12C8ECFE0FB"
+  - path: "Weeks01-03_Foundations/Handouts/Editable_Word_Handouts/ARC500_Week01B_Editable_Handout.docx"
+    bytes: 45592
+    sha256: "FE486B31C48F6A70A7EF2C2CDDC7DC3698BBACC3C3EECB62CFDFB8DA6F4971A8"
+  - path: "Weeks01-03_Foundations/Handouts/Editable_Word_Handouts/ARC500_Week02B_Editable_Handout.docx"
+    bytes: 45590
+    sha256: "BFDF6857AEF55CC9E703F95AAC8573DAB105C68DCEBF924B0278AF88E4AAE6A8"
+  - path: "Weeks01-03_Foundations/Handouts/Editable_Word_Handouts/ARC500_Week03B_Editable_Handout.docx"
+    bytes: 46281
+    sha256: "001F673CAE78BF398D6F075403B2F67EA1CE7C59FD66FA99A1A37F9699CD24D5"
+  - path: "Weeks01-03_Foundations/README.txt"
+    bytes: 5109
+    sha256: "FE525F507743FC80F8EA02201EABCEE2BE2257F27C3A60D850842B9602E9D401"
+  - path: "Weeks01-03_Foundations/Spyder_Installation_and_Course_Environment_Guide.txt"
+    bytes: 4215
+    sha256: "39B78D61D43343312931271FD91E395416CEE680ADC92C85997C609BBA51F732"
+  - path: "Weeks04-08_DataAsEvidence/ARC500_Week04A_Toolchain_and_Data_as_Evidence.pptx"
+    bytes: 277377
+    sha256: "E5A3DFD8A9F3641562257852678FDF1779E98BC9D14FC47D499622A7C74889E1"
+    slides: 41
+  - path: "Weeks04-08_DataAsEvidence/ARC500_Week04B_Spyder_Trustworthiness_Studio.pptx"
+    bytes: 201185
+    sha256: "1CDFB4A6D5515CC46D0C126ED7F24F306F2B24940C6374A7F7A941817278B7F3"
+    slides: 35
+  - path: "Weeks04-08_DataAsEvidence/ARC500_Week05A_Grouping_Outliers_and_Defensible_Summaries.pptx"
+    bytes: 195084
+    sha256: "E5EFAB682FFC6261C84FF8756DB3F0D61A7D2B5C60F3492C62AE9608B59694D6"
+    slides: 37
+  - path: "Weeks04-08_DataAsEvidence/ARC500_Week05B_Spyder_Grouping_and_Outlier_Studio.pptx"
+    bytes: 283854
+    sha256: "3B49C882296D3D25C378CB695AA1861868E969117B9F326E51A53C5C0A00E05A"
+    slides: 35
+  - path: "Weeks04-08_DataAsEvidence/ARC500_Week06A_Visual_Reasoning_Static_and_Dynamic_Evidence.pptx"
+    bytes: 149864
+    sha256: "3213E953EE0E7C5231D850373424A3D0BCB50C6FADDCC9F295FA5E349EBB4996"
+    slides: 35
+  - path: "Weeks04-08_DataAsEvidence/ARC500_Week06B_Visual_Evidence_Studio.pptx"
+    bytes: 146719
+    sha256: "DDB73DC798BC9FC04987DF1915357709292444BAF328BD7CCE4E661AF242FFE3"
+    slides: 34
+  - path: "Weeks04-08_DataAsEvidence/ARC500_Week07A_Spatial_Data_CRS_and_Maps.pptx"
+    bytes: 287853
+    sha256: "65D3F92EA7DB62231AA4D33A406F0CB7CE7A8C397EF02E92E2285865E654C3AA"
+    slides: 37
+  - path: "Weeks04-08_DataAsEvidence/ARC500_Week07B_Spyder_Spatial_Join_and_Choropleth_Studio.pptx"
+    bytes: 252785
+    sha256: "7CC070ACF68EC3481EA2D7F6CF3DD369E12B2C652CD07C68A6187D8CE77EBB12"
+    slides: 36
+  - path: "Weeks04-08_DataAsEvidence/ARC500_Week08B_Project1_Studio_and_Evidence_Clinic.pptx"
+    bytes: 143630
+    sha256: "17F274F603B12405513598A2C666AD4F237559FEEBDEA30BD533538FFC463A0C"
+    slides: 34
+  - path: "Weeks04-08_DataAsEvidence/data/building_rooms.csv"
+    bytes: 2116
+    sha256: "CB1AB8DF4829E334515F1F1943DCCD1BD86BBF0A2E4336E909504BDF96CA4CF6"
+  - path: "Weeks04-08_DataAsEvidence/data/zone_footprints.geojson"
+    bytes: 740
+    sha256: "0F5AE0E9A6E86B0F710056400E03D4F840ED57843C17327FC5E878C16396967D"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/ARC500_Week04B_Instructor.py"
+    bytes: 19391
+    sha256: "20B012D5DDA7A54D947ED3F49332A5B94E0E14518A940363D880A95AA3CD9E39"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/ARC500_Week04B_Student.py"
+    bytes: 25556
+    sha256: "1D07123463251F021B667808BF18B56F80D4DC6518077784C8AC8A28902C8F62"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/ARC500_Week05B_Instructor.py"
+    bytes: 24077
+    sha256: "E72494E7CCAF9228626067A10555C3D95AB9F13CB60365669AF817DF01FFB615"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/ARC500_Week05B_Student.py"
+    bytes: 35976
+    sha256: "D4633BE4917CCD0A501B6B8185BAAE2CD08952D1B83A506DA493DC963DEC096C"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/ARC500_Week06B_Instructor.py"
+    bytes: 23701
+    sha256: "44D239D358A98BEC21D07A7BF977B697F3889B8361E319CF47D7E3F72FDBC863"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/ARC500_Week06B_Student.py"
+    bytes: 17356
+    sha256: "1CDB52311F414D894D26B99620B681738327E174A2CC7749827ED6701C2714C4"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/ARC500_Week07B_Instructor.py"
+    bytes: 18130
+    sha256: "03ACF0088FCD3392FB762FBD8A5ADAC1A944609914173FE133FA9EB8778E4F5A"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/ARC500_Week07B_Student.py"
+    bytes: 24345
+    sha256: "AAC095F30AB181F0F3A047B9B4679C47862C81B58785E5D6D9F1984090966C53"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/ARC500_Weeks04-07_Studio_Checklist.txt"
+    bytes: 5539
+    sha256: "8074B9DA0A79FF549927A9DF4EC35C36E88D7BE2B741585951FF5AC7BAC12C06"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/building_rooms.csv"
+    bytes: 2116
+    sha256: "CB1AB8DF4829E334515F1F1943DCCD1BD86BBF0A2E4336E909504BDF96CA4CF6"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/data/building_rooms.csv"
+    bytes: 2116
+    sha256: "CB1AB8DF4829E334515F1F1943DCCD1BD86BBF0A2E4336E909504BDF96CA4CF6"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/radley_hall_energy_choropleth.png"
+    bytes: 52636
+    sha256: "D1F2905589B5BC4D6735DEA7E8B6A56C5B5A308D850C0905D225136E18815A11"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/radley_hall_floor_choropleth.png"
+    bytes: 49899
+    sha256: "3FA5D5971193284421D5368DC006B0C3093217FBF13D6F573A293DC989C093B0"
+  - path: "Weeks04-08_DataAsEvidence/Handouts/zone_footprints.geojson"
+    bytes: 740
+    sha256: "0F5AE0E9A6E86B0F710056400E03D4F840ED57843C17327FC5E878C16396967D"
+  - path: "Weeks04-08_DataAsEvidence/README_DATA_PLACEMENT.txt"
+    bytes: 739
+    sha256: "5D5B98E6FAB01F081641164B02C7EAE6C010AFA15F13DEB31AA8A74C585349DF"
+  - path: "Weeks09-12_Optimization/ARC500_Week09A_Parameter_Sweeps_and_Sensitivity.pptx"
+    bytes: 147591
+    sha256: "D721144D09E71B59D6630009340ABA8E01CA68BCB293CC8F92A7078E61993780"
+    slides: 35
+  - path: "Weeks09-12_Optimization/ARC500_Week09B_Spyder_Sweep_and_Sensitivity_Studio.pptx"
+    bytes: 212148
+    sha256: "33E94F0710C7D23DAAA1CE286F09566D5FFDE8D31CDA153DA476407D8C80CFD7"
+    slides: 36
+  - path: "Weeks09-12_Optimization/ARC500_Week10A_Formulation_and_Exact_Linear_Optimization.pptx"
+    bytes: 150100
+    sha256: "FD382F8BE103FC31203919DBADFF7744D741EFE8F2B24EE9DE1F6338D664C342"
+    slides: 35
+  - path: "Weeks09-12_Optimization/ARC500_Week10B_Spyder_Linprog_Studio.pptx"
+    bytes: 151466
+    sha256: "72B1713F0A5688FBC3B66582A4647C6818D90DD10D809BCC729E507465687EAB"
+    slides: 35
+  - path: "Weeks09-12_Optimization/ARC500_Week11A_Nonlinear_Gradient_Based_Search.pptx"
+    bytes: 158801
+    sha256: "53619A9994A068C04401FBC01478CF7792EB8DC3FF87235E6CD39BA78713868B"
+    slides: 36
+  - path: "Weeks09-12_Optimization/ARC500_Week11B_Spyder_Multistart_Optimization_Studio.pptx"
+    bytes: 150695
+    sha256: "141D7708B3C96701DB7985AF3C47AB0B2E5BBBA5604A1A0F6C6F56170FF93B6B"
+    slides: 35
+  - path: "Weeks09-12_Optimization/ARC500_Week12A_Heuristic_and_Metaheuristic_Search.pptx"
+    bytes: 184831
+    sha256: "523A44EFD34BFF78B0E554877E13340CD2CAD1B71BEF8F29C5CEC1963CDF613F"
+    slides: 43
+  - path: "Weeks09-12_Optimization/ARC500_Week12B_Spyder_Genetic_Algorithm_Studio.pptx"
+    bytes: 175742
+    sha256: "892D93260EC6889A11036B8FA510C7AB3DC11B116008E5888FA52ED044DC73F2"
+    slides: 41
+  - path: "Weeks09-12_Optimization/Handouts/ARC500_Week09B_Instructor.py"
+    bytes: 21876
+    sha256: "9F3E930AACA071B05305C893F1767E1B87234FE9667F96EDFD8B54A8EBF176A6"
+  - path: "Weeks09-12_Optimization/Handouts/ARC500_Week09B_Student.py"
+    bytes: 15153
+    sha256: "915D045A3707A34FE930295470B954F94C4F8984895D60A8C7AAD4946E451F59"
+  - path: "Weeks09-12_Optimization/Handouts/ARC500_Week10B_Instructor.py"
+    bytes: 22900
+    sha256: "4C571BEAAE8EF04FB640BC9215EF3F80661C291F82DFEA262FCA766D6D349002"
+  - path: "Weeks09-12_Optimization/Handouts/ARC500_Week10B_Student.py"
+    bytes: 16124
+    sha256: "9054EE5553D58F45F1D4F48CA0441CC6847DE163513F95E0E11BA1A74F8AB207"
+  - path: "Weeks09-12_Optimization/Handouts/ARC500_Week11B_Instructor.py"
+    bytes: 17492
+    sha256: "25EE3681A8ED400A0A8386B9FDA093BC50DEA30450572DFEC6DFEFEE82888B7F"
+  - path: "Weeks09-12_Optimization/Handouts/ARC500_Week11B_Student.py"
+    bytes: 12537
+    sha256: "5E11C19B22D69B3F40BF6F5A2540127431C62BC3211C590245767C70A6E6DBFD"
+  - path: "Weeks09-12_Optimization/Handouts/ARC500_Week12B_Instructor.py"
+    bytes: 25663
+    sha256: "EDAEB49324894E5B60DD55E26C3F0C221980EADAB953DE12683DE9A4D0F0C2F8"
+  - path: "Weeks09-12_Optimization/Handouts/ARC500_Week12B_Student.py"
+    bytes: 18488
+    sha256: "100EDEAD08C2F8CFECA29A3E7F537E45247A67AE8A6DD81708DC7978EC1F1244"
+  - path: "Weeks09-12_Optimization/Handouts/data/README.md"
+    bytes: 3564
+    sha256: "3D95EC3E66F756837D0310F058CBC80F218E2398913016A3454588E0CB9F0752"
+  - path: "Weeks13-15_MachineLearning/ARC500_Week13A_Machine_Learning_I_Evaluated_Prediction.pptx"
+    bytes: 163732
+    sha256: "2997747486A3676792E1B91EA1D2836865766FF005D177DA6CF209F8611002CB"
+    slides: 38
+  - path: "Weeks13-15_MachineLearning/ARC500_Week13B_Spyder_Regression_Studio.pptx"
+    bytes: 158051
+    sha256: "2F893B9F457D3BC3FFCE4D38C259ACFCB83BC60C689B1924A8B19E4FE00E047A"
+    slides: 36
+  - path: "Weeks13-15_MachineLearning/ARC500_Week14A_Classification_Confusion_Matrices_Model_Cards.pptx"
+    bytes: 166053
+    sha256: "45524140A11C038768C7F22A54FEEF0E98FC8324A0DBB791D310D4C835DA8672"
+    slides: 38
+  - path: "Weeks13-15_MachineLearning/ARC500_Week14B_Classification_and_Regression_Studio.pptx"
+    bytes: 167282
+    sha256: "855670B61E809055B26BBCF6E113F94A6733C11C6B661F63F5A256019A27A180"
+    slides: 39
+  - path: "Weeks13-15_MachineLearning/ARC500_Week15A_Predict_Optimize_Decide.pptx"
+    bytes: 156474
+    sha256: "9137A9CFC97708060E2A24F794945D999F69DA9A1F67F481E1AD3B22EA963580"
+    slides: 36
+  - path: "Weeks13-15_MachineLearning/Handouts/ARC500_Week13B_Instructor.py"
+    bytes: 40393
+    sha256: "BFC716D5EF8A389077219484EFD3CFD0BD916F37262F156EB266EB0DE65B8AFC"
+  - path: "Weeks13-15_MachineLearning/Handouts/ARC500_Week13B_Student.py"
+    bytes: 31351
+    sha256: "73BB692BF127DD5093A6849CF5CECF166C2EE3C6CDF958388E1E47393723459E"
+  - path: "Weeks13-15_MachineLearning/Handouts/ARC500_Week14B_Instructor_Classification.py"
+    bytes: 33917
+    sha256: "0916130F003212872CD8712F0BC0DE40B3C91732B389B4B2AC2BF940CF7DD0D7"
+  - path: "Weeks13-15_MachineLearning/Handouts/ARC500_Week14B_Instructor_Regression.py"
+    bytes: 25189
+    sha256: "800A7B02F909AF9BBE64980941353DAE99EE9A501F24C50E66782130974C7E34"
+  - path: "Weeks13-15_MachineLearning/Handouts/ARC500_Week14B_Student_Classification.py"
+    bytes: 28488
+    sha256: "44167C48889C645CCC8E7F966090A94EBAB0F732539F89457B8A3C6034DABD7A"
+  - path: "Weeks13-15_MachineLearning/Handouts/ARC500_Week14B_Student_Regression.py"
+    bytes: 20388
+    sha256: "3226692E05797FDD6BA32ACDD485A02A27F9D57C86B7955A4719383CEE128A69"
+  - path: "Weeks13-15_MachineLearning/Handouts/week15a_demo_predict_optimize_decide.py"
+    bytes: 40476
+    sha256: "AC367FE7DF5EC9AEF3BFF10DB07B242657C9ABD52B82BDFEBCC008D6D4C28C99"
+  - path: "Weeks13-15_MachineLearning/README.txt"
+    bytes: 2078
+    sha256: "E7EA488F032BCED1E76D17D76DDFCBC53DA5ADB71802EFF988C59629B43497A2"

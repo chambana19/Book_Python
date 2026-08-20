@@ -1,0 +1,50 @@
+PROJECT 2 RUBRIC — 100 POINTS
+
+1. FORMULATION, DATA PREPARATION, FAMILY JUSTIFICATION, SENSITIVITY — 15
+13–15: Variables, units, objective, constraints, bounds, baseline, the required
+outlier check on the working dataset, sweep, and family choice form one coherent
+problem.
+10–12: Mostly coherent with minor ambiguity or limited sensitivity evidence.
+0–9: Solver chosen before the problem is defined, units/bounds are missing, or no
+outlier check was done.
+
+2. EVALUATED PREDICTION AND MODEL CARD — 20
+18–20: Leakage-free fit/validation/final-test protocol; model and threshold choices
+use no final-test labels; suitable baseline; correct untouched-test metrics/diagnostic;
+manual check; calibration/uncertainty status, domain, and refusal rule are explicit.
+14–17: Working evaluation with incomplete checking or interpretation.
+0–13: Training-only evidence, leakage, unsupported accuracy claim, or missing card.
+
+3. PRIMARY OPTIMIZATION AND CONSTRAINT VERIFICATION — 20
+18–20: Family fits the formulation; settings/tolerances/objective-call accounting are
+recorded; result is reproducible; status and every constraint are independently checked;
+the solver card distinguishes a mathematical guarantee from a best-found result.
+14–17: Correct solution with limited verification or justification.
+0–13: Infeasible/unchecked result or method–problem mismatch.
+
+4. COMPACT COMPARISON — 15
+13–15: Transparent second method/baseline uses the same bounded sub-problem and
+compares objective, feasibility, runtime, and sensitivity fairly.
+10–12: Comparison works but is narrow or unevenly documented.
+0–9: Disconnected example, incomparable settings, or no verification.
+
+5. PREDICT–OPTIMIZE–DECIDE INTEGRATION — 20
+18–20: Evaluated frozen model artifact is genuinely used inside the search; marginal
+and joint domain guards are active; baseline and recommendation are compared using a
+defensible uncertainty method; both receive documented non-surrogate confirmation.
+14–17: Connection exists but limits, domain, or verification are incomplete.
+0–13: Prediction and optimization remain disconnected, recommendation extrapolates,
+or a surrogate-only optimum is presented as a confirmed design decision.
+
+6. COMMUNICATION, REPRODUCIBILITY, LIMITS, AND AI RECORD — 10
+9–10: Four figures, report, presentation, README, cards, and disclosure create a
+clear evidence trail and distinguish recommendation from decision.
+7–8: Understandable with minor gaps.
+0–6: Missing files, broken execution, unclear argument, or incomplete disclosure.
+
+COMPLIANCE GATE (applies before the six categories above are totaled)
+A missing, incomplete, or fabricated AI-use record caps this submission's
+overall score at 70%, regardless of technical quality elsewhere. "Incomplete"
+means any of the three sections in 06_AI_USE_RECORD_TEMPLATE.txt is left
+blank or filled with placeholder text; "fabricated" means the record
+describes checks that the code does not actually show evidence of.
