@@ -200,7 +200,7 @@ defect at once instead of fixing them one run at a time.
 \begin{TryBox}{Make the check earn its place}
 Delete the \c{co2_ppm} column entirely and rerun \c{validate_schema}. Then add
 an unexpected extra column and rerun it again. Explain why the second case
-reports no problem, and decide whether that is the right behaviour for a study
+reports no problem, and decide whether that is the right behavior for a study
 whose input files come from an instrument you do not control.
 \end{TryBox}
 
@@ -325,7 +325,7 @@ double-count unless you aggregate first.
 This is the central hazard of flattening, and it is not a pandas quirk -- it is
 what happens whenever hierarchical information is forced into a rectangle. State
 the grain of every table you produce: "one row per filter", "one row per
-room-hour". Chapter~\ref{ch:12}'s grouping operations exist largely to move
+room-hour". \booklink{ch:12}{Chapter 12}'s grouping operations exist largely to move
 between grains deliberately.
 \end{ExplainBox}
 
@@ -447,13 +447,13 @@ print("one pixel:", panel[14, 46])
 
 Expected output:
 
-\begin{lstlisting}[language=text, style=block, caption={Height, width, and three colour channels}, label={c14_image_output}, captionpos=b]
+\begin{lstlisting}[language=text, style=block, caption={Height, width, and three color channels}, label={c14_image_output}, captionpos=b]
 shape: (48, 64, 3) dtype: uint8
 one pixel: [235 172  98]
 \end{lstlisting}
 
 \begin{SyntaxBox}{Reading an image's shape}
-\c{(48, 64, 3)} is 48 rows of pixels, 64 columns, and 3 colour channels. Two
+\c{(48, 64, 3)} is 48 rows of pixels, 64 columns, and 3 color channels. Two
 details trip up beginners repeatedly. The first number is the height, not the
 width, because arrays are indexed row-first. And \c{uint8} holds whole numbers
 from 0 to 255, so arithmetic on it wraps around silently -- which is why the
@@ -491,7 +491,7 @@ Expected output:
 {The synthetic panel is a 48 by 64 by 3 array; thresholding its grayscale version isolates the warm region, and summarizing that region reduces 3,072 pixels to three comparable numbers.}
 {fig:ch14-image}
 
-\c{grayscale.mean()} averages the three colour channels into one intensity per
+\c{grayscale.mean()} averages the three color channels into one intensity per
 pixel; \c{(grayscale > HOT_THRESHOLD).mean()} then exploits the fact that the
 mean of a boolean array is the fraction of \c{True} values. The hot fraction of
 0.0928 says just under ten percent of the panel exceeds the threshold.
@@ -555,7 +555,7 @@ values each average was based on.
 \begin{tabular}{lll}
 \textbf{Format} & \textbf{Best for} & \textbf{Main limitation} \\
 CSV & flat tables, sharing, archiving & no types, no nesting \\
-JSON & nested records, APIs & verbose, no types, whole-file reads \\
+JSON & nested records, APIs & verbose, no schema enforcement, whole-file reads \\
 Parquet & large analytic tables & needs a library; not human-readable \\
 SQLite & queries and relationships & schema must be designed first \\
 \end{tabular}
@@ -591,7 +591,7 @@ documented CSV or Parquet file is easier to share and to reproduce.
 
 \hh{Practice ladder}
 
-\hhh{Level 0 -- Identify}
+\hhh{Level 0 -- Read}
 
 For each of these, name the class and the work required: a CSV of hourly meter
 readings; a GeoJSON of building footprints; a folder of PDF inspection reports;
@@ -707,7 +707,7 @@ that accidentally counted occurrences instead of flagging presence.
           answer a different question than the one asked.
     \item Because it keeps only the aspects you chose to measure and discards
           everything else, which is what makes records comparable.
-    \item 48 pixel rows, 64 pixel columns, and 3 colour channels: height first,
+    \item 48 pixel rows, 64 pixel columns, and 3 color channels: height first,
           then width.
     \item The extraction rule itself -- vocabulary, thresholds, and matching
           logic -- because the number is not checkable without it.

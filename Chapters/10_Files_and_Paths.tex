@@ -72,9 +72,10 @@ performs the filesystem action.
 
 \begin{TryBox}{Inspect a path before creating anything}
 Create a path for \c{study_data/measurements.csv}. Print its \c{name},
-\c{suffix}, and \c{parent}. Predict the results first. Then create only the
-parent folder with \c{mkdir(exist_ok=True)} and check \c{exists()} for both
-the folder and the still-unwritten file.
+\c{suffix}, and \c{parent} (\c{.parent} gives the folder that contains the
+path). Predict the results first. Then create only the parent folder with
+\c{mkdir(exist_ok=True)} and check \c{exists()} for both the folder and the
+still-unwritten file.
 \end{TryBox}
 
 \hh{Create a folder when needed}
@@ -123,7 +124,7 @@ file_path.write_text(content, encoding="utf-8")
 print(f"Wrote: {file_path}")
 \end{lstlisting}
 
-The sequence \c{"\textbackslash n"} represents a line break.
+The sequence "\textbackslash n" represents a line break.
 
 \begin{NoteBox}
 \textbf{Stop and predict.} What happens to the earlier content if
@@ -163,7 +164,7 @@ automatically, even if an exception occurs.
 \begin{lstlisting}[
     language=python,
     style=block,
-    caption={Write text with a context manager},
+    caption={Write text with a with block},
     label={c10_with_open_write},
     captionpos=b
 ]
@@ -545,7 +546,7 @@ print(path.suffix)
 \hhh{Level 1 -- Modify}
 
 Change the folder and filename. Display the parent folder, filename, stem, and
-suffix.
+suffix (the stem is the filename without its suffix).
 
 \hhh{Level 2 -- Complete}
 

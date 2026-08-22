@@ -224,7 +224,7 @@ position.
 
 \begin{SyntaxBox}{Use loc when the selection has meaning}
 The pattern \c{df.loc[row_selection, column_selection]} states both
-dimensions. For example, \c{rooms.loc[rooms["area_m2"] >= 25, ["room",
+dimensions. For example, \c{rooms.loc[rooms["area_m2"] >= 25, ["height_m",
 "area_m2"]]} keeps matching rows and only the named columns. Use \c{iloc}
 when the selection is intentionally based on integer position.
 \end{SyntaxBox}
@@ -237,7 +237,8 @@ returned by \c{df.iloc[0:2]}?
 
 \hh{Filter rows with conditions}
 
-Build a boolean Series, then place it inside brackets to keep matching rows.
+Build a boolean Series, also called a boolean mask, then place it inside
+brackets to keep matching rows.
 
 \begin{lstlisting}[
     language=python,
@@ -258,7 +259,7 @@ large_rooms = rooms[rooms["area_m2"] >= 25.0]
 print(large_rooms)
 \end{lstlisting}
 
-Combine conditions with \c{\&} or \c{|}, and put each comparison in
+Combine conditions with \c{&} or \c{|}, and put each comparison in
 parentheses.
 
 \begin{lstlisting}[
@@ -575,7 +576,7 @@ sequence you can debug and explain.
     \item \textbf{Mixing \c{loc} and \c{iloc}}: use labels with \c{loc} and
     positions with \c{iloc}.
     \item \textbf{Combining conditions without parentheses}: parenthesize each
-    comparison before \c{\&} or \c{|}.
+    comparison before \c{&} or \c{|}.
     \item \textbf{Using chained assignment}: select rows and the destination
     column together with \c{loc}.
     \item \textbf{Filling missing data automatically}: state and examine the
@@ -648,7 +649,8 @@ by floor and report the room count and total area for each floor.
 \textbf{Hints}
 \begin{itemize}
     \item \textbf{Hint 1}: Use one integer floor value per row.
-    \item \textbf{Hint 2}: Group with \c{groupby("floor", as_index=False)}.
+    \item \textbf{Hint 2}: Group the rows by floor without keeping the group as
+    the index.
     \item \textbf{Hint 3}: Named aggregation can create clear output column names.
 \end{itemize}
 
@@ -755,7 +757,7 @@ print("Original columns:", raw.columns.tolist())
     \item One observation, such as one room or one measurement.
     \item A Series.
     \item Use \c{loc} when selecting by labels; use \c{iloc} for positions.
-    \item Parentheses define each comparison before element-wise \c{\&} or \c{|} joins them.
+    \item Parentheses define each comparison before element-wise \c{&} or \c{|} joins them.
     \item Use \c{df.loc[row_condition, "column"] = value}.
     \item \c{isna()}.
     \item The replacement introduces an assumption about unknown data.

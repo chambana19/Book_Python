@@ -111,7 +111,7 @@ Optimizing each variable separately would therefore give the wrong answer.
 
 \begin{TryBox}{Sample before you search}
 Evaluate \c{facade_cost} at \c{(0.20, 0.20)}, \c{(0.29, 0.37)}, and
-\c{(0.65, 0.60)}. You should obtain roughly 98.7, 89.2, and 111.7. Print the
+\c{(0.65, 0.60)}. You should obtain roughly 93.9, 89.2, and 111.7. Print the
 three components separately at each point and name the term that dominates.
 \end{TryBox}
 
@@ -176,8 +176,11 @@ def facade_gradient(decisions):
 \begin{SyntaxBox}{Read the gradient term by term}
 \begin{itemize}
     \item $180(r-0.22)^2$ contributes $360(r-0.22)$ to the ratio slope.
+    \item The same energy term also includes $60(d-0.45)^2$, which contributes
+          $120(d-0.45)$ to the depth slope.
     \item The interaction $-70rd$ contributes $-70d$ to the ratio slope and
           $-70r$ to the depth slope.
+    \item The shading cost $40d^2$ contributes $80d$ to the depth slope.
     \item The daylight penalty $500\max(0, 0.25-r)^2$ contributes
           $-1000\max(0, 0.25-r)$: zero when the constraint is satisfied, and
           increasingly negative as the ratio falls below 0.25.
@@ -304,7 +307,9 @@ Cost: 89.2298
           tolerance is a failure to report, not a result to print.
 \end{itemize}
 The gradient function is a parameter, so the same loop accepts either
-\c{facade_gradient} or a finite-difference estimator.
+\c{facade_gradient} or a finite-difference estimator. The \c{cost} parameter is
+accepted here but not used yet -- it is reserved for the exercise ahead, which
+asks you to also track the cost at each step.
 \end{SyntaxBox}
 
 \hh{Choose a learning rate by evidence}
@@ -406,7 +411,7 @@ finite-difference run does not, distrust the analytic gradient first.
 \hh{When a local method is not enough}
 
 Real objectives are often not smooth bowls. Simulation outputs contain solver
-noise, catalogue components come in fixed increments, and fitted response
+noise, catalog components come in fixed increments, and fitted response
 surfaces ripple. The following variant adds such a ripple to the same model.
 
 \begin{lstlisting}[

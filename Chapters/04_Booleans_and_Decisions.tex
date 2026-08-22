@@ -61,7 +61,8 @@ meaning when they later appear in \c{if is_accessible:}. A vague name such as
 reader to inspect other code.
 
 Not every question should be tested with exact equality. Exact equality is
-appropriate for integers, strings, categories, and deliberate sentinel values.
+appropriate for integers, strings, categories, and deliberate marker values
+such as \c{None}.
 Measured floats may require a tolerance because Chapter 2 showed that their
 binary representations can be approximate.
 
@@ -114,7 +115,7 @@ equals signs compare two values.
 
 \begin{SyntaxBox}{Comparison produces a new boolean value}
 In \c{area_m2 >= 20.0}, Python evaluates the left and right operands with the
-\c{>=} operator. The result is one value---\c{True} or \c{False}---which can be
+\c{>=} operator. The result is one value--\c{True} or \c{False}--which can be
 stored, printed, or used directly by an \c{if} statement.
 \end{SyntaxBox}
 
@@ -296,10 +297,10 @@ Only one message appears. The \c{else} branch runs when the \c{if} condition is
 false.
 
 \bookfigure[0.82\textwidth]{Figures/Generated/ch04_decision_trace.pdf}
-{A two-branch conditional evaluates one Boolean condition, follows exactly one branch, and then continues after the statement.}
+{A two-branch conditional evaluates one boolean condition, follows exactly one branch, and then continues after the statement.}
 {fig:ch04-decision-trace}
 
-When tracing a decision, write the condition's Boolean result before choosing
+When tracing a decision, write the condition's boolean result before choosing
 a branch. This prevents indentation or variable names from distracting you
 from the control-flow rule.
 

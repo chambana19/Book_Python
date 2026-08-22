@@ -377,7 +377,7 @@ materials = [
 quantities_m3 = [42.0, 28.0, 16.0]
 
 fig, ax = plt.subplots(layout="constrained")
-ax.barh(materials, quantities_m3, color="tab:orange")
+ax.barh(materials, quantities_m3, color="tab:blue")
 ax.set(
     title="Material quantities",
     xlabel="Quantity (m3)",
@@ -945,7 +945,7 @@ same numerical values with a histogram.
 
 \textbf{Hints}
 \begin{itemize}
-    \item \textbf{Hint 1}: Create the Figure with \c{plt.subplots(1, 2)}.
+    \item \textbf{Hint 1}: Create a Figure with two Axes side by side.
     \item \textbf{Hint 2}: Select DataFrame columns by name.
     \item \textbf{Hint 3}: Give each Axes its own title and labels.
 \end{itemize}

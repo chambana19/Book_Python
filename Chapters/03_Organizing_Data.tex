@@ -191,9 +191,11 @@ Expected output:
 \end{lstlisting}
 
 \begin{SyntaxBox}{A slice describes a half-open range}
-The pattern is \c{sequence[start:stop]}. Python includes the item at
-\c{start} and stops before \c{stop}. Omitting \c{start} means ``from the
-beginning''; omitting \c{stop} means ``through the end.''
+Lists, strings, and tuples are all sequences -- ordered collections that
+support this same slicing pattern. The pattern is \c{sequence[start:stop]}.
+Python includes the item at \c{start} and stops before \c{stop}. Omitting
+\c{start} means ``from the beginning''; omitting \c{stop} means ``through the
+end.''
 \end{SyntaxBox}
 
 \bookfigure[0.88\textwidth]{Figures/List/List_operator.pdf}

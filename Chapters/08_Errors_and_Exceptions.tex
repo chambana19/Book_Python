@@ -199,7 +199,7 @@ Add \c{as error} when the original message is useful for diagnosis.
     label={c08_exception_object},
     captionpos=b
 ]
-value_text = "4O"
+value_text = "4O"  # note: that's the letter O, not the digit zero
 
 try:
     value = float(value_text)
@@ -258,7 +258,7 @@ finally:
     print("Conversion attempt finished.")
 \end{lstlisting}
 
-Chapter 10 uses context managers to close files automatically. That is usually
+Chapter 10 uses with blocks to close files automatically. That is usually
 clearer than manual cleanup in \c{finally}.
 
 \bookfigure[0.84\textwidth]{Figures/Generated/ch08_exception_flow.pdf}
