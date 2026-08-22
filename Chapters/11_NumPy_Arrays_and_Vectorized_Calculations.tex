@@ -29,12 +29,19 @@ After completing this chapter, you should be able to:
 
 \hh{Install once and import when needed}
 
-NumPy is an external library. Install it once in the environment where you run
-Python. The command below belongs in a terminal, not inside a Python file.
+NumPy is an external library. If you are using Spyder, it is already
+included -- skip ahead to the import below. If you are using Python 3 and
+VS Code, install it once in a terminal:
 
-\begin{verbatim}
+\begin{lstlisting}[
+    language=bash,
+    style=block,
+    caption={Install NumPy from a terminal, not inside a Python file},
+    label={c11_install_numpy},
+    captionpos=b
+]
 python -m pip install numpy
-\end{verbatim}
+\end{lstlisting}
 
 Use the same Python command that runs your scripts. Replace \texttt{python}
 with \texttt{py} or \texttt{python3} if that is the working command on your
@@ -559,7 +566,7 @@ visible with \c{copy()}.
 
 \hh{Practice ladder}
 
-\hhh{Level 0 -- Read and predict}
+\hhh{Level 0 -- Read}
 
 Without running the code, predict the two printed arrays.
 

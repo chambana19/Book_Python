@@ -19,7 +19,7 @@ After completing this chapter, you should be able to:
 \begin{itemize}
     \item explain the difference between the editor, terminal, script, and REPL;
     \item verify that Python 3 is installed;
-    \item create and run a Python file in Visual Studio Code;
+    \item create and run a Python file in Spyder or Visual Studio Code;
     \item use \c{print()} to display text and calculation results; and
     \item respond to common setup errors without guessing.
 \end{itemize}
@@ -92,29 +92,112 @@ The screen does not show every internal step. Learning to program means
 learning to infer how each instruction changes program state before observing
 the resulting output.
 
-\hh{Install Python 3}
+\hh{Install your tools}
 
-Python 3 is the form of the language used in this book.
+Two paths work equally well for this book. \textbf{Spyder} bundles its own
+Python interpreter in a single download and adds a Variable Explorer pane
+that pays off once later chapters start working with arrays and tables -- it
+is the path this book assumes from here on. \textbf{VS Code} is a lighter,
+general-purpose editor that requires installing Python separately; it remains
+a fine alternative if your course uses it instead.
 
-\hhh{Windows}
+\hhh{Spyder (recommended)}
+
+Spyder bundles Python 3, so installing Spyder is the only step needed --
+there is no separate "install Python" step.
+
 \begin{enumerate}
-    \item Visit \url{https://www.python.org/downloads/}.
-    \item Download and open the current Python Install Manager.
-    \item Choose \textbf{Install}, then open a new terminal.
-    \item Enter \texttt{python}. If prompted, allow the manager to install the
-          current Python 3 release.
+    \item Visit \url{https://www.spyder-ide.org/download}.
+    \item Download the standalone installer for your operating system
+          (\texttt{Spyder-Windows-x86\_64.exe} on Windows, or the
+          \texttt{.pkg} installer for macOS).
+    \item Run the installer using the default options.
+    \item Open Spyder from the Start menu (Windows) or Applications folder
+          (macOS). The first launch can take a minute while Spyder prepares
+          its bundled environment.
 \end{enumerate}
 
-\hhh{macOS}
+\hhh{Alternative: Python 3 and VS Code}
+
+\textbf{Install Python 3.}
+\begin{itemize}
+    \item \textbf{Windows}: Visit \url{https://www.python.org/downloads/}.
+          Download and open the current Python Install Manager, choose
+          \textbf{Install}, then open a new terminal and enter
+          \texttt{python}. If prompted, allow the manager to install the
+          current Python 3 release.
+    \item \textbf{macOS}: Visit \url{https://www.python.org/downloads/}.
+          Download and run the current macOS installer, and complete it using
+          the default options. In the new \texttt{Python 3.x} folder in
+          Applications, run \texttt{Install Certificates.command}.
+\end{itemize}
+
+\textbf{Install VS Code.} Visual Studio Code, usually called VS Code, is the
+editor for this path. The editor is where you write and save Python
+instructions.
+
 \begin{enumerate}
-    \item Visit \url{https://www.python.org/downloads/}.
-    \item Download and run the current macOS installer.
-    \item Complete the installation using the default options.
-    \item In the new \texttt{Python 3.x} folder in Applications, run
-          \texttt{Install Certificates.command}.
+    \item Download VS Code from \url{https://code.visualstudio.com/}.
+    \item Install and open it.
+    \item Select the Extensions icon on the left side.
+    \item Search for \textbf{Python} and install the extension published by Microsoft.
+    \item Open the Command Palette with \texttt{Ctrl+Shift+P} on Windows or
+          \texttt{Cmd+Shift+P} on macOS.
+    \item Choose \textbf{Python: Select Interpreter}, then select Python 3.
 \end{enumerate}
 
 \hh{Verify the installation}
+
+\hhh{If you installed Spyder}
+
+Open Spyder. In the IPython console pane (on the right, with a prompt similar
+to \c{In [1]:}), enter:
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Check the bundled Python version from inside Spyder},
+    label={c01_verify_spyder},
+    captionpos=b
+]
+import sys
+print(sys.version)
+\end{lstlisting}
+
+A successful response shows a Python 3 version number. Spyder's bundled
+interpreter is ready, and there is nothing else to install for now.
+
+\begin{NoteBox}
+\label{note:spyder-add-package}
+\textbf{Adding a package later.} Spyder's standalone installer bundles NumPy,
+pandas, Matplotlib, and SciPy -- nothing extra is needed for those. A few
+later chapters use a library Spyder does not bundle (GeoPandas in
+Chapter 15 and scikit-learn in Chapter 19, for example). When that happens,
+this book names the exact package and points back to these three steps:
+\begin{enumerate}
+    \item In Spyder's IPython console, run \c{import sys; print(sys.executable)}
+          and copy the path it prints -- this is Spyder's own bundled Python,
+          separate from any other Python on your computer.
+    \item Open PowerShell and run the following, replacing the first
+          placeholder with the path you just copied and the second with the
+          package name:
+\begin{lstlisting}[
+    language=bash,
+    style=block,
+    caption={Install a package into Spyder's bundled Python, run in PowerShell},
+    label={c01_spyder_pip_install},
+    captionpos=b
+]
+& "path-from-step-1" -m pip install package-name
+\end{lstlisting}
+    \item Close and reopen Spyder, then confirm the import works.
+\end{enumerate}
+If step 2 reports a permissions error instead, add
+\c{--target "same-folder-as-step-1-but-ending-in-Lib/site-packages"} to the
+end of the same command and run it again.
+\end{NoteBox}
+
+\hhh{If you installed Python 3 and VS Code}
 
 Open a terminal and enter one of the following commands. Run the commands one
 at a time. You only need one of them to work.
@@ -145,34 +228,21 @@ Python 3.x.x
 
 These are terminal commands. Do not type them into a Python file.
 
-\hh{Install Visual Studio Code}
-
-Visual Studio Code, usually called VS Code, is the editor used in this book.
-The editor is where you write and save Python instructions.
-
-\begin{enumerate}
-    \item Download VS Code from \url{https://code.visualstudio.com/}.
-    \item Install and open it.
-    \item Select the Extensions icon on the left side.
-    \item Search for \textbf{Python} and install the extension published by Microsoft.
-    \item Open the Command Palette with \texttt{Ctrl+Shift+P} on Windows or
-          \texttt{Cmd+Shift+P} on macOS.
-    \item Choose \textbf{Python: Select Interpreter}, then select Python 3.
-\end{enumerate}
-
 \hh{Create a study folder}
 
 Create a folder named \texttt{arc500-python}. Inside it, create a folder named
 \texttt{chapter01}. Keeping each chapter in its own folder makes your files
 easier to find.
 
-In VS Code, choose \textbf{File $\rightarrow$ Open Folder} and open
-\texttt{chapter01}. The folder name should appear in the Explorer panel.
+In Spyder, choose \textbf{File $\rightarrow$ Open} and select
+\texttt{chapter01}; it becomes Spyder's working directory, shown at the top
+of the window. In VS Code, choose \textbf{File $\rightarrow$ Open Folder} and
+open \texttt{chapter01}. The folder name should appear in the Explorer panel.
 
 \hh{Understand the four working areas}
 
 \begin{itemize}
-    \item \textbf{Editor}: the area in VS Code where you write and save code.
+    \item \textbf{Editor}: the area where you write and save code.
     \item \textbf{Terminal}: a text-based area where you enter system commands.
     \item \textbf{Script}: a saved Python file whose name ends in \texttt{.py}.
     \item \textbf{REPL}: an interactive Python prompt that runs one instruction at a time.
@@ -182,9 +252,21 @@ The terminal and editor are not interchangeable. A command such as
 \texttt{python hello.py} belongs in the terminal. An instruction such as
 \c{print("Hello")} belongs in a Python file or the REPL.
 
+In Spyder, the Editor pane on the left holds your scripts, and the IPython
+console pane on the right does double duty as both the terminal and the
+REPL -- output from a running script, and anything you type directly, appear
+in the same place. A third pane, the Variable Explorer
+(\textbf{View $\rightarrow$ Panes $\rightarrow$ Variable explorer} if it is
+not already open), lists every value currently defined along with its type;
+later chapters lean on it heavily once you are working with lists, arrays,
+and tables. In VS Code, the editor and terminal are separate panels that you
+open independently.
+
 \hh{Write and run your first script}
 
-In the VS Code Explorer, create a file named \texttt{hello.py}. Type and save:
+Create a file named \texttt{hello.py} in your \texttt{chapter01} folder (in
+Spyder: \textbf{File $\rightarrow$ New file}; in the VS Code Explorer: the
+new-file icon). Type and save:
 
 \begin{lstlisting}[
     language=python,
@@ -196,6 +278,14 @@ In the VS Code Explorer, create a file named \texttt{hello.py}. Type and save:
 print("Hello, ARC500!")
 print("This is my first Python script.")
 \end{lstlisting}
+
+\hhh{Run it in Spyder}
+
+Press \textbf{F5}, or click the green \textbf{Run file} arrow above the
+editor. The output appears directly in the IPython console pane; Spyder does
+not need a separate terminal window for this.
+
+\hhh{Run it in VS Code}
 
 Open the VS Code terminal with \textbf{Terminal $\rightarrow$ New Terminal}.
 Run the script with the command that works on your computer:
@@ -320,21 +410,23 @@ print("Hello")
 \hh{Common mistakes}
 
 \begin{itemize}
-    \item \textbf{Command not found}: open a new terminal and try \texttt{py} or
-          \texttt{python3}. On Windows, also check that the Python app execution
-          aliases are enabled.
-    \item \textbf{The file does not run}: confirm that the terminal is open in
-          the folder containing the file.
+    \item \textbf{Command not found} (VS Code path): open a new terminal and
+          try \texttt{py} or \texttt{python3}. On Windows, also check that the
+          Python app execution aliases are enabled.
+    \item \textbf{The file does not run} (VS Code path): confirm that the
+          terminal is open in the folder containing the file.
     \item \textbf{Old output appears}: save the file before running it.
-    \item \textbf{The wrong version appears}: use
-          \textbf{Python: Select Interpreter} in VS Code.
+    \item \textbf{The wrong version appears}: in VS Code, use
+          \textbf{Python: Select Interpreter}; in Spyder, check
+          \textbf{Tools $\rightarrow$ Preferences $\rightarrow$ Python
+          interpreter}.
     \item \textbf{Nothing appears}: confirm that the file contains \c{print()}
           and that you ran the correct filename.
 \end{itemize}
 
 \hh{Practice ladder}
 
-\hhh{Level 0 -- Read and predict}
+\hhh{Level 0 -- Read}
 
 Write down the expected output before running this code:
 

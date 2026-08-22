@@ -170,6 +170,11 @@ Validation & How will we check feasibility and nearby alternatives? \\
 \end{tabular}
 \end{center}
 
+This table describes the model's structure. Figure~\ref{fig:ch18-model}
+describes the workflow that uses it -- formulate the model above, then choose
+a search algorithm and independently verify the result it returns; "search
+algorithm" there is how the model gets solved, not a sixth structural piece.
+
 An objective is a model of priorities. Changing penalty weights can change the
 optimum even when the solver is functioning perfectly.
 
@@ -185,11 +190,19 @@ a numerical optimum into a recommendation.
 \hh{Install SciPy once}
 
 SciPy provides numerical optimization algorithms with a consistent result
-interface.
+interface. If you are using Spyder, it is already included -- skip ahead to
+the import below. If you are using Python 3 and VS Code, install it once in
+a terminal:
 
-\begin{verbatim}
+\begin{lstlisting}[
+    language=bash,
+    style=block,
+    caption={Install SciPy from a terminal, not inside a Python file},
+    label={c18_install_scipy},
+    captionpos=b
+]
 python -m pip install scipy
-\end{verbatim}
+\end{lstlisting}
 
 Import the specific function required by the problem.
 
@@ -552,7 +565,7 @@ and scores, and returns both the decision and evidence used to rank it.
 \hh{Chapter checkpoint}
 
 \begin{enumerate}
-    \item What are the five main components of an optimization workflow?
+    \item What are the five components shown in Figure~\ref{fig:ch18-model}?
     \item What distinguishes a decision variable from a parameter?
     \item What distinguishes a bound from a general constraint?
     \item Why must the objective return one scalar?

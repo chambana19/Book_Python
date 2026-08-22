@@ -60,9 +60,11 @@ needing to repeat its implementation. A useful function contract identifies:
           a supplied collection.
 \end{itemize}
 
-For an area function, a reasonable contract is: accept two nonnegative numeric
+For an area function, a reasonable contract is: accept two positive numeric
 dimensions and return their product as an area without printing or changing
-the inputs. The formula is only one part of the design; the contract explains
+the inputs. A width or length of zero describes no room at all, so the
+contract excludes it rather than allowing a technically computable but
+meaningless zero-area result. The formula is only one part of the design; the contract explains
 when that formula can be trusted and how another part of the program can use
 it.
 
@@ -387,7 +389,7 @@ Use \c{help(celsius_to_fahrenheit)} in the REPL to display the docstring.
 
 \hh{Practice ladder}
 
-\hhh{Level 0 -- Read and predict}
+\hhh{Level 0 -- Read}
 
 \begin{lstlisting}[
     language=python,

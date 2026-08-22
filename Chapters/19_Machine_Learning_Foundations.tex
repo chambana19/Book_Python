@@ -74,11 +74,20 @@ feature for an earlier prediction.
 
 \hh{Install and import scikit-learn}
 
-Install scikit-learn in the environment that runs the script.
+scikit-learn is not included with Spyder's standalone installer. If you are
+using Spyder, follow \booklink{note:spyder-add-package}{the three steps from
+Chapter 1} with \c{scikit-learn} as the package name. If you are using
+Python 3 and VS Code, install it in a terminal:
 
-\begin{verbatim}
+\begin{lstlisting}[
+    language=bash,
+    style=block,
+    caption={Install scikit-learn from a terminal},
+    label={c19_install_sklearn},
+    captionpos=b
+]
 python -m pip install scikit-learn
-\end{verbatim}
+\end{lstlisting}
 
 Import estimators and evaluation tools from their focused modules.
 
@@ -425,6 +434,8 @@ The estimator interface remains consistent across different algorithms.
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 # A binary label derived from the same rows: is energy use above the median?
 high_use = (y > y.median()).astype(int)
@@ -434,24 +445,32 @@ high_use_train, high_use_test = train_test_split(
     random_state=42,
 )
 
-# Classification: learn labeled categories.
-classifier = LogisticRegression(max_iter=1000)
+# Classification: learn labeled categories. floor_area_m2 spans hundreds
+# while glazing_ratio spans less than one, so scale first, inside a Pipeline
+# fitted only on the training rows.
+classifier = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", LogisticRegression()),
+])
 classifier.fit(X_train, high_use_train)
 predicted_labels = classifier.predict(X_test)
 print(confusion_matrix(high_use_test, predicted_labels))
 
-# Clustering: discover feature-space groups without target labels.
+# Clustering: discover feature-space groups without target labels. KMeans
+# measures distance directly, so the same scale mismatch would otherwise let
+# floor_area_m2 alone decide the groups.
+X_scaled = StandardScaler().fit_transform(X)
 clusterer = KMeans(n_clusters=3, random_state=42, n_init=10)
-cluster_labels = clusterer.fit_predict(X)
+cluster_labels = clusterer.fit_predict(X_scaled)
 print("cluster sizes:", np.bincount(cluster_labels))
 \end{lstlisting}
 
 Expected output:
 
 \begin{lstlisting}[language=text, style=block, caption={The same estimator interface, three different tasks}, label={c19_other_tasks_output}, captionpos=b]
-[[27  3]
- [ 2 28]]
-cluster sizes: [69 85 86]
+[[28  2]
+ [ 1 29]]
+cluster sizes: [79 70 91]
 \end{lstlisting}
 
 Reusing \c{random_state=42} and the same row count makes this split select
@@ -459,6 +478,14 @@ exactly the same rows as the earlier one, so \c{high_use_train} lines up with
 \c{X_train}. Deriving a label by thresholding the target is a teaching
 convenience, not a modeling recommendation: it discards information and invents
 a boundary the data never had.
+
+Scaling here is not optional. Without it, \c{LogisticRegression} needs far
+more iterations to converge because the solver takes tiny, slow steps in the
+narrow \c{glazing_ratio} direction and huge ones in the wide
+\c{floor_area_m2} direction, and \c{KMeans} would group rows almost entirely
+by \c{floor_area_m2}, since its raw numeric range dwarfs every other column.
+Scaling both estimators removes that distortion, and with it the earlier
+convergence warning that would otherwise call for raising \c{max_iter}.
 
 Classification evaluation must examine which classes are confused, not only
 overall accuracy. Clustering labels are arbitrary identifiers; a domain expert
@@ -504,7 +531,7 @@ population.
 
 \hh{Practice ladder}
 
-\hhh{Level 0 -- Identify}
+\hhh{Level 0 -- Read}
 
 In the building example, identify the samples, four features, target, estimator,
 baseline, and two evaluation metrics.

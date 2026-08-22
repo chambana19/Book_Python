@@ -30,12 +30,19 @@ After completing this chapter, you should be able to:
 
 \hh{Install once and import when needed}
 
-pandas is an external library. Install it once in the active Python
-environment by running this command in a terminal.
+pandas is an external library. If you are using Spyder, it is already
+included -- skip ahead to the import below. If you are using Python 3 and
+VS Code, install it once in a terminal:
 
-\begin{verbatim}
+\begin{lstlisting}[
+    language=bash,
+    style=block,
+    caption={Install pandas from a terminal, not inside a Python file},
+    label={c12_install_pandas},
+    captionpos=b
+]
 python -m pip install pandas
-\end{verbatim}
+\end{lstlisting}
 
 Use the same Python command that runs your scripts. Replace \texttt{python}
 with \texttt{py} or \texttt{python3} if that is the working command on your
@@ -587,7 +594,7 @@ sequence you can debug and explain.
 
 \hh{Practice ladder}
 
-\hhh{Level 0 -- Read and predict}
+\hhh{Level 0 -- Read}
 
 Predict the type names and the number of rows in \c{selected}.
 

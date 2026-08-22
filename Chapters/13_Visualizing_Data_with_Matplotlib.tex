@@ -30,12 +30,19 @@ After completing this chapter, you should be able to:
 
 \hh{Install once and import when needed}
 
-Matplotlib is an external library. Install it once in the active Python
-environment by running this command in a terminal.
+Matplotlib is an external library. If you are using Spyder, it is already
+included -- skip ahead to the import below. If you are using Python 3 and
+VS Code, install it once in a terminal:
 
-\begin{verbatim}
+\begin{lstlisting}[
+    language=bash,
+    style=block,
+    caption={Install Matplotlib from a terminal, not inside a Python file},
+    label={c13_install_matplotlib},
+    captionpos=b
+]
 python -m pip install matplotlib
-\end{verbatim}
+\end{lstlisting}
 
 Use the same Python command that runs your scripts. Replace \texttt{python}
 with \texttt{py} or \texttt{python3} if that is the working command on your
@@ -215,6 +222,11 @@ composition, and \c{ax.contourf()} for filled contours. A 3D Axes is created
 with \c{fig.add_subplot(..., projection="3d")}; its
 \c{plot_surface()} method receives two coordinate grids and one result grid.
 \end{SyntaxBox}
+
+These six are independent previews of techniques this chapter does not build
+toward in depth -- later chapters and the building-performance dashboard
+ahead reuse the same Figure/Axes pattern on different questions and data, not
+these exact six panels.
 
 \hh{Use a line plot for ordered change}
 
@@ -889,7 +901,7 @@ This order is short enough to use every time.
 
 \hh{Practice ladder}
 
-\hhh{Level 0 -- Read and predict}
+\hhh{Level 0 -- Read}
 
 Which plot type is produced? Which variable appears on each axis?
 

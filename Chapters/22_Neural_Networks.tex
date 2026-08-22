@@ -476,8 +476,12 @@ stopped.
 \hh{Scaling is not advisable, it is mandatory}
 
 In \booklink{ch:21}{Chapter 21} scaling improved logistic regression's
-conditioning. For a network it decides whether training works at all. Compare the
-same estimator with and without a \c{StandardScaler} in front of it:
+conditioning. For a network it decides whether training works at all. The rest
+of this chapter uses scikit-learn's \c{MLPClassifier} rather than the
+hand-written network above; it is a different implementation with its own
+defaults, so its numbers are close to but not identical with the 0.903 already
+seen, and the two should not be read as a discrepancy. Compare the same
+estimator with and without a \c{StandardScaler} in front of it:
 
 \begin{center}
 \begin{tabular}{lll}
@@ -648,12 +652,13 @@ spread of 0.04 is not a result, and an automatic \c{max()} over candidate scores
 will happily report it as one.
 
 That tie is the honest headline of this chapter. The forest reached its score
-with three hyperparameters and no scaling requirement; the network needed
-standardization, a width, a regularization strength, an iteration cap, and a
-seed, and it repays none of that effort here. On the test set the network does
-find more complaints -- 34 of 54 against the forest's 31, because its probability
-distribution sits differently relative to the 0.50 threshold -- but with 54
-positive rows that difference is well inside sampling noise.
+with \c{n_estimators} as its only real choice and no scaling requirement; the
+network needed standardization, a width, a regularization strength, an
+iteration cap, and a seed, and it repays none of that effort here. On the test
+set the network does find more complaints -- 34 of 54 against the forest's 32,
+because its probability distribution sits differently relative to the 0.50
+threshold -- but with 54 positive rows that difference is well inside sampling
+noise.
 
 \begin{ExplainBox}{Neural networks earn their keep on structure, not on tables}
 Networks dominate where the input has structure a human would otherwise have to
@@ -761,7 +766,7 @@ the protected test set more important.
 
 \hh{Practice ladder}
 
-\hhh{Level 0 -- Identify}
+\hhh{Level 0 -- Read}
 
 In Listing~\ref{c22_forward}, identify the shape of every array for 675 training
 rows, 6 features, and 8 hidden neurons, and count the parameters.

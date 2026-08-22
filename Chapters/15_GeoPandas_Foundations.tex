@@ -59,12 +59,21 @@ and location may be wrong.
 
 \hh{Install once and import when needed}
 
-Install the mapping libraries in the same Python environment used to run your
-scripts.
+GeoPandas and geodatasets are not included with Spyder's standalone
+installer. If you are using Spyder, follow
+\booklink{note:spyder-add-package}{the three steps from Chapter 1} once for
+each package name: \c{geopandas}, then \c{geodatasets}. If you are using
+Python 3 and VS Code, install the mapping libraries in a terminal:
 
-\begin{verbatim}
+\begin{lstlisting}[
+    language=bash,
+    style=block,
+    caption={Install the mapping libraries from a terminal},
+    label={c15_install_geopandas},
+    captionpos=b
+]
 python -m pip install geopandas geodatasets matplotlib
-\end{verbatim}
+\end{lstlisting}
 
 The conventional imports keep the longer library names readable.
 
