@@ -111,7 +111,7 @@ the input space that no straight boundary can separate.
 \begin{tabular}{lll}
 \textbf{Activation} & \textbf{Output range} & \textbf{Practical note} \\
 Sigmoid $\sigma(z)$ & $(0, 1)$ & Maximum slope 0.25; use it for the output of a binary classifier \\
-Tanh $\tanh(z)$ & $(-1, 1)$ & Zero-centred, maximum slope 1; a reasonable hidden default \\
+Tanh $\tanh(z)$ & $(-1, 1)$ & Zero-centered, maximum slope 1; a reasonable hidden default \\
 ReLU $\max(0, z)$ & $[0, \infty)$ & Slope 1 or 0; standard in deep networks, and cheap \\
 \end{tabular}
 \end{center}
@@ -120,7 +120,7 @@ The right panel of Figure~\ref{fig:ch22-activations} matters more than the left.
 Training multiplies these slopes together layer by layer, so an activation whose
 slope is near zero passes almost no signal back to the earlier layers. That is
 the \textbf{vanishing gradient} problem, and it is why sigmoid, whose slope never
-exceeds 0.25, fell out of favour for hidden layers. This chapter uses tanh in the
+exceeds 0.25, fell out of favor for hidden layers. This chapter uses tanh in the
 hidden layer and sigmoid only at the output, where a probability is required.
 
 \hh{A layer is a matrix multiplication, so watch the shapes}
@@ -311,7 +311,8 @@ along that path, and backpropagation is the bookkeeping that computes them once
 each, from the output backward.
 
 For this network the algebra collapses neatly. Writing $\delta_2$ for the
-derivative of the loss with respect to the output's weighted sum:
+derivative of the loss with respect to the output's weighted sum, and $\odot$
+for elementwise multiplication:
 
 \begin{align*}
 \delta_2 &= \frac{\hat{y} - y}{n}, \\
@@ -594,8 +595,10 @@ rises with capacity forever, and only the validation score identifies the useful
 setting. Two neurons underfit; 128 neurons reach 0.996 on the training folds and
 0.802 on held-out data.
 
-The curve is not perfectly smooth -- 8 neurons validates slightly below 4 and 16.
-With a fold-to-fold standard deviation near 0.04, that dip is inside the noise.
+A wider sweep of widths than the table above was run to produce this
+comparison, and the curve is not perfectly smooth -- 8 neurons validates
+slightly below 4 and 16. With a fold-to-fold standard deviation near 0.04,
+that dip is inside the noise.
 Each width is also a separate optimization run with its own initialization, so
 some of the wobble is the optimizer rather than the architecture. Do not read a
 0.03 difference as a finding when the spread is 0.04.
@@ -797,11 +800,21 @@ seeds and state whether the extra layer is justified on this dataset.
 probabilities are (675,). The parameter count is
 $6 \times 8 + 8 + 8 \times 1 + 1 = 65$.
 
+\textbf{Level 1:} Retraining with \c{hidden_count=4} finishes at training loss
+0.3583 and test ROC-AUC 0.914; \c{hidden_count=16} finishes at training loss
+0.3392 and test ROC-AUC 0.904, against 0.3554 and 0.903 for the
+\c{hidden_count=8} network trained earlier. Training loss falls slightly as the
+hidden layer widens, but all three test ROC-AUC values (0.903 to 0.914) sit
+inside the 0.895-to-0.916 range produced earlier by refitting the eight-neuron
+network on seeds 1 through 8. None of these differences exceeds what changing
+the seed alone would produce, so this comparison is not evidence that width
+mattered on this dataset.
+
 \textbf{Level 2:} The output must be a probability in $(0, 1)$, and cross-entropy
 takes the logarithm of that output and of one minus it. Tanh returns values in
 $(-1, 1)$, so negative outputs would make both logarithms undefined. In the
 hidden layer, sigmoid's slope never exceeds 0.25, so gradients shrink by at least
-a factor of four per layer on the way back; tanh is zero-centred with a maximum
+a factor of four per layer on the way back; tanh is zero-centered with a maximum
 slope of 1 and passes signal back far better.
 
 \textbf{Level 3}
@@ -849,6 +862,85 @@ The parameters are copied when the best validation loss is seen, because trainin
 continues past that point and would otherwise overwrite them. The held-out set
 used for stopping must not be the protected test set; take it from the training
 data.
+
+\textbf{Level 4}
+
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Extending the hand-written network to two hidden layers},
+    label={c22_solution_two_layer},
+    captionpos=b
+]
+import numpy as np
+
+
+def initialize_two_layer(input_count, hidden1_count, hidden2_count, seed=0):
+    """Small random weights, zero biases, for a two-hidden-layer network."""
+    rng = np.random.default_rng(seed)
+    return {
+        "W1": rng.normal(0, np.sqrt(1 / input_count), (input_count, hidden1_count)),
+        "b1": np.zeros(hidden1_count),
+        "W2": rng.normal(0, np.sqrt(1 / hidden1_count), (hidden1_count, hidden2_count)),
+        "b2": np.zeros(hidden2_count),
+        "W3": rng.normal(0, np.sqrt(1 / hidden2_count), (hidden2_count, 1)),
+        "b3": np.zeros(1),
+    }
+
+
+def forward_two_layer(parameters, X):
+    """Return both hidden activations and the output probabilities."""
+    hidden1_output = np.tanh(X @ parameters["W1"] + parameters["b1"])
+    hidden2_output = np.tanh(hidden1_output @ parameters["W2"] + parameters["b2"])
+    output_input = hidden2_output @ parameters["W3"] + parameters["b3"]
+    return hidden1_output, hidden2_output, sigmoid(output_input).ravel()
+
+
+def backward_two_layer(parameters, X, targets, hidden1_output, hidden2_output,
+                       probabilities):
+    """One extra chain-rule step beyond the one-hidden-layer version."""
+    sample_count = X.shape[0]
+
+    output_delta = ((probabilities - targets) / sample_count).reshape(-1, 1)
+    grad_W3 = hidden2_output.T @ output_delta
+    grad_b3 = output_delta.sum(axis=0)
+
+    hidden2_delta = (output_delta @ parameters["W3"].T) * (1 - hidden2_output ** 2)
+    grad_W2 = hidden1_output.T @ hidden2_delta
+    grad_b2 = hidden2_delta.sum(axis=0)
+
+    hidden1_delta = (hidden2_delta @ parameters["W2"].T) * (1 - hidden1_output ** 2)
+    grad_W1 = X.T @ hidden1_delta
+    grad_b1 = hidden1_delta.sum(axis=0)
+
+    return {
+        "W1": grad_W1, "b1": grad_b1,
+        "W2": grad_W2, "b2": grad_b2,
+        "W3": grad_W3, "b3": grad_b3,
+    }
+\end{lstlisting}
+
+Each function repeats the one-hidden-layer pattern one layer deeper:
+\c{forward_two_layer} chains a second \c{tanh}, and \c{backward_two_layer}
+pushes \c{hidden2_delta} back through \c{W2} to obtain \c{hidden1_delta}, exactly
+the way \c{hidden_delta} was obtained from \c{output_delta} through \c{W2}
+before. Running the gradient check from Listing~\ref{c22_gradcheck} against
+these two functions, on an \c{initialize_two_layer(6, 8, 8, seed=0)} network,
+gives a largest gap near \c{9e-11} -- well inside the agreement threshold, so
+the extended derivation is trustworthy before any training happens.
+
+Training both architectures for seeds 0 through 4, with \c{hidden_count=8} for
+the one-layer network and \c{hidden1_count=hidden2_count=8} for the two-layer
+network, gives test ROC-AUC of 0.903, 0.898, 0.912, 0.903, and 0.908 for one
+layer, against 0.882, 0.886, 0.898, 0.883, and 0.892 for two layers -- lower on
+every one of the five seeds, averaging 0.888 against 0.905. Because the
+comparison is paired by seed, that consistent direction is more convincing than
+the overlap between the two ranges alone would suggest. The two-layer network
+also reaches a lower training loss each time, the signature of extra capacity
+fitting 675 rows more closely without improving generalization. The extra layer
+is not justified on this dataset: the comfort-complaint boundary needs one
+interaction and one absolute value, and a single hidden layer of tanh units
+already represents both.
 
 \hh{Chapter checkpoint}
 

@@ -221,7 +221,7 @@ equally bad, so no single symmetric score can rank models correctly on its own.
 \textbf{Metric} & \textbf{Question it answers} & \textbf{Formula} \\
 Precision & Of the rooms we flagged, how many were right? & $TP / (TP + FP)$ \\
 Recall & Of the rooms that complained, how many did we find? & $TP / (TP + FN)$ \\
-F1 & One number balancing the two & harmonic mean \\
+F1 & One number balancing the two & $2 \cdot \frac{P \times R}{P+R}$ \\
 \end{tabular}
 \end{center}
 
@@ -468,8 +468,8 @@ A single deep tree memorizes its training rows. A random forest fits many trees,
 each on a bootstrap sample of the rows and choosing among a random subset of
 features at each split, then averages their predicted probabilities. The
 individual trees still overfit, but their errors are partly independent, so the
-average is more stable. This is why the forest scored 0.836 where the tuned
-single tree scored 0.741.
+average is more stable. This is why the forest scored 0.836 where the
+depth-5 tree scored 0.741.
 
 The cost is interpretability: you can read one depth-3 tree, but not 300 of them.
 The permutation-importance measurement later in this chapter recovers part of
@@ -838,6 +838,17 @@ balance is 23.9 percent positive; the baseline is the majority-class rule at
 0.760 accuracy; the candidates are the logistic pipeline, a depth-5 decision
 tree, and a random forest; both the cross-validated ROC-AUC and the single test
 ROC-AUC must be reported.
+
+\textbf{Level 1:} With \c{scoring="accuracy"} the same five folds give logistic
+pipeline 0.797 +/- 0.021, decision tree (depth 5) 0.781 +/- 0.014, and random
+forest 0.825 +/- 0.026 -- the same ranking as ROC-AUC, but compressed into a
+narrow band just above the 0.76 majority-class baseline. Accuracy is measured
+at a fixed 0.5 threshold and counts every correct "no complaint" the same as a
+correct "complaint," so on this 76/24 split it is dominated by the majority
+class and barely separates a genuinely better ranking model from one that
+mostly agrees with the baseline. ROC-AUC is the comparison to trust for this
+problem: it summarizes ranking quality across every threshold instead of one,
+which is exactly why the chapter chose it in the first place.
 
 \textbf{Level 2:} First, the test set contains only 54 positive rows, so the
 score has large sampling variation and this split may simply be easier than the

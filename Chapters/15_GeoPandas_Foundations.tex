@@ -124,7 +124,7 @@ print(points.crs)
     \item \c{geometry=...} chooses that result as the active geometry column.
     \item \c{crs="EPSG:4326"} declares that the source numbers are geographic
           longitude and latitude coordinates.
-    \item The final assignment preserves attributes and geometry in \c{points}.
+    \item The assignment stores the result -- attributes and geometry together -- in \c{points}.
 \end{enumerate}
 The nested form is compact, but each argument answers a separate question:
 which table, which geometry, and which CRS?
@@ -338,7 +338,7 @@ plt.close(fig)
 
 \bookfigure[0.86\textwidth]{Figures/Generated/c15_site_buffers.pdf}
 {Rendered output from Listing~\ref{c15_site_service_application}. The projected axes make the 400-meter radius meaningful.}
-{fig:c14-site-buffers}
+{fig:ch15-site-buffers}
 
 \begin{SyntaxBox}{Trace the application as a data pipeline}
 \begin{enumerate}
@@ -364,6 +364,9 @@ depends on streets, barriers, entrances, and the meaning assigned to each site.
 
 A spatial predicate returns \c{True} or \c{False} for a geometric relationship.
 For example, a point can be within a polygon, and two polygons can intersect.
+Continuing with the \c{points} and \c{service_areas} GeoDataFrames from the
+applied example above (both now in the projected CRS, with
+\c{service_areas} carrying a \c{"name"} column):
 
 \begin{lstlisting}[
     language=python,

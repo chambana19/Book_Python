@@ -12,7 +12,8 @@ to the population and conditions represented by the data.
 
 \begin{NoteBox}
 \textbf{Prerequisites.} You should understand functions, NumPy arrays, pandas
-DataFrames, plots, and algorithm contracts. This chapter uses reproducible
+DataFrames, plots, and algorithm contracts from \booklink{ch:17}{Chapter 17}.
+This chapter uses reproducible
 synthetic building data so the computational workflow can be studied without
 privacy or licensing concerns.
 \end{NoteBox}
@@ -110,8 +111,8 @@ independent.
 {fig:ch19-workflow}
 
 The features and target used from here on are the synthetic building data
-defined in Section~\ref{sec:c19-application}; the generator is repeated in
-Listing~\ref{c19_application} so the chapter runs top to bottom.
+defined in Listing~\ref{c19_dataset} below; the generator is repeated in
+Section~\ref{sec:c19-application} so that section runs independently.
 
 \begin{lstlisting}[
     language=python,
@@ -132,6 +133,7 @@ def make_building_data(seed=42, sample_count=240):
         "occupants": rng.integers(2, 45, sample_count),
         "outdoor_temp_c": rng.uniform(-5, 31, sample_count),
     })
+    # mean 0, standard deviation 10 -- random noise added to each value
     noise = rng.normal(0, 10, sample_count)
     y = (
         28
@@ -285,15 +287,16 @@ or fairness.
 
 A residual is actual minus predicted. A useful residual plot has points
 scattered around zero without a strong curve, funnel, or separated group. A
-pattern can indicate nonlinearity, changing variance, omitted features, data
-errors, or distinct populations.
+pattern can indicate nonlinearity, changing variance (the residuals' spread
+widening or narrowing across the range), omitted features, data errors, or
+distinct populations.
 
 \bookfigure[0.96\textwidth]{Figures/Generated/ch19_regression_diagnostics.pdf}
 {On protected test data, predicted values follow the equality line and residuals are centered near zero; the displayed metrics summarize but do not replace visual diagnosis.}
 {fig:ch19-diagnostics}
 
 The synthetic example performs well because its target was deliberately
-generated from a mostly linear relationship. Real building data contain sensor
+generated from a linear relationship with added random noise. Real building data contain sensor
 errors, schedules, weather dependence, interactions, and operational changes.
 
 \hh{Applied example: building-energy regression}
@@ -326,6 +329,7 @@ def make_building_data(seed=42, sample_count=240):
         "occupants": rng.integers(2, 45, sample_count),
         "outdoor_temp_c": rng.uniform(-5, 31, sample_count),
     })
+    # mean 0, standard deviation 10 -- random noise added to each value
     noise = rng.normal(0, 10, sample_count)
     y = (
         28

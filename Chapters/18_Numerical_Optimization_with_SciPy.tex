@@ -25,7 +25,7 @@ After completing this chapter, you should be able to:
     \item use \c{scipy.optimize.minimize_scalar()} with bounded search;
     \item inspect the complete optimization result rather than only \c{result.x};
     \item verify feasibility and compare nearby candidate solutions;
-    \item explain local minima, model sensitivity, and discretization error; and
+    \item explain local minima, model sensitivity, and the resolution limits of a grid search; and
     \item separate a computational optimum from a real-world recommendation.
 \end{itemize}
 \end{tcolorbox}
@@ -96,10 +96,10 @@ as the objective that produced it.
 An objective function must accept one candidate and return one number, never a
 list, array, or dictionary of separate scores. If several consequences matter
 -- energy, daylight, glare -- they must be combined into a single value before
-the function returns, typically by adding weighted or penalized terms. Chapter
-20 leans on the same requirement from the other direction: a cross-validation
-score reduces many individual predictions to the one comparable number a
-model comparison needs.
+the function returns, typically by adding weighted or penalized terms.
+\booklink{ch:21}{Chapter 21} leans on the same requirement from the other
+direction: a cross-validation score reduces many individual predictions to
+the one comparable number a model comparison needs.
 \end{ExplainBox}
 
 \hh{Bounds and constraints}
@@ -444,12 +444,16 @@ result_2d = minimize(
     bounds=[(0.10, 0.70), (0.00, 1.20)],
     method="L-BFGS-B",
 )
+print(result_2d.x, result_2d.fun, result_2d.success)
 \end{lstlisting}
 
 \c{x0} is the initial candidate vector. The objective unpacks that vector into
-named decisions and still returns one scalar. Multivariable problems may have
-several local minima, stronger interactions, and greater sensitivity to initial
-conditions; visualize slices and try justified starting points.
+named decisions and still returns one scalar. The \c{"L-BFGS-B"} method uses
+gradient information, which SciPy estimates automatically here;
+\booklink{ch:20}{Chapter 20} opens up what a gradient is and how such solvers
+use it. Multivariable problems may have several local minima, stronger
+interactions, and greater sensitivity to initial conditions; visualize slices
+and try justified starting points.
 
 \hh{Understand local minima and model sensitivity}
 

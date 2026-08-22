@@ -48,6 +48,10 @@
 % HEADER AND FOOTER: -----------------------------------------------------------
 \setlength{\headsep}{5mm}%
 \pagestyle{fancy}%
+% Clear fancyhdr's inherited center folio before defining the book furniture.
+% Without this reset, pages show both a centered number and a second verbose
+% "Page n of N" label at the right edge.
+\fancyhf{}%
 \renewcommand{\headrulewidth}{0pt}%
 \renewcommand{\footrulewidth}{0.4pt}%
 \renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}%
@@ -60,11 +64,24 @@
     % longest chapter titles (e.g. Chapter 20) room against the left tag.
     \footnotesize\scshape\color{darkgray} \leftmark%
 }
+% A restrained mirrored footer follows print-textbook convention: the folio
+% sits at the outer edge and the Contents link at the inner edge. The single
+% thin rule is the only decorative line on the page.
 \fancyfoot[L]{%
-    \footnotesize\color{darkgray}\hyperref[book:toc]{Contents}%
+    \footnotesize\color{darkgray}%
+    \ifodd\value{page}%
+        \hyperref[book:toc]{Contents}%
+    \else
+        \thepage%
+    \fi
 }
 \fancyfoot[R]{%
-    \footnotesize\color{darkgray} Page \thepage\ of \pageref{LastPage}% <<< keep \pageref
+    \footnotesize\color{darkgray}%
+    \ifodd\value{page}%
+        \thepage%
+    \else
+        \hyperref[book:toc]{Contents}%
+    \fi
 }
 
 % HEADINGS: --------------------------------------------------------------------

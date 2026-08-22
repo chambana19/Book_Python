@@ -264,8 +264,8 @@ print("Mask:", large_mask)
 print("Matching areas:", room_areas_m2[large_mask])
 \end{lstlisting}
 
-Parentheses keep combined conditions readable. Use \c{\&} for element-wise
-and, \c{|} for element-wise or, and \c{\~} for element-wise not.
+Parentheses keep combined conditions readable. Use \c{&} for element-wise
+and, \c{|} for element-wise or, and \c{~} for element-wise not.
 
 \begin{lstlisting}[
     language=python,
@@ -495,7 +495,7 @@ form a \c{3} by \c{4} array, but not a \c{5} by \c{3} array.
 
 \hh{Know when a slice shares data}
 
-Basic NumPy slices usually return a \emph{view}. A view and the original array
+Basic NumPy slices always return a \emph{view}. A view and the original array
 share underlying data. This differs from a list slice, which creates a new
 list.
 
@@ -550,7 +550,7 @@ visible with \c{copy()}.
     \item \textbf{Mixing incompatible shapes}: inspect \c{shape} before
     combining arrays.
     \item \textbf{Using \c{and} or \c{or} with masks}: use parenthesized
-    comparisons joined by \c{\&} or \c{|}.
+    comparisons joined by \c{&} or \c{|}.
     \item \textbf{Confusing axes}: connect the output length to the rows or
     columns that remain.
     \item \textbf{Changing a view accidentally}: call \c{copy()} before
@@ -606,10 +606,16 @@ of each row, and the maximum value in the whole array.
 The array below contains four widths and four lengths. Calculate every area,
 select areas of at least \c{20.0} square meters, and print their mean.
 
-\begin{verbatim}
+\begin{lstlisting}[
+    language=python,
+    style=block,
+    caption={Starter arrays for Level 3},
+    label={c11_practice_level3},
+    captionpos=b
+]
 widths_m = np.array([3.0, 4.5, 5.0, 2.5])
 lengths_m = np.array([6.0, 5.0, 4.5, 7.0])
-\end{verbatim}
+\end{lstlisting}
 
 \textbf{Hints}
 \begin{itemize}
